@@ -25,7 +25,7 @@
 //             <FaFacebook className='upload-icon1'data-testid="facebook-icon"/>
 
 //             </div>
-            
+
 //           </div>
 //           <div className='every'>
 //             <h5>Company</h5>
@@ -92,7 +92,7 @@
 //                   Subscribe
 //                 </button>
 //               </li>
-    
+
 //             </ul>
 //           </div>
 //           {/* <div className="col-md-4 mb-4 mb-md-0">
@@ -135,7 +135,7 @@ const Footer = () => {
             <a href="#" className="navbar-brand">
               <img src={logo} alt="Company Logo" className="img-fluid" />
             </a>
-            <p className="text-muted" style={{marginTop:"6px"}}>
+            <p className="text-muted" style={{ marginTop: "6px" }}>
               AI-Powered Solutions for the Education industry
             </p>
             <div className="social-icons">

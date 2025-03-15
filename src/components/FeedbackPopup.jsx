@@ -28,24 +28,24 @@ const FeedbackPopup = ({ onClose }) => {
   return (
     <div className="feedback-popup">
       <div className="emoji-container">
-      <FontAwesomeIcon
-  icon={faFrown}
-  className={`emoji ${selectedEmoji === 'bad' && 'selected'}`}
-  onClick={() => handleEmojiClick('bad')}
-  data-testid="bad-emoji" // Add this line
-/>
-<FontAwesomeIcon
-  icon={faMeh}
-  className={`emoji ${selectedEmoji === 'neutral' && 'selected'}`}
-  onClick={() => handleEmojiClick('neutral')}
-  data-testid="neutral-emoji" // Add this line
-/>
-<FontAwesomeIcon
-  icon={faSmile}
-  className={`emoji ${selectedEmoji === 'good' && 'selected'}`}
-  onClick={() => handleEmojiClick('good')}
-  data-testid="good-emoji" // Add this line
-/>
+        <FontAwesomeIcon
+          icon={faFrown}
+          className={`emoji ${selectedEmoji === 'bad' && 'selected'}`}
+          onClick={() => handleEmojiClick('bad')}
+          data-testid="bad-emoji" // Add this line
+        />
+        <FontAwesomeIcon
+          icon={faMeh}
+          className={`emoji ${selectedEmoji === 'neutral' && 'selected'}`}
+          onClick={() => handleEmojiClick('neutral')}
+          data-testid="neutral-emoji" // Add this line
+        />
+        <FontAwesomeIcon
+          icon={faSmile}
+          className={`emoji ${selectedEmoji === 'good' && 'selected'}`}
+          onClick={() => handleEmojiClick('good')}
+          data-testid="good-emoji" // Add this line
+        />
 
       </div>
       <textarea
