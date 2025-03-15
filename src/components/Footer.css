@@ -1,0 +1,160 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
+
+.footer {
+  background-color: #fff;
+  width: 100%;
+}
+
+.footer-main {
+  padding: 40px 5%;
+}
+
+.footer-content {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+}
+
+.footer-column {
+  flex: 1;
+  min-width: 180px;
+  margin-bottom: 30px;
+}
+
+/* Make the brand column slightly larger on larger screens */
+.brand-column {
+  flex: 1.2;
+}
+
+.footer .list-unstyled {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer .list-unstyled li {
+  margin-bottom: 10px;
+}
+
+.footer .list-unstyled a {
+  color: #333;
+  text-decoration: none;
+  padding: 0;
+}
+
+.social-icons {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.footer-input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+}
+
+.footer .copyright {
+  padding: 30px 0;
+  text-align: center;
+  border-top: 1px solid #ddd;
+  background-color: #f1f1f1;
+}
+
+.footer .copyright p {
+  margin: 0;
+}
+
+h5 {
+  color: #1F2933;
+  font-family: "Poppins", Sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.button {
+  cursor: pointer;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  width: 100%;
+}
+
+.button-primary {
+  background-color: blue;
+  color: white;
+}
+
+.text-muted {
+  color: #666666;
+  font-family: "Poppins", Sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.upload-icon1 {
+  font-size: 24px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+.upload-icon1:hover {
+  opacity: 0.8;
+}
+
+.upload-icon1:nth-child(1) {
+  color: red;
+}
+
+.upload-icon1:nth-child(2) {
+  color: #1DA1F2;
+}
+
+.upload-icon1:nth-child(3) {
+  color: #E4405F;
+}
+
+.upload-icon1:nth-child(4) {
+  color: #3B5998;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .footer-content {
+    justify-content: space-between;
+  }
+  
+  .footer-column {
+    flex: 0 0 calc(33.333% - 20px);
+    min-width: 160px;
+  }
+}
+
+@media (max-width: 768px) {
+  .footer-column {
+    flex: 0 0 calc(50% - 15px);
+  }
+  
+  .brand-column {
+    flex: 0 0 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .footer-column {
+    flex: 0 0 100%;
+  }
+  
+  .footer-main {
+    padding: 30px 4%;
+  }
+  
+  h5 {
+    margin-bottom: 15px;
+  }
+}

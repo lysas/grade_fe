@@ -1,0 +1,143 @@
+/* Global styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  /* background-color: #1e1e1e; */
+  background-color: #f4f4f4;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Hover effect for navigation items */
+.nav-link:hover {
+  background-color: #f0f4ff;
+  border-left: 3px solid #3366FF !important;
+}
+
+.nav-link.active {
+  background-color: #e6ecff;
+  border-left: 3px solid #3366FF !important;
+  font-weight: 600 !important;
+}
+
+/* Add these styles for the hover effect on buttons and inputs */
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #3366FF;
+  cursor: pointer;
+}
+
+button,
+select,
+input[type="text"],
+input[type="number"] {
+  transition: all 0.2s ease;
+  color: black;
+}
+
+/* button:hover,
+select:hover {
+  background-color: #f0f4ff !important;
+} */
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .main-content {
+    flex-direction: column;
+    max-width: 100%;
+  }
+
+  .sidebar,
+  .content-area,
+  .settings-panel {
+    width: 100% !important;
+  }
+
+  .sidebar {
+    padding: 10px 0 !important;
+    border-right: none !important;
+    border-bottom: 1px solid #eaeaea;
+  }
+
+  .sidebar ul {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 10px;
+  }
+
+  .sidebar li {
+    flex-shrink: 0;
+  }
+
+  .settings-panel {
+    border-left: none !important;
+    border-top: 1px solid #eaeaea;
+    order: 3;
+  }
+
+  .content-area {
+    order: 2;
+    min-height: auto !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .main-content {
+    box-shadow: none !important;
+  }
+
+  .sidebar h2 {
+    margin: 0 10px 15px 10px !important;
+    font-size: 1.2rem !important;
+  }
+
+  .nav-link {
+    padding: 8px 12px !important;
+  }
+
+  .content-area,
+  .settings-panel {
+    padding: 15px !important;
+  }
+}
+
+/* Add these rules to make the app take full width */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.main-content {
+  display: flex;
+  width: 100%;
+  max-width: 100%;
+}
+
+.content-area {
+  flex: 1;
+  width: 100%;
+}
+
+/* This will ensure your settings panel (right side) expands properly */
+.settings-panel {
+  width: auto;
+  flex: 0 0 auto;
+}
+
+/* Ensure no horizontal overflow */
+html,
+body {
+  width: 100%;
+  overflow-x: hidden;
+}
