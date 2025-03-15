@@ -57,7 +57,7 @@ const TranslationPage = () => {
       };
 
       // Construct the URL with the parameters
-      const url = `https://easy-with-ai-frontend.onrender/api/translate/?${Object.entries(params)
+      const url = `https://promptrightprod.onrender/api/translate/?${Object.entries(params)
         .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
         .join("&")}`;
 

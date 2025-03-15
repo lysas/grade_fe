@@ -82,7 +82,7 @@ const EmailWriterPage = () => {
         TopK
       };
 
-      const url = `https://easy-with-ai-frontend.onrender/api/mail/?${Object.entries(params)
+      const url = `https://promptrightprod.onrender/api/mail/?${Object.entries(params)
         .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
         .join('&')}`;
 
