@@ -298,7 +298,7 @@ const TransliterationPage = () => {
       };
 
       // Construct the URL with the parameters
-      const url = `https://promptrightprod.onrender/api/transliterate/?${Object.entries(
+      const url = `https://promptrightprod.onrender.com/api/transliterate/?${Object.entries(
         params
       )
         .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)

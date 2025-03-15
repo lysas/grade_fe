@@ -67,7 +67,7 @@ const EntityRecognizer = () => {
         TopK
       };
 
-      const url = `https://promptrightprod.onrender/api/entity/?${Object.entries(params)
+      const url = `https://promptrightprod.onrender.com/api/entity/?${Object.entries(params)
         .filter(([_, value]) => value !== undefined && value !== '')
         .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
         .join('&')}`;
