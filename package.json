@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "cross-env VITE_API_URL=https://easy_with_ai.onrender.com/api npm run build",
+    "build": "vite build",
+    "build:env": "cross-env VITE_API_URL=https://easy_with_ai.onrender.com/api npm run build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
