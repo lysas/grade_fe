@@ -298,7 +298,7 @@ const TransliterationPage = () => {
       };
 
       // Construct the URL with the parameters
-      const url = `http://localhost:8000/api/transliterate/?${Object.entries(
+      const url = `http://easy-with-ai-frontend.onrender/api/transliterate/?${Object.entries(
         params
       )
         .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)

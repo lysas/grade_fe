@@ -57,7 +57,7 @@ const TranslationPage = () => {
       };
 
       // Construct the URL with the parameters
-      const url = `http://localhost:8000/api/translate/?${Object.entries(params)
+      const url = `http://easy-with-ai-frontend.onrender/api/translate/?${Object.entries(params)
         .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
         .join("&")}`;
 

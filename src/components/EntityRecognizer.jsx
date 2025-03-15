@@ -8,7 +8,7 @@ import { AppContext } from './AppContext';
 
 const EntityRecognizer = () => {
   const [entityText, setEntityText] = useState('');
-  const [entities, setEntities] = useState([{ value: 'Named Entity Recognition', label: 'Named Entity Recognition (NER)' }]); 
+  const [entities, setEntities] = useState([{ value: 'Named Entity Recognition', label: 'Named Entity Recognition (NER)' }]);
   const [customEntity, setCustomEntity] = useState('');
   const [showFeed, setShowFeed] = useState(false);
   const [input, setInput] = useState('');
@@ -67,7 +67,7 @@ const EntityRecognizer = () => {
         TopK
       };
 
-      const url = `http://localhost:8000/api/entity/?${Object.entries(params)
+      const url = `http://easy-with-ai-frontend.onrender/api/entity/?${Object.entries(params)
         .filter(([_, value]) => value !== undefined && value !== '')
         .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
         .join('&')}`;
@@ -80,17 +80,17 @@ const EntityRecognizer = () => {
       if (response.data.entity) {
         try {
           // Try to parse if it's a JSON string
-          const entityData = typeof response.data.entity === 'string' 
-            ? JSON.parse(response.data.entity) 
+          const entityData = typeof response.data.entity === 'string'
+            ? JSON.parse(response.data.entity)
             : response.data.entity;
-          
+
           if (Array.isArray(entityData)) {
             const formattedString = entityData.map(item => {
               const entityType = item.type || item.entity || '';
               const entityText = item.text || '';
               return `${entityType}: ${entityText}`;
             }).join('\n');
-            
+
             setEntityText(formattedString);
           } else {
             // Handle non-array JSON
@@ -104,7 +104,7 @@ const EntityRecognizer = () => {
             .replace(/,\s*'type':\s*'([^']*)'/g, ': $1')
             .replace(/,\s*'text':\s*'([^']*)'/g, ': $1')
             .replace(/,\s*'entity':\s*'([^']*)'/g, ': $1');
-          
+
           setEntityText(formattedString || response.data.entity);
         }
       } else {
@@ -149,39 +149,39 @@ const EntityRecognizer = () => {
   };
 
   return (
-    <div className="entity-recognizer-container" style={{ 
-      maxWidth: '95%', 
+    <div className="entity-recognizer-container" style={{
+      maxWidth: '95%',
       margin: '0 auto',
       padding: '10px'
     }}>
-      <h1 style={{ 
-        fontSize: "22px", 
-        marginTop: '-15px', 
-        textAlign: 'center', 
-        backgroundColor: '#f0f0f0', 
-        borderRadius: '10px', 
+      <h1 style={{
+        fontSize: "22px",
+        marginTop: '-15px',
+        textAlign: 'center',
+        backgroundColor: '#f0f0f0',
+        borderRadius: '10px',
         padding: '5px 0'
       }}>
         Entity Recognizer
       </h1>
 
-      <div style={{ 
-        display: 'flex', 
+      <div style={{
+        display: 'flex',
         flexDirection: 'row',
         flexWrap: 'wrap',
         justifyContent: 'space-between',
         gap: '10px',
-        
+
       }}>
-        <div className="form-group" style={{ 
+        <div className="form-group" style={{
           flex: '1 1 300px',
           minWidth: '250px',
-          paddingTop: '30px', 
-          maxWidth: '100%' 
+          paddingTop: '30px',
+          maxWidth: '100%'
         }} id="entity">
           <label htmlFor="entity-dropdown" style={{ display: 'block', marginBottom: '10px' }}>Entity</label>
-          
-          <div 
+
+          <div
             id="entity-dropdown"
             style={{
               position: 'relative',
@@ -189,7 +189,7 @@ const EntityRecognizer = () => {
               maxWidth: '300px'
             }}
           >
-            <div 
+            <div
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
               style={{
                 height: '40px',
@@ -209,13 +209,13 @@ const EntityRecognizer = () => {
               aria-haspopup="listbox"
               aria-expanded={isDropdownOpen}
             >
-              {entities.length > 0 
+              {entities.length > 0
                 ? entities.map(entity => entity.label).join(', ')
                 : 'Select Entities'}
             </div>
 
             {isDropdownOpen && (
-              <div 
+              <div
                 style={{
                   position: 'absolute',
                   top: '100%',
@@ -240,14 +240,14 @@ const EntityRecognizer = () => {
                       alignItems: 'center',
                       padding: '10px',
                       cursor: 'pointer',
-                      backgroundColor: entities.some(e => e.value === option.value) 
-                        ? '#e9ecef' 
+                      backgroundColor: entities.some(e => e.value === option.value)
+                        ? '#e9ecef'
                         : 'white'
                     }}
                     role="option"
                     aria-selected={entities.some(e => e.value === option.value)}
                   >
-                    <div 
+                    <div
                       style={{
                         width: '20px',
                         height: '20px',
@@ -257,16 +257,16 @@ const EntityRecognizer = () => {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        backgroundColor: entities.some(e => e.value === option.value) 
-                          ? '#007bff' 
+                        backgroundColor: entities.some(e => e.value === option.value)
+                          ? '#007bff'
                           : 'white'
                       }}
                     >
                       {entities.some(e => e.value === option.value) && (
-                        <FontAwesomeIcon 
-                          icon={faCheck} 
-                          color="white" 
-                          style={{ fontSize: '12px' }} 
+                        <FontAwesomeIcon
+                          icon={faCheck}
+                          color="white"
+                          style={{ fontSize: '12px' }}
                         />
                       )}
                     </div>
@@ -278,12 +278,12 @@ const EntityRecognizer = () => {
           </div>
         </div>
 
-        <div className="form-group" style={{ 
+        <div className="form-group" style={{
           flex: '1 1 300px',
           minWidth: '250px',
-          paddingTop: '30px', 
+          paddingTop: '30px',
           maxWidth: '100%',
-          
+
         }} id="custom-entity-container">
           <label htmlFor="custom-entity" style={{ display: 'block', marginBottom: '10px' }}>Custom Entity</label>
           <input
@@ -296,7 +296,7 @@ const EntityRecognizer = () => {
               border: '1px solid #ccc',
               borderRadius: '8px',
               paddingLeft: '10px',
-              color:"black"
+              color: "black"
             }}
             placeholder="Enter the custom entity"
             value={customEntity}
@@ -321,7 +321,7 @@ const EntityRecognizer = () => {
             borderRadius: '8px',
             padding: '10px',
             boxSizing: 'border-box',
-            color:"black"
+            color: "black"
           }}
           value={input}
           onChange={(e) => setInput(e.target.value)}
@@ -368,7 +368,7 @@ const EntityRecognizer = () => {
               borderRadius: '8px',
               padding: '10px',
               boxSizing: 'border-box',
-              color:"black"
+              color: "black"
             }}
           />
           <div style={{

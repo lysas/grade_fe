@@ -1,5 +1,5 @@
 import React, { useState, useRef, useContext } from 'react';
-import { RiFileCopy2Line } from "react-icons/ri"; 
+import { RiFileCopy2Line } from "react-icons/ri";
 import FeedbackPopup from "./FeedbackPopup";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComment } from "@fortawesome/free-solid-svg-icons";
@@ -12,7 +12,7 @@ const EmailWriterPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [showFeed, setShowFeed] = useState(false);
-  
+
   const { model, temperature, maxOutput, TopK } = useContext(AppContext);
 
   // Refs for different types of recipients and purposes
@@ -40,7 +40,7 @@ const EmailWriterPage = () => {
   const handleComposeEmail = async () => {
     setIsLoading(true);
     setError('');
-    
+
     try {
       let recipient, purpose;
 
@@ -82,15 +82,15 @@ const EmailWriterPage = () => {
         TopK
       };
 
-      const url = `http://localhost:8000/api/mail/?${Object.entries(params)
+      const url = `http://easy-with-ai-frontend.onrender/api/mail/?${Object.entries(params)
         .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
         .join('&')}`;
-      
+
       const response = await axios.get(url);
       setComposedEmail(response.data.email);
     } catch (error) {
       console.error('Error fetching translated email:', error);
-      
+
       if (error.response) {
         if (error.response.status === 401) {
           window.location.href = "/authenticate";
@@ -133,7 +133,7 @@ const EmailWriterPage = () => {
     <div className="email-writer-container">
       {/* Title of the page */}
       <h1 className="email-writer-title">Email Writer!</h1>
-      
+
       <div className="email-form-container">
         <div className="form-row">
           {/* Email Type Selector */}
@@ -154,7 +154,7 @@ const EmailWriterPage = () => {
               <option value="HR/Employee">HR/Employee</option>
             </select>
           </div>
-          
+
           {/* Tone Selector */}
           <div className="form-group">
             <label htmlFor="tone">Tone</label>
@@ -182,7 +182,7 @@ const EmailWriterPage = () => {
             </select>
           </div>
         </div>
-        
+
         {/* Personal Email Group */}
         <div className="email-group" style={{ display: selectedType === "Personal" ? "block" : "none" }}>
           <div className="form-group">
@@ -203,7 +203,7 @@ const EmailWriterPage = () => {
               <option value="Pen pals">Pen pals</option>
             </select>
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="purpose">Purpose</label>
             <select
@@ -229,7 +229,7 @@ const EmailWriterPage = () => {
             </select>
           </div>
         </div>
-        
+
         {/* Business Email Group */}
         <div className="email-group" style={{ display: selectedType === "Business" ? "block" : "none" }}>
           <div className="form-group">
@@ -253,7 +253,7 @@ const EmailWriterPage = () => {
               <option>Other businesses</option>
             </select>
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="business-purpose">Purpose</label>
             <select
@@ -282,7 +282,7 @@ const EmailWriterPage = () => {
             </select>
           </div>
         </div>
-        
+
         {/* Job Seekers Group */}
         <div className="email-group" style={{ display: selectedType === "Job Seekers" ? "block" : "none" }}>
           <div className="form-group">
@@ -299,7 +299,7 @@ const EmailWriterPage = () => {
               <option>HR Manager</option>
             </select>
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="jobseeker-purpose">Purpose</label>
             <select
@@ -322,7 +322,7 @@ const EmailWriterPage = () => {
             </select>
           </div>
         </div>
-        
+
         {/* HR/Employee Group */}
         <div className="email-group" style={{ display: selectedType === "HR/Employee" ? "block" : "none" }}>
           <div className="form-group">
@@ -340,7 +340,7 @@ const EmailWriterPage = () => {
               <option>HR</option>
             </select>
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="employee-purpose">Purpose</label>
             <select
@@ -365,7 +365,7 @@ const EmailWriterPage = () => {
             </select>
           </div>
         </div>
-        
+
         {/* Personalized Content */}
         <div className="form-group">
           <label htmlFor="personalized">Enter the content of the mail</label>
@@ -378,10 +378,10 @@ const EmailWriterPage = () => {
             placeholder="Eg. invite - birthday - 2nd december - venue"
           />
         </div>
-        
+
         {/* Error message display */}
         {error && <div className="error-message">{error}</div>}
-        
+
         {/* Button to compose email */}
         <div className="form-action">
           <button
@@ -392,7 +392,7 @@ const EmailWriterPage = () => {
             {isLoading ? 'Generating...' : 'Compose Email'}
           </button>
         </div>
-        
+
         {/* Output box to display the composed email text */}
         <div className="output-container">
           <label htmlFor="output">Compose Email</label>
@@ -410,9 +410,9 @@ const EmailWriterPage = () => {
                 onClick={handleCopyToClipboard}
                 title="Copy to clipboard"
               />
-              <button 
-                className="feedback-button" 
-                onClick={handleFeedback} 
+              <button
+                className="feedback-button"
+                onClick={handleFeedback}
                 data-testid="feedback-button"
               >
                 <FontAwesomeIcon icon={faComment} />
@@ -420,7 +420,7 @@ const EmailWriterPage = () => {
             </div>
           </div>
         </div>
-        
+
         {/* Feedback popup */}
         {showFeed && <FeedbackPopup onClose={handleClosePopup} />}
       </div>
