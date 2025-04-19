@@ -57,6 +57,20 @@
     min-height: 100px;
   }
   
+  .form-select option {
+    color: gray;
+  }
+  
+  .form-select option:checked,
+  .form-select option[selected] {
+    background-color: rgb(73, 71, 71) !important;
+    font-weight: bold;
+    color: #ffff;
+    
+  }
+  
+  
+  
   .form-textarea {
     height: 120px;
     resize: vertical;

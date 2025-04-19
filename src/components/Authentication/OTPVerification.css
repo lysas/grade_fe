@@ -1,0 +1,35 @@
+.otp-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .otp-description {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #666;
+  }
+  
+  .resend-container {
+    text-align: center;
+    margin: 20px 0;
+  }
+  
+  .resend-button {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 5px;
+  }
+  
+  .resend-button:hover {
+    text-decoration: underline;
+  }
+  
+  .resend-button:disabled {
+    color: #999;
+    cursor: not-allowed;
+    text-decoration: none;
+  }

@@ -1,6 +1,6 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { AppContext } from './AppContext';
-
+import modelDetailsData from './model_details.json'; 
 // Prompt component for model settings
 const Prompt = () => {
   // State variables from context
@@ -20,6 +20,27 @@ const Prompt = () => {
   const [TopP, setTopP] = useState(0.95);
   const [showAdvancedSettings, setShowAdvancedSettings] = useState(false);
   const [outputLength, setOutputLength] = useState(1000);
+  const [selectedOrg, setSelectedOrg] = useState("OpenAI");
+  const [modelsByOrg, setModelsByOrg] = useState({});
+  const [organizations, setOrganizations] = useState([]);
+
+  useEffect(() => {
+    // Use the imported data directly
+    setModelsByOrg(modelDetailsData);
+    setOrganizations(Object.keys(modelDetailsData));
+    
+    // Set default model if current model is not in the list
+    if (modelDetailsData[selectedOrg] && !modelDetailsData[selectedOrg].includes(model)) {
+      setModel(modelDetailsData[selectedOrg][0]);
+    }
+  }, []);
+  
+  // Update model when organization changes
+  useEffect(() => {
+    if (modelsByOrg[selectedOrg] && !modelsByOrg[selectedOrg].includes(model)) {
+      setModel(modelsByOrg[selectedOrg][0]);
+    }
+  }, [selectedOrg, modelsByOrg]);
 
   // Event handlers
   const handleTemperatureChange = (event) => {
@@ -46,17 +67,9 @@ const Prompt = () => {
     setOutputLength(parseInt(event.target.value, 10));
   };
 
-  // Available models
-  const availableModels = [
-    "gpt-3.5-turbo",
-    "gpt-4-1106-preview",
-    "deepseek-ai/deepseek-llm-67b-chat",
-    "meta-llama/Llama-2-13b-chat-hf",
-    "meta-llama/Llama-3-8b-chat-hf",
-    "NousResearch/Nous-Hermes-2-Mixtral-8x7B-DPO",
-    "Qwen/Qwen2-72B-Instruct",
-    "upstage/SOLAR-10.7B-Instruct-v1.0"
-  ];
+  const handleOrgChange = (event) => {
+    setSelectedOrg(event.target.value);
+  };
 
   const settingGroupStyle = {
     marginBottom: "20px"
@@ -100,9 +113,7 @@ const Prompt = () => {
     borderRadius: "4px",
     fontSize: "14px",
     boxSizing: "border-box",
-    backgroundColor: "white",
-    // border: "1px solid rgb(204, 204, 204)"
-
+    backgroundColor: "white"
   };
 
   const toggleButtonStyle = {
@@ -125,6 +136,21 @@ const Prompt = () => {
         color: "#190A89"
       }}>Model Settings</h3>
 
+      {/* Organization Selection */}
+      <div style={settingGroupStyle}>
+        <label style={labelStyle}>🏢 Organization</label>
+        <select
+          id="organization"
+          style={inputStyle}
+          value={selectedOrg}
+          onChange={handleOrgChange}
+        >
+          {organizations.map(org => (
+            <option key={org} value={org}>{org}</option>
+          ))}
+        </select>
+      </div>
+
       {/* Model Selection */}
       <div style={settingGroupStyle}>
         <label style={labelStyle}>🔬 Model</label>
@@ -134,7 +160,7 @@ const Prompt = () => {
           value={model}
           onChange={(e) => setModel(e.target.value)}
         >
-          {availableModels.map(modelOption => (
+          {modelsByOrg[selectedOrg]?.map(modelOption => (
             <option key={modelOption} value={modelOption}>{modelOption}</option>
           ))}
         </select>

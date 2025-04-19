@@ -1,0 +1,391 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@500&display=swap');
+
+.first {
+  background-color: #f1f1f1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  min-height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.con {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  /* padding: 20px; */
+  box-sizing: border-box;
+}
+
+@media (min-width: 992px) {
+  .con {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 20px;
+  }
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 600px;
+}
+
+.con1, .con2 {
+  background-color: #fff;
+  box-shadow: 0 20px 20px 0px rgba(0, 0, 0, 0.1);
+  padding: 20px 20px  0px;
+  margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 400px;
+  /* height: 500px; */
+}
+
+@media (min-width: 992px) {
+  .con2 {
+    width: 500px;
+    margin-top: 43px;
+  }
+}
+
+.con11 {
+  padding: 0;
+}
+
+.header {
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  overflow-x: auto;
+  /* margin-bottom: 10px; */
+}
+
+.but {
+  background-color: #f1f1f1;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px 5px 0 0;
+  white-space: nowrap;
+  margin-right: 5px;
+}
+
+.but.active {
+  background-color: #fff;
+  color: blue;
+  font-family: "Poppins", sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.forrm-group-quiz, .forrm-group-quiz1 {
+  background-color: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  margin-bottom: 15px;
+}
+
+.forrm-group-quiz label, .forrm-group-quiz1 label {
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.forrm-group-quiz input[type="text"],
+.forrm-group-quiz textarea,
+.forrm-group-quiz select,
+.forrm-group-quiz1 input[type="text"],
+.forrm-group-quiz1 textarea,
+.forrm-group-quiz1 select {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  box-sizing: border-box;
+  background-color: #fff;
+  color: #333;
+}
+
+.forrm-group-quiz textarea {
+  min-height: 300px;
+  resize: vertical;
+}
+.spec{
+  height: 350px;
+}
+.topicCon{
+  height: 388px;
+}
+
+.button {
+  cursor: pointer;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  width: auto;
+  min-width: 200px;
+}
+
+.button-primary {
+  background-color: blue;
+  color: white;
+}
+
+#output {
+  height: 300px;
+  width: 100%;
+  font-size: 16px;
+  font-family: sans-serif;
+  background-color: #FAFAFA;
+  border: 1px solid #ddd;
+  padding: 10px;
+  margin-top: 8px;
+  white-space: pre-wrap;
+  resize: vertical;
+}
+
+.copy-dow {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  background-color: #fff;
+  margin-top: 10px;
+}
+
+.copy-dow .icon-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  margin-left: 10px;
+  font-size: 18px;
+  color: #333;
+}
+
+.copy-dow .icon-button:hover {
+  color: blue;
+}
+
+.question-type, .question-type1 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+  width: 100%;
+}
+
+.con-qa {
+  background-color: #fff;
+  width: 100%;
+  max-width: 1200px;
+  padding: 20px;
+  box-shadow: 0 20px 20px 0px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  border-radius: 0;
+  box-sizing: border-box;
+}
+
+.con-qa h2, .con-qa h1 {
+  background-color: #fff;
+  padding: 10px 0;
+  margin: 15px 0;
+  color: blue;
+  font-family: sans-serif;
+  font-weight: 550;
+  font-size: 18px;
+  border-bottom: 1px solid blue;
+}
+
+.upload-container {
+  border: 2px dashed #ccc;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.upload-container:hover {
+  border-color: #007bff;
+}
+
+.upload-icon {
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 50%;
+  padding: 12px;
+  cursor: pointer;
+  margin: 0 10px;
+  font-size: 18px;
+}
+
+.uploaded-files {
+  margin-top: 20px;
+  max-height: 170px;
+  overflow-y: auto;
+  padding: 0 10px;
+}
+
+.file-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  margin: 5px 0;
+  padding: 8px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.photos {
+  width: 35px;
+  height: auto;
+  margin-right: 10px;
+}
+
+.file-name {
+  flex-grow: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.remove-icon {
+  cursor: pointer;
+  color: #c00;
+  margin-left: 10px;
+}
+
+.popup {
+  position: absolute;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+}
+
+.popup button {
+  margin: 5px 0;
+  padding: 8px 12px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 3px;
+  width: 100%;
+}
+
+.url-form-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #fff;
+  padding: 30px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  width: 90%;
+  max-width: 400px;
+}
+
+.url-form-popup input[type="text"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.url-form-popup button[type="submit"] {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  width: 100%;
+}
+
+/* Hide elements when not active */
+[style*="display: none"] {
+  display: none !important;
+}
+
+.upload-container {
+  height: 420px;
+  overflow-y: auto;
+  padding: 30px;
+}
+
+
+
+/* Ensure uploaded files section doesn't exceed container */
+.uploaded-files {
+  max-height: 290px; /* Allow room for header and upload icons */
+  overflow-y: auto;
+}
+
+/* Ensure responsive behavior is consistent */
+@media (max-width: 768px) {
+  .upload-container,
+  .question-type.topicCon {
+    height: 388px; /* Maintain the same height on mobile */
+  }
+  
+  .question-type {
+    display: block; /* Stack items on smaller screens */
+  }
+}
+
+/* Topic container specific styles */
+.topicCon {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 elements per row */
+  gap: 15px;
+  height: auto;
+  min-height: 445px; /* Increased height to fit content */
+  overflow-y: auto;
+}
+
+/* Adjust form elements within topic container */
+.topicCon .forrm-group-quiz {
+  margin-bottom: 12px;
+}
+
+/* Mobile responsiveness for topic container */
+@media (max-width: 768px) {
+  .topicCon {
+    grid-template-columns: 1fr; /* 1 element per row on mobile */
+    min-height: 680px; /* Adjusted height for mobile to fit all elements */
+  }
+}
+
+/* Adjust the general height of the container */
+.con1, .con2 {
+  min-height: 450px; /* Increased from 400px */
+}
+
+/* Ensure the content area expands properly */
+.con11 {
+  height: 100%;
+}
+.generate-button-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin: 20px 0;
+}

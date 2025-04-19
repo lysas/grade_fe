@@ -1,0 +1,294 @@
+.page1 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  /* margin-top: -40px; */
+}
+
+.cover {
+  display: flex;
+  width: 100%;
+  max-width: 1200px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Left side styling */
+.left-signup {
+  flex: 1;
+  background-color: #08164e;
+  padding: 30px;
+  position: relative;
+  color: #fff;
+}
+
+.left-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.left-title {
+  text-align: left;
+  margin-top: 5px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 10px;
+}
+
+.left-subtitle {
+  text-align: left;
+  margin-bottom: 20px;
+  color: #4CAF50;
+  font-weight: 600;
+}
+
+/* Benefits list styling */
+.benefits-list {
+  list-style-type: none;
+  padding: 0;
+  margin-bottom: 30px;
+}
+
+.benefits-list li {
+  padding: 8px 0 8px 30px;
+  position: relative;
+  color: #fff;
+}
+
+.benefits-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #4CAF50;
+  font-weight: bold;
+}
+
+.image {
+  max-width: 50%;
+  margin-top: auto;
+  align-self: center;
+}
+
+/* Right side styling */
+.right-signup {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.logo-image {
+  height: 40px;
+}
+
+.lysa {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+/* Form styling */
+.login-form {
+  width: 100%;
+  max-width: 400px;
+}
+
+.form-title {
+  font-size: 24px;
+  margin-bottom: 30px;
+  color: #2c3e50;
+  text-align: center;
+  font-weight: 600;
+}
+
+.input-container1 {
+  margin-bottom: 20px;
+}
+
+.input-container1 input {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  transition: border-color 0.3s;
+  color: #333;
+  background-color: #fff;
+}
+
+.input-container1 input:focus {
+  border-color: #4CAF50;
+  outline: none;
+}
+
+.input-error {
+  border-color: #e74c3c !important;
+}
+
+.error-message {
+  color: #e74c3c;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+/* Forgot Password Link */
+.forgot-password-link {
+  text-align: right;
+  margin-bottom: 20px;
+}
+
+.forgot-password-link span {
+  color: #4CAF50;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.forgot-password-link span:hover {
+  text-decoration: underline;
+}
+
+.reset-description {
+  text-align: center;
+  color: #666;
+  margin-bottom: 25px;
+  font-size: 15px;
+}
+
+.button1 {
+  width: 100%;
+  padding: 12px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-bottom: 15px;
+}
+
+.button1:hover {
+  background-color: #45a049;
+}
+
+.button-secondary {
+  width: 100%;
+  padding: 12px;
+  background-color: transparent;
+  color: #333;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.button-secondary:hover {
+  background-color: #f1f1f1;
+  border-color: #ccc;
+}
+
+.social-login {
+  margin-top: 20px;
+  text-align: center;
+  position: relative;
+}
+
+.social-login p {
+  color: #777;
+  margin-bottom: 15px;
+  position: relative;
+  display: inline-block;
+  padding: 0 10px;
+  background-color: #fff;
+  z-index: 1;
+}
+
+.social-login::before {
+  content: "";
+  display: block;
+  width: 100%;
+  height: 1px;
+  background-color: #ddd;
+  position: absolute;
+  top: 50%;
+  left: 0;
+  z-index: 0;
+}
+
+.google-login {
+  display: flex;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.switch-form {
+  margin-top: 20px;
+  text-align: center;
+  color: #555;
+}
+
+.switch-link {
+  color: #4CAF50;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.switch-link:hover {
+  text-decoration: underline;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .cover {
+    flex-direction: column;
+  }
+  
+  .left-signup, 
+  .right-signup {
+    flex: none;
+    width: 100%;
+  }
+  
+  .left-signup {
+    padding: 20px;
+  }
+  
+  .image {
+    max-width: 70%;
+    margin: 20px auto;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .right-signup {
+    padding: 30px;
+  }
+  /* .page {
+    margin-top: -40px;
+  } */
+}
+@media screen and (min-width: 768px) {
+  .page1 {
+    margin-top: -40px;
+  }
+}
