@@ -1,0 +1,828 @@
+/* Student.module.css - Scoped CSS using CSS modules */
+
+/* Main container */
+.studentPage {
+  margin: 20px auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  max-width: 1200px;
+  padding: 0 20px;
+  color: #333;
+}
+
+/* Profile section styling */
+.profileSection {
+  margin-bottom: 30px;
+}
+
+.profileCard {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.profileCard:hover {
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.profileHeader {
+  display: flex;
+  padding: 25px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e4e6e9 100%);
+  border-bottom: 1px solid #eaeaea;
+}
+
+.profileImageContainer {
+  position: relative;
+  margin-right: 25px;
+}
+
+.profileImage {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #fff;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.premiumBadge {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: #ffd700;
+  color: #333;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 3px 8px;
+  border-radius: 10px;
+  border: 2px solid white;
+  text-transform: uppercase;
+}
+
+.profileInfo {
+  flex: 1;
+}
+
+.profileInfo h2 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.profileDetail {
+  display: flex;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.profileLabel {
+  font-weight: 600;
+  width: 80px;
+  color: #555;
+}
+
+.premiumText {
+  color: #ff9800;
+  font-weight: 600;
+}
+
+.freeText {
+  color: #4caf50;
+  font-weight: 600;
+}
+
+.profileActions {
+  padding: 15px 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f9fa;
+  flex-wrap: wrap;
+}
+
+.roleManager {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.roleControl {
+  display: flex;
+  align-items: center;
+}
+
+.roleLabel {
+  font-weight: 600;
+  margin-right: 10px;
+  color: #555;
+}
+
+.roleValue {
+  font-weight: 500;
+  text-transform: capitalize;
+  margin-right: 10px;
+  color: #333;
+  background: #e9ecef;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.roleSelect, .newRoleSelect {
+  padding: 7px 10px;
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+  background: #f8f9fa;
+  font-size: 14px;
+  margin-right: 10px;
+  outline: none;
+  transition: all 0.2s;
+  color: black;
+}
+
+.roleSelect:focus, .newRoleSelect:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.changeRoleBtn, .addRoleBtn, .submitRoleBtn {
+  padding: 7px 12px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.changeRoleBtn {
+  background: #007bff;
+  color: white;
+}
+
+.changeRoleBtn:hover {
+  background: #0069d9;
+}
+
+.addRoleBtn {
+  background: #28a745;
+  color: white;
+}
+
+.addRoleBtn:hover {
+  background: #218838;
+}
+
+.submitRoleBtn {
+  background: #007bff;
+  color: white;
+}
+
+.submitRoleBtn:hover {
+  background: #007bff;
+}
+
+.submitRoleBtn.submitting {
+  background: #6c757d;
+  cursor: not-allowed;
+}
+
+.addRoleSection, .addRoleControls {
+  display: flex;
+  align-items: center;
+}
+
+.completeProfileBtn {
+  background: #6f42c1;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.completeProfileBtn:hover {
+  background: #5a32a3;
+}
+
+/* Tables styling */
+.paperSection {
+  margin-bottom: 30px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.sectionHeader {
+  padding: 18px 20px;
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  border-bottom: 1px solid #eaeaea;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.sectionHeader h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+}
+
+.filterContainer {
+  display: flex;
+  align-items: center;
+}
+
+.filterLabel {
+  margin-right: 10px;
+  font-size: 14px;
+  color: #555;
+}
+
+.filterDropdown {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+  background: white;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.filterDropdown:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.tableContainer {
+  padding: 0;
+  overflow-x: auto;
+}
+
+.studentTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.studentTable th, .studentTable td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.studentTable th {
+  background: #004aad;
+  color: white;
+  font-weight: 500;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.studentTable tr:hover {
+  background-color: #f8f9fa;
+}
+
+.studentTable tr:last-child td {
+  border-bottom: none;
+}
+
+.noDataMessage {
+  text-align: center;
+  padding: 30px 0;
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Buttons styling */
+.viewButton, .actionButton, .downloadButton, .resultButton {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 5px 0;
+  text-align: left;
+}
+
+.viewButton {
+  color: #007bff;
+  position: relative;
+}
+
+.viewButton:after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #007bff;
+  transition: width 0.3s;
+}
+
+.viewButton:hover:after {
+  width: 100%;
+}
+
+.actionButton {
+  color: white;
+  background: #28a745;
+  padding: 6px 12px;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.actionButton:hover {
+  background: #218838;
+}
+
+.downloadButton {
+  color: white;
+  background: #17a2b8;
+  padding: 6px 12px;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.downloadButton:hover {
+  background: #138496;
+}
+
+.resultButton {
+  color: white;
+  background: #6f42c1;
+  padding: 6px 12px;
+  border-radius: 4px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.resultButton:hover {
+  background: #5a32a3;
+}
+
+.disabled, .disabledRow {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.viewButton.disabled:hover:after {
+  width: 0;
+}
+
+.actionButton.disabled:hover, 
+.downloadButton.disabled:hover, 
+.resultButton.disabled:hover {
+  background: inherit;
+}
+
+.pendingStatus {
+  color: #f57c00;
+  font-style: italic;
+}
+
+/* Error message */
+.error {
+  color: #dc3545;
+  margin: 10px 0;
+  font-weight: 500;
+  background-color: rgba(220, 53, 69, 0.1);
+  padding: 10px 15px;
+  border-radius: 6px;
+  border-left: 4px solid #dc3545;
+}
+
+/* Premium alert */
+.alertOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.alertBox {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 6px 30px rgba(0, 0, 0, 0.15);
+  max-width: 450px;
+  width: 90%;
+  animation: slideUp 0.4s ease;
+}
+
+.alertBox p {
+  margin-bottom: 20px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #333;
+}
+
+.alertActions {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.upgradeButton, .cancelButton {
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.upgradeButton {
+  background: #ff9800;
+  color: white;
+}
+
+.upgradeButton:hover {
+  background: #ed8c00;
+}
+
+.cancelButton {
+  background: #6c757d;
+  color: white;
+}
+
+.cancelButton:hover {
+  background: #5a6268;
+}
+
+/* Custom scrollbar for tables */
+.tableContainer::-webkit-scrollbar {
+  height: 8px;
+}
+
+.tableContainer::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 10px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Adding some status indicators */
+.statusPill {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+}
+
+.statusPending {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.statusCompleted {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+/* Add subtle hover effects for table rows */
+.studentTable tr {
+  transition: all 0.2s ease;
+}
+
+.studentTable tbody tr:hover {
+  background-color: rgba(0, 74, 173, 0.05);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+/* Improve appearance of empty state */
+.emptyState {
+  padding: 40px 20px;
+  text-align: center;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.emptyState p {
+  color: #6c757d;
+  font-size: 16px;
+  margin-bottom: 15px;
+}
+
+/* Enhanced tooltips for disabled elements */
+.tooltipContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip {
+  visibility: hidden;
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+.tooltipContainer:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 992px) {
+  .profileHeader {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .profileImageContainer {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+  
+  .profileDetail {
+    justify-content: center;
+  }
+  
+  .profileActions {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .roleManager {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .sectionHeader {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .filterContainer {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 768px) {
+  .roleManager {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .roleControl, .addRoleSection {
+    width: 100%;
+    margin-bottom: 10px;
+  }
+  
+  .studentTable th, .studentTable td {
+    padding: 10px 8px;
+    font-size: 13px;
+  }
+  
+  .viewButton, .actionButton, .downloadButton, .resultButton {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 576px) {
+  .studentPage {
+    padding: 0 10px;
+  }
+  
+  .profileImage {
+    width: 90px;
+    height: 90px;
+  }
+  
+  .profileInfo h2 {
+    font-size: 20px;
+  }
+  
+  .profileDetail {
+    font-size: 14px;
+  }
+  
+  .roleControl, .addRoleControls {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  
+  .roleLabel, .roleValue, .changeRoleBtn {
+    margin-right: 0;
+    margin-bottom: 5px;
+  }
+  
+  .changeRoleBtn, .addRoleBtn, 
+  .submitRoleBtn, .completeProfileBtn {
+    width: 100%;
+  }
+  
+  .studentTable {
+    font-size: 12px;
+  }
+  
+  .studentTable th {
+    white-space: nowrap;
+  }
+  
+  .alertBox {
+    padding: 20px 15px;
+  }
+  
+  .alertActions {
+    flex-direction: column;
+  }
+  
+  .upgradeButton, .cancelButton {
+    width: 100%;
+  }
+}
+
+/* For extremely small devices */
+@media (max-width: 400px) {
+  .profileActions {
+    padding: 12px;
+  }
+  
+  .profileHeader {
+    padding: 15px;
+  }
+  
+  .profileImage {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .studentTable th, .studentTable td {
+    padding: 8px 6px;
+    font-size: 11px;
+  }
+  
+  .sectionHeader {
+    padding: 12px;
+  }
+  
+  .sectionHeader h3 {
+    font-size: 16px;
+  }
+  
+  .filterLabel {
+    display: block;
+    margin-bottom: 5px;
+    margin-right: 0;
+  }
+  
+  .filterDropdown {
+    width: 100%;
+  }
+}
+
+.notificationButton {
+  background-color: #4a6fa5;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.notificationButton:hover {
+  background-color: #3a5a80;
+}
+
+.notificationButton i {
+  font-size: 16px;
+}
+
+/* If you want to show notification count */
+.notificationBadge {
+  background-color: #ff4757;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+  margin-left: 5px;
+}
+.statsButton {
+  background-color: #4CAF50; /* Green color for statistics */
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  transition: background-color 0.3s;
+}
+
+.statsButton:hover {
+  background-color: #3e8e41;
+}
+
+.statsButton i {
+  font-size: 16px;
+}
+/* Print media query for better printouts */
+@media print {
+  .studentPage {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .profileCard, .paperSection {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+  
+  .profileActions, .filterContainer, 
+  .actionButton, .changeRoleBtn, 
+  .addRoleBtn, .completeProfileBtn {
+    display: none;
+  }
+  
+  .studentTable th {
+    background-color: #f1f1f1 !important;
+    color: black !important;
+  }
+  
+  .studentTable, .studentTable th, .studentTable td {
+    border-collapse: collapse;
+    border: 1px solid #ddd;
+  }
+}

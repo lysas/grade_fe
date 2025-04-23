@@ -1,0 +1,115 @@
+/* Center the entire page content */
+.my-correction-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    min-height: 100vh;
+    
+  }
+  
+  /* Header styling */
+  .correction-header {
+    width: 100%;
+    max-width: 1200px; /* Limit the width */
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .correction-header h1 {
+    font-size: 28px;
+    color: #003366; /* Dark blue for the header */
+    font-weight: 600;
+  }
+  
+  /* Back button styling */
+  .back-button {
+    padding: 10px 20px;
+    background-color: #2575ed; /* Blue color */
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .back-button:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+  }
+  
+  /* Table container styling */
+  .corrections-table-container {
+    width: 100%;
+    max-width: 1200px;
+    overflow-x: auto;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Table styling */
+  .corrections-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+  }
+  
+  .corrections-table th, 
+  .corrections-table td {
+  
+    text-align: left;
+    border: 1px solid #d0e7ff; /* Light blue border */
+    font-size: 19px;
+  }
+  
+  .corrections-table th {
+    background-color: #004aad; /* Blue background for headers */
+    color: white; /* White text for table headers */
+    font-weight: 600;
+    padding: 12px;
+  }
+  
+  .corrections-table td {
+    background-color: #ffffff;
+    color: #003366; /* Dark blue text for table data */
+  }
+  
+  /* Hover effect for table rows */
+  .corrections-table tr:hover {
+    background-color: #f1faff; /* Light blue hover effect */
+  }
+  
+  .student-history-page {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    min-height: 100vh;
+  }
+  
+  .filter-section {
+    display: flex;
+    
+    margin-bottom: 0.5rem;
+    width: 100%;
+    margin-left: 1190px;
+    align-items: flex-end;
+  }
+  
+  .filter-dropdown {
+    width: 150px; /* Small width for the dropdown */
+    padding: 0.5rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+  }
+
+ 
+  .history-header1 h1 {
+    font-size: 28px;
+    color: #003366;  /* Dark blue for the header */
+    font-weight: 600;
+    margin-left: 145px;
+  }

@@ -1,0 +1,324 @@
+/* Admin.css - Additional styling for Admin component */
+
+/* Upload Type Tabs */
+.uploadTypeTabs {
+  display: flex;
+  margin-bottom: 20px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.uploadTypeTab {
+  flex: 1;
+  background-color: #f8f9fa;
+  color: #555;
+  border: none;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.uploadTypeTab.active {
+  background: linear-gradient(135deg, #004aad 0%, #0069d9 100%);
+  color: white;
+}
+
+.uploadTypeTab:hover:not(.active) {
+  background-color: #e9ecef;
+}
+
+/* Upload Form Container */
+.uploadFormContainer {
+  background-color: white;
+  padding: 25px;
+  border-radius: 0 0 12px 12px;
+}
+
+.formGroup {
+  margin-bottom: 20px;
+}
+
+.formInput {
+  width: 100%;
+  padding: 12px 15px;
+  border-radius: 6px;
+  border: 1px solid #0c569f;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background-color: white;
+}
+
+.formInput:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+.selectGroup {
+  display: flex;
+  gap: 20px;
+}
+
+.selectGroup .formGroup {
+  flex: 1;
+}
+
+/* Summary Box */
+.summaryBox {
+  display: flex;
+  justify-content: space-between;
+  background-color: #f8f9fa;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.summaryItem {
+  font-size: 15px;
+}
+
+/* Question Section */
+.questionSection {
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin-bottom: 20px;
+}
+
+.questionHeaders {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr 40px 1fr 80px;
+  background-color: #f8f9fa;
+  padding: 10px 15px;
+  font-weight: 600;
+  color: #555;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.headerCell {
+  text-align: center;
+}
+
+.questionRow {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr 40px 1fr 80px;
+  padding: 10px 15px;
+  align-items: center;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.questionRow:last-child {
+  border-bottom: none;
+}
+
+.questionInput {
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: 4px;
+  border: 1px solid #2376c9;
+  text-align: center;
+  background-color: white;
+  
+}
+
+.operatorSymbol {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  color: #555;
+}
+
+.rowTotal {
+  text-align: center;
+  font-weight: 500;
+}
+
+.removeButton {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  margin: 0 auto;
+}
+
+.removeButton:hover {
+  background-color: #c82333;
+}
+
+.addQuestionButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border: 1px dashed #ced4da;
+  color: #007bff;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.addQuestionButton:hover {
+  background-color: #e9ecef;
+  border-color: #80bdff;
+}
+
+/* File Upload Section */
+.fileUploadSection {
+  margin-bottom: 20px;
+}
+
+.fileInputContainer {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+.fileInput {
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.fileInputLabel {
+  padding: 12px 15px;
+  background-color: #f8f9fa;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  color: #495057;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.fileInputContainer:hover .fileInputLabel {
+  background-color: #e9ecef;
+  border-color: #b8c2cc;
+}
+
+/* History Button */
+.historyButton {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.historyButton:hover {
+  background-color: #007bff;
+}
+
+/* Upload Button */
+.uploadButton {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, #28a745 0%, #218838 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+
+.uploadButton:hover {
+  background: linear-gradient(135deg, #218838 0%, #1e7e34 100%);
+  transform: translateY(-2px);
+}
+
+.uploadButton:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Media Queries */
+@media (max-width: 992px) {
+  .selectGroup {
+    flex-direction: column;
+    gap: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .questionHeaders, .questionRow {
+    grid-template-columns: 1fr 30px 1fr 30px 1fr 60px;
+    font-size: 14px;
+  }
+  
+  .sectionHeader {
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .historyButton {
+    width: 100%;
+  }
+}
+
+@media (max-width: 576px) {
+  .questionHeaders, .questionRow {
+    grid-template-columns: 60px 25px 60px 25px 60px 50px;
+    font-size: 12px;
+    padding: 8px;
+  }
+  
+  .uploadFormContainer {
+    padding: 15px;
+  }
+  
+  .formInput, .fileInputLabel {
+    padding: 10px;
+  }
+  
+  .uploadTypeTab {
+    padding: 10px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 400px) {
+  .questionHeaders, .questionRow {
+    grid-template-columns: 50px 20px 50px 20px 50px 40px;
+    font-size: 11px;
+    padding: 6px;
+  }
+  
+  .uploadTypeTab span {
+    display: none;
+  }
+  
+  .headerCell {
+    font-size: 10px;
+  }
+}

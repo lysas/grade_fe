@@ -1,0 +1,31 @@
+.mentor-requests-page {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    color: #333;
+  }
+
+  
+  .mentor-requests-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .mentor-requests-table th,
+  .mentor-requests-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+  }
+  
+  .mentor-requests-table th {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .no-data-message {
+    text-align: center;
+    font-style: italic;
+    color: gray;
+  }
+  

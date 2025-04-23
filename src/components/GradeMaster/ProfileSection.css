@@ -1,0 +1,102 @@
+.profile-section-container {
+  max-width: 500px;
+  margin: 40px auto;
+  padding: 20px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.profile-section-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  color: #333;
+}
+
+.profile-section-container label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #444;
+}
+
+.profile-section-container input,
+.profile-section-container select, .proSelect {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  margin-bottom: 10px;
+  transition: border 0.3s;
+  background-color: white;
+  box-sizing: border-box;
+}
+
+.inprofile-dropdown {
+  cursor: pointer;
+  background-color: white !important;
+  display: block !important;
+  height: 40px !important;
+  width: 100% !important;
+  appearance: menulist !important; /* Standard syntax */
+  -webkit-appearance: menulist !important; /* For Safari/Chrome */
+  -moz-appearance: menulist !important; /* For Firefox */
+}
+
+.profile-section-container input:focus,
+.inprofile-dropdown:focus,
+.profile-section-container select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.profile-error {
+  color: red;
+  font-size: 12px;
+  margin-top: -8px;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.profile-phone-input {
+  width: 100%;
+  margin-bottom: 10px;
+  background-color: white;
+}
+
+.profile-phone-input input {
+  background-color: white !important;
+  width: 100% !important;
+  padding: 10px !important;
+}
+
+.PhoneInputInput {
+  background-color: white !important;
+  border: 1px solid #ccc !important;
+  border-radius: 5px !important;
+  padding: 10px !important;
+  color: black;
+}
+
+.profile-submit-button {
+  width: 100%;
+  padding: 12px;
+  font-size: 16px;
+  color: #fff;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+  margin-top: 10px;
+}
+
+.profile-submit-button:hover {
+  background-color: #0056b3;
+}
+
+/* Override any background colors that might be interfering */

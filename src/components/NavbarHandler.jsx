@@ -3,12 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { authService } from './Authentication/authService'; // Adjust the import path as necessary
 import userProfileImg from '../assets/userProfile.jpeg';
-
+import { updateImagePaths } from './updateImagePaths'; 
 function NavbarHandler() {
   const navigate = useNavigate();
   
   useEffect(() => {
     // Get references to navbar elements
+    updateImagePaths();
     const profileIcon = document.getElementById('profile-icon');
     const profileDropdown = document.getElementById('profile-dropdown');
     

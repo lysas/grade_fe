@@ -591,7 +591,7 @@ const QuestionWhiz = () => {
     <div className="first">
       <div className="con">
         <div className="head">
-          <div className="header">
+          <div className="header1">
             <button
               className={`but ${activeButton === 1 ? "active" : ""}`}
               onClick={() => handleButtonClick(1)}

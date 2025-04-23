@@ -1,0 +1,83 @@
+.grade-master-container {
+  text-align: center;
+  font-family: 'Arial', sans-serif;
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 1000px;
+  margin: 0 auto;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.grade-master-title {
+  font-size: 2.5em;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.roles-section {
+  margin: 30px 0;
+}
+
+.roles {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.role {
+  width: 200px;
+  background-color: #fff;
+  padding: 15px;
+  margin: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.role h3 {
+  color: #0073e6;
+  font-size: 1.5em;
+  margin-bottom: 10px;
+}
+
+.role ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.role ul li {
+  font-size: 1.1em;
+  margin: 5px 0;
+}
+
+.auth-buttons {
+  margin-top: 40px;
+}
+
+.auth-button {
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 10px;
+  font-size: 1.2em;
+  color: white;
+  background-color: #0073e6;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.auth-button:hover {
+  background-color: #005bb5;
+}
+
+.login-button {
+  background-color: #0073e6;
+}
+
+.signup-button {
+  background-color: #28a745;
+}
+
+.signup-button:hover {
+  background-color: #218838;
+}

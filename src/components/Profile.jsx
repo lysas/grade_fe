@@ -21,7 +21,7 @@ function Profile() {
   });
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-
+  const activeRole = localStorage.getItem('activeRole');
   useEffect(() => {
     const checkAuthAndLoadData = async () => {
       try {
@@ -38,7 +38,8 @@ function Profile() {
             id: storedUser.id,
             email: storedUser.email,
             username: storedUser.username,
-            full_name: storedUser.full_name || storedUser.username
+            full_name: storedUser.full_name || storedUser.username ,
+            role:  activeRole,
           });
           
           await loadUserCredits();
@@ -107,6 +108,7 @@ function Profile() {
               <h2>{userData.full_name}</h2>
               <p className="profile-email">{userData.email}</p>
               <p className="profile-id">User ID: {userData.id}</p>
+              <p className="profile-email"> Role: {userData.role}</p>
             </div>
           </div>
 

@@ -1,0 +1,132 @@
+.role-redirect-form-container {
+  width: 100%;
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.role-redirect-form-container h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.role-redirect-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.role-redirect-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.role-redirect-form-group label {
+  font-size: 16px;
+  font-weight: 500;
+  color: #555;
+}
+
+.role-redirect-form-group input[type="file"] {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.role-redirect-form-group input[type="file"]:focus {
+  border-color: #007bff;
+}
+
+.role-redirect-submit-btn {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  align-self: center;
+}
+
+.role-redirect-submit-btn:hover {
+  background-color: #0056b3;
+}
+
+.role-redirect-multi-select-dropdown {
+  width: 100%;
+}
+
+.role-redirect-dropdown-header {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.role-redirect-dropdown-list {
+  margin-top: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.role-redirect-dropdown-item {
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.role-redirect-dropdown-item input {
+  margin-right: 10px;
+}
+
+.role-redirect-dropdown-item:hover {
+  background-color: #f0f0f0;
+}
+
+.role-redirect-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.admin-approval-container {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  background: #f9f9f9;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.admin-approval-container h2 {
+  font-size: 24px;
+  color: #0056b3;
+}
+
+.admin-approval-container p {
+  font-size: 16px;
+  color: #333;
+}

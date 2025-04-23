@@ -34,25 +34,46 @@ const OTPVerification = ({ email, onResend, onBack }) => {
     }
   };
 
-  const handleVerify = async (e) => {
-    e.preventDefault();
-    if (otp.length !== 6) {
-      setOtpError("OTP must be 6 digits");
-      return;
-    }
+  // const handleVerify = async (e) => {
+  //   e.preventDefault();
+  //   if (otp.length !== 6) {
+  //     setOtpError("OTP must be 6 digits");
+  //     return;
+  //   }
 
-    setIsLoading(true);
-    try {
-      await authService.verifyOtp(email, otp);
-      toast.success("Email verified successfully!");
-      navigate("/");
-    } catch (error) {
-      console.error("OTP verification error:", error);
-      toast.error(error.message || "OTP verification failed");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //   setIsLoading(true);
+  //   try {
+  //     await authService.verifyOtp(email, otp);
+  //     toast.success("Email verified successfully!");
+  //     navigate("/");
+  //   } catch (error) {
+  //     console.error("OTP verification error:", error);
+  //     toast.error(error.message || "OTP verification failed");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
+  // In OTPVerification.jsx
+const handleVerify = async (e) => {
+  e.preventDefault();
+  if (otp.length !== 6) {
+    setOtpError("OTP must be 6 digits");
+    return;
+  }
+
+  setIsLoading(true);
+  try {
+    await authService.verifyOtp(email, otp);
+    toast.success("Email verified successfully! Please login.");
+    navigate('/login'); // Redirect to login page
+  } catch (error) {
+    console.error("OTP verification error:", error);
+    toast.error(error.message || "OTP verification failed");
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleResend = async () => {
     setIsLoading(true);

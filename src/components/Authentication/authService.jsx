@@ -128,42 +128,75 @@ const handleRequest = async (url, method, body = null, headers = {}) => {
 };
 
 export const authService = {
-  register: async (email, username, password, password2) => {
-    try {
-      const response = await handleRequest('/api/signup/', 'POST', {
-        email: email.toLowerCase(),
-        username,
-        password,
-        password2
-      });
+  // register: async (email, username, password, password2, roles) => {
+  //   try {
+  //     const response = await handleRequest('/api/signup/', 'POST', {
+  //       email: email.toLowerCase(),
+  //       username,
+  //       password,
+  //       password2,
+  //       roles
+  //     });
 
-      return response;
-    } catch (error) {
-      console.error('Registration error:', error);
-      throw error;
-    }
-  },
+  //     return response;
+  //   } catch (error) {
+  //     console.error('Registration error:', error);
+  //     throw error;
+  //   }
+  // },
 
-  verifyOtp: async (email, otp) => {
-    try {
-      const response = await handleRequest('/api/verify-otp/', 'POST', {
-        email: email.toLowerCase(),
-        otp
-      });
+  // verifyOtp: async (email, otp) => {
+  //   try {
+  //     const response = await handleRequest('/api/verify-otp/', 'POST', {
+  //       email: email.toLowerCase(),
+  //       otp
+  //     });
 
-      if (response && response.user) {
-        localStorage.setItem('token', response.tokens?.access);
-        localStorage.setItem('refreshToken', response.tokens?.refresh);
-        localStorage.setItem('user', JSON.stringify(response.user));
-        localStorage.setItem('isLoggedIn', 'true');
-        return response;
-      }
-      throw new Error(response.detail || 'OTP verification failed');
-    } catch (error) {
-      console.error('OTP verification error:', error);
-      throw error;
-    }
-  },
+  //     if (response && response.user) {
+  //       localStorage.setItem('token', response.tokens?.access);
+  //       localStorage.setItem('refreshToken', response.tokens?.refresh);
+  //       localStorage.setItem('user', JSON.stringify(response.user));
+  //       localStorage.setItem('isLoggedIn', 'true');
+  //       return response;
+  //     }
+  //     throw new Error(response.detail || 'OTP verification failed');
+  //   } catch (error) {
+  //     console.error('OTP verification error:', error);
+  //     throw error;
+  //   }
+  // },
+  // In authService.js
+register: async (email, username, password, password2, roles) => {
+  try {
+    const response = await handleRequest('/api/signup/', 'POST', {
+      email: email.toLowerCase(),
+      username,
+      password,
+      password2,
+      roles
+    });
+
+    return response; // Just return the response without storing tokens
+  } catch (error) {
+    console.error('Registration error:', error);
+    throw error;
+  }
+},
+
+verifyOtp: async (email, otp) => {
+  try {
+    const response = await handleRequest('/api/verify-otp/', 'POST', {
+      email: email.toLowerCase(),
+      otp
+    });
+
+    // Don't store tokens here, just return the response
+    return response;
+  } catch (error) {
+    console.error('OTP verification error:', error);
+    throw error;
+  }
+},
 
   resendOtp: async (email) => {
     try {
@@ -177,11 +210,12 @@ export const authService = {
     }
   },
 
-  login: async (email, password) => {
+  login: async (email, password,role) => {
     try {
       const response = await handleRequest('/api/login/', 'POST', { 
         email: email.toLowerCase(), 
-        password 
+        password,
+        role
       });
 
       if (response && response.user) {
@@ -189,6 +223,9 @@ export const authService = {
         localStorage.setItem('refreshToken', response.tokens?.refresh);
         localStorage.setItem('user', JSON.stringify(response.user));
         localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('activeRole', response.user.active_role); // Store active role
+        localStorage.setItem('is_profile_completed', response.user.is_profile_completed); // Store profile completion status
+        localStorage.setItem('roles', response.user.roles); // Store is_allowed status
         return response;
       }
       throw new Error(response.detail || 'Login failed - no user data');
@@ -209,6 +246,7 @@ export const authService = {
         localStorage.setItem('refreshToken', response.tokens?.refresh);
         localStorage.setItem('user', JSON.stringify(response.user));
         localStorage.setItem('isLoggedIn', 'true');
+        localStorage.setItem('activeRole', response.user.active_role); // Store active role
         return response;
       }
       throw new Error(response.detail || 'Google login failed');
@@ -263,6 +301,8 @@ export const authService = {
     localStorage.removeItem('refreshToken');
     localStorage.removeItem('user');
     localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('activeRole'); // Remove active role
+    
     window.dispatchEvent(new Event('storage'));
   },
 
