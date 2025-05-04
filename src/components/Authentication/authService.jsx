@@ -25,7 +25,7 @@ const handleRequest = async (url, method, body = null, headers = {}) => {
         'Content-Type': 'application/json',
         ...headers
       },
-      credentials: 'include'  // Important for cookies to be sent
+      credentials: 'include',  // Important for cookies to be sent
     };
 
     // Add CSRF token for non-GET requests if available
@@ -50,7 +50,7 @@ const handleRequest = async (url, method, body = null, headers = {}) => {
     if (body) {
       config.body = JSON.stringify(body);
     }
-
+    console.log('Request Config:', config);
     const response = await fetch(`${API_URL}${url}`, config);
     
     // Handle non-JSON responses
@@ -235,10 +235,11 @@ verifyOtp: async (email, otp) => {
     }
   },
 
-  googleLogin: async (idToken) => {
+  googleLogin: async (idToken, role) => {
     try {
       const response = await handleRequest('/api/login/', 'POST', { 
-        id_token: idToken 
+        id_token: idToken,
+        role
       });
 
       if (response && response.user) {

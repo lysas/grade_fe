@@ -110,10 +110,16 @@ const handleSignup = async (e) => {
 };
 
 const handleGoogleSignupSuccess = async (response) => {
+
+  const selectedRoles = Object.keys(roles).filter((role) => roles[role]);
+  if (selectedRoles.length === 0) {
+    toast.error("Please select at least one role before signing up with Google.");
+    return;
+  }
   setIsLoading(true);
   
   try {
-    await authService.googleLogin(response.credential);
+    await authService.googleLogin(response.credential, selectedRoles);
     toast.success("Google signup successful! Please login with your credentials.");
   
     onSwitchForm(); // This will show the login form
