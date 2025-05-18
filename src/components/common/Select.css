@@ -1,0 +1,72 @@
+.select-wrapper {
+  margin-bottom: 16px;
+  width: 100%;
+}
+
+.select-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #444;
+}
+
+.required-mark {
+  color: #e53e3e;
+  margin-left: 4px;
+}
+
+.select-common {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  appearance: menulist;
+}
+
+.select-common:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.select-common:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
+}
+
+.select-common.error {
+  border-color: #e53e3e;
+}
+
+.select-common.error:focus {
+  box-shadow: 0 0 0 2px rgba(229, 62, 62, 0.25);
+}
+
+.error-message {
+  display: block;
+  color: #e53e3e;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+/* Multiple select styles */
+.select-common[multiple] {
+  height: auto;
+  min-height: 100px;
+}
+
+.select-common[multiple] option {
+  padding: 8px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .select-common {
+    font-size: 16px; /* Better for mobile input */
+  }
+} 

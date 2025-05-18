@@ -1,0 +1,111 @@
+.customButton {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  letter-spacing: 0.3px;
+}
+
+.customButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Variants */
+.primary {
+  background: #3182ce;
+  color: white;
+}
+
+.primary:hover:not(:disabled) {
+  background: #2b6cb0;
+  transform: translateY(-1px);
+}
+
+.success {
+  background: #38a169;
+  color: white;
+}
+
+.success:hover:not(:disabled) {
+  background: #2d7948;
+  transform: translateY(-1px);
+}
+
+.purple {
+  background: #6b46c1;
+  color: white;
+}
+
+.purple:hover:not(:disabled) {
+  background: #5a32a3;
+  transform: translateY(-1px);
+}
+
+.orange {
+  background: #ed8936;
+  color: white;
+}
+
+.orange:hover:not(:disabled) {
+  background: #dd6b20;
+  transform: translateY(-1px);
+}
+
+.gray {
+  background: #718096;
+  color: white;
+}
+
+.gray:hover:not(:disabled) {
+  background: #5a657a;
+  transform: translateY(-1px);
+}
+
+/* Specific button styles */
+.viewButton {
+  color: #3182ce;
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+}
+
+.viewButton:after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background-color: #3182ce;
+  transition: width 0.3s;
+}
+
+.viewButton:hover:after {
+  width: 100%;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .customButton {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 576px) {
+  .customButton {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+} 

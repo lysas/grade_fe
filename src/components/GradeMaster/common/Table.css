@@ -1,0 +1,90 @@
+.tableContainer {
+  padding: 15px 0;
+  overflow-x: auto;
+  background: white;
+  margin: 20px 0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.customTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 15px;
+}
+
+.customTable th {
+  background: #4a5568;
+  color: white;
+  font-weight: 500;
+  padding: 16px;
+  text-align: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  letter-spacing: 0.3px;
+  font-size: 15px;
+}
+
+.customTable td {
+  padding: 16px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #4a5568;
+  font-size: 15px;
+}
+
+.customTable tr:hover {
+  background-color: #f7fafc;
+}
+
+.customTable tr:last-child td {
+  border-bottom: none;
+}
+
+.customTable tr.clickable {
+  cursor: pointer;
+}
+
+.noDataMessage {
+  text-align: center;
+  padding: 40px 0;
+  color: #a0aec0;
+  font-style: italic;
+  font-size: 15px;
+}
+
+/* Custom scrollbar */
+.tableContainer::-webkit-scrollbar {
+  height: 8px;
+}
+
+.tableContainer::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 10px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .customTable th,
+  .customTable td {
+    padding: 12px;
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 576px) {
+  .customTable th,
+  .customTable td {
+    padding: 10px;
+    font-size: 15px;
+  }
+} 

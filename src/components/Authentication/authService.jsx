@@ -247,7 +247,8 @@ verifyOtp: async (email, otp) => {
         localStorage.setItem('refreshToken', response.tokens?.refresh);
         localStorage.setItem('user', JSON.stringify(response.user));
         localStorage.setItem('isLoggedIn', 'true');
-        localStorage.setItem('activeRole', response.user.active_role); // Store active role
+        localStorage.setItem('activeRole', response.user.active_role); 
+        console.log("active role",response.user.active_role);// Store active role
         return response;
       }
       throw new Error(response.detail || 'Google login failed');

@@ -6,11 +6,15 @@ import { faComment } from "@fortawesome/free-solid-svg-icons";
 import axios from 'axios';
 import { AppContext } from './AppContext';
 import './emailwriter.css';
-import { authService } from './Authentication/authService'; 
+import { authService } from './Authentication/authService';
+import { Button, Input, Select, TextArea, Heading, Label } from './common';
+import OutputSection from './common/OutputSection';
+
 axios.defaults.withCredentials = true;
 axios.defaults.xsrfCookieName = 'csrftoken';
 axios.defaults.xsrfHeaderName = 'X-CSRFToken';
 axios.defaults.withXSRFToken = true; // For newer axios versions
+
 const EmailWriterPage = () => {
   const [selectedType, setSelectedType] = useState('Personal');
   const [composedEmail, setComposedEmail] = useState('');
@@ -127,7 +131,6 @@ const EmailWriterPage = () => {
     if (composedEmail) {
       navigator.clipboard.writeText(composedEmail)
         .then(() => {
-          // Optional: Show a temporary "Copied!" message
           const copyIcon = document.querySelector('.copy-icon');
           if (copyIcon) {
             const originalTitle = copyIcon.title;
@@ -145,55 +148,45 @@ const EmailWriterPage = () => {
 
   return (
     <div className="email-writer-container">
-      {/* Title of the page */}
-      <h1 className="email-writer-title">Email Writer!</h1>
+      <Heading>Email Writer!</Heading>
 
       <div className="email-form-container">
         <div className="form-row">
-          {/* Email Type Selector */}
           <div className="form-group">
-            <label htmlFor="type">Type of Mail</label>
-            <select
+            <Label htmlFor="type">Type of Mail</Label>
+            <Select
               id="type"
-              data-testid="type"
-              name="type"
-              className="form-select"
               value={selectedType}
               onChange={handleTypeChange}
-            >
-              <option value="" disabled hidden>Type of mail</option>
-              <option value="Personal">Personal</option>
-              <option value="Business">Business</option>
-              <option value="Job Seekers">Job Seekers</option>
-              <option value="HR/Employee">HR/Employee</option>
-            </select>
+              options={[
+                { value: 'Personal', label: 'Personal' },
+                { value: 'Business', label: 'Business' },
+                { value: 'Job Seekers', label: 'Job Seekers' },
+                { value: 'HR/Employee', label: 'HR/Employee' }
+              ]}
+            />
           </div>
 
-          {/* Tone Selector */}
           <div className="form-group">
-            <label htmlFor="tone">Tone</label>
-            <select
+            <Label htmlFor="tone">Tone</Label>
+            <Select
               id="tone"
-              data-testid="tone"
-              name="tone"
-              className="form-select"
               ref={toneRef}
-              defaultValue=""
-            >
-              <option value="" disabled hidden>Tone</option>
-              <option value="Funny">Funny</option>
-              <option value="Serious">Serious</option>
-              <option value="Friendly">Friendly</option>
-              <option value="Professional">Professional</option>
-              <option value="Empathetic">Empathetic</option>
-              <option value="Confident">Confident</option>
-              <option value="Enthusiastic">Enthusiastic</option>
-              <option value="Assertive">Assertive</option>
-              <option value="Encouraging">Encouraging</option>
-              <option value="Excited">Excited</option>
-              <option value="Witty">Witty</option>
-              <option value="Sympathetic">Sympathetic</option>
-            </select>
+              options={[
+                { value: 'Funny', label: 'Funny' },
+                { value: 'Serious', label: 'Serious' },
+                { value: 'Friendly', label: 'Friendly' },
+                { value: 'Professional', label: 'Professional' },
+                { value: 'Empathetic', label: 'Empathetic' },
+                { value: 'Confident', label: 'Confident' },
+                { value: 'Enthusiastic', label: 'Enthusiastic' },
+                { value: 'Assertive', label: 'Assertive' },
+                { value: 'Encouraging', label: 'Encouraging' },
+                { value: 'Excited', label: 'Excited' },
+                { value: 'Witty', label: 'Witty' },
+                { value: 'Sympathetic', label: 'Sympathetic' }
+              ]}
+            />
           </div>
         </div>
 
@@ -201,47 +194,39 @@ const EmailWriterPage = () => {
         <div className="email-group" style={{ display: selectedType === "Personal" ? "block" : "none" }}>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="recipient">Recipient</label>
-              <select
+              <Label htmlFor="recipient">Recipient</Label>
+              <Select
                 id="recipient"
-                data-testid="recipient"
-                name="recipient"
-                className="form-select"
-                defaultValue=""
-              >
-                <option value="" disabled hidden>Recipient</option>
-                <option value="Friend">Friend</option>
-                <option value="Family member">Family member</option>
-                <option value="Doctors">Doctors</option>
-                <option value="Therapists">Therapists</option>
-                <option value="Religious leaders">Religious leaders</option>
-                <option value="Pen pals">Pen pals</option>
-              </select>
+                options={[
+                  { value: 'Friend', label: 'Friend' },
+                  { value: 'Family member', label: 'Family member' },
+                  { value: 'Doctors', label: 'Doctors' },
+                  { value: 'Therapists', label: 'Therapists' },
+                  { value: 'Religious leaders', label: 'Religious leaders' },
+                  { value: 'Pen pals', label: 'Pen pals' }
+                ]}
+              />
             </div>
 
             <div className="form-group">
-              <label htmlFor="purpose">Purpose</label>
-              <select
+              <Label htmlFor="purpose">Purpose</Label>
+              <Select
                 id="purpose"
-                data-testid="purpose"
-                name="purpose"
-                className="form-select"
-                defaultValue=""
-              >
-                <option value="" disabled hidden>Purpose</option>
-                <option value="Welcome">Welcome</option>
-                <option value="Wishes">Wishes</option>
-                <option value="Ask help/advice">Ask help/advice</option>
-                <option value="Express feelings/emotions">Express feelings/emotions</option>
-                <option value="Conduct business">Conduct business</option>
-                <option value="Apply for a job">Apply for a job</option>
-                <option value="Thank you">Thank you</option>
-                <option value="Apology">Apology</option>
-                <option value="Reminder">Reminder</option>
-                <option value="Invitation">Invitation</option>
-                <option value="Request">Request</option>
-                <option value="Job Seekers">Job Seekers</option>
-              </select>
+                options={[
+                  { value: 'Welcome', label: 'Welcome' },
+                  { value: 'Wishes', label: 'Wishes' },
+                  { value: 'Ask help/advice', label: 'Ask help/advice' },
+                  { value: 'Express feelings/emotions', label: 'Express feelings/emotions' },
+                  { value: 'Conduct business', label: 'Conduct business' },
+                  { value: 'Apply for a job', label: 'Apply for a job' },
+                  { value: 'Thank you', label: 'Thank you' },
+                  { value: 'Apology', label: 'Apology' },
+                  { value: 'Reminder', label: 'Reminder' },
+                  { value: 'Invitation', label: 'Invitation' },
+                  { value: 'Request', label: 'Request' },
+                  { value: 'Job Seekers', label: 'Job Seekers' }
+                ]}
+              />
             </div>
           </div>
         </div>
@@ -250,53 +235,45 @@ const EmailWriterPage = () => {
         <div className="email-group" style={{ display: selectedType === "Business" ? "block" : "none" }}>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="business-recipient">Recipient</label>
-              <select
+              <Label htmlFor="business-recipient">Recipient</Label>
+              <Select
                 id="business-recipient"
-                data-testid="recipient"
                 ref={recipientRef}
-                name="recipient"
-                className="form-select"
-                defaultValue=""
-              >
-                <option value="" disabled hidden>Recipient</option>
-                <option>Customer Support</option>
-                <option>Customers</option>
-                <option>Vendors</option>
-                <option>Employees</option>
-                <option>Partners</option>
-                <option>Investors</option>
-                <option>Government agencies</option>
-                <option>Other businesses</option>
-              </select>
+                options={[
+                  { value: 'Customer Support', label: 'Customer Support' },
+                  { value: 'Customers', label: 'Customers' },
+                  { value: 'Vendors', label: 'Vendors' },
+                  { value: 'Employees', label: 'Employees' },
+                  { value: 'Partners', label: 'Partners' },
+                  { value: 'Investors', label: 'Investors' },
+                  { value: 'Government agencies', label: 'Government agencies' },
+                  { value: 'Other businesses', label: 'Other businesses' }
+                ]}
+              />
             </div>
 
             <div className="form-group">
-              <label htmlFor="business-purpose">Purpose</label>
-              <select
+              <Label htmlFor="business-purpose">Purpose</Label>
+              <Select
                 id="business-purpose"
-                data-testid="purpose"
                 ref={purposeRef}
-                name="purpose"
-                className="form-select"
-                defaultValue=""
-              >
-                <option value="" disabled hidden>Purpose</option>
-                <option value="welcome">Welcome</option>
-                <option value="thankyou">Thank you</option>
-                <option value="promotional">Promotional</option>
-                <option value="newsletter">Newsletter</option>
-                <option value="transactional">Transactional</option>
-                <option value="survey">Survey</option>
-                <option value="cancellation">Cancellation</option>
-                <option value="abandonedcart">Abandoned cart</option>
-                <option value="confirmation">Confirmation</option>
-                <option value="announcement">Announcement</option>
-                <option value="invitation">Invitation</option>
-                <option value="request">Request</option>
-                <option value="complaint">Complaint</option>
-                <option value="feedback">Feedback</option>
-              </select>
+                options={[
+                  { value: 'welcome', label: 'Welcome' },
+                  { value: 'thankyou', label: 'Thank you' },
+                  { value: 'promotional', label: 'Promotional' },
+                  { value: 'newsletter', label: 'Newsletter' },
+                  { value: 'transactional', label: 'Transactional' },
+                  { value: 'survey', label: 'Survey' },
+                  { value: 'cancellation', label: 'Cancellation' },
+                  { value: 'abandonedcart', label: 'Abandoned cart' },
+                  { value: 'confirmation', label: 'Confirmation' },
+                  { value: 'announcement', label: 'Announcement' },
+                  { value: 'invitation', label: 'Invitation' },
+                  { value: 'request', label: 'Request' },
+                  { value: 'complaint', label: 'Complaint' },
+                  { value: 'feedback', label: 'Feedback' }
+                ]}
+              />
             </div>
           </div>
         </div>
@@ -305,40 +282,32 @@ const EmailWriterPage = () => {
         <div className="email-group" style={{ display: selectedType === "Job Seekers" ? "block" : "none" }}>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="jobseeker-recipient">Recipient</label>
-              <select
+              <Label htmlFor="jobseeker-recipient">Recipient</Label>
+              <Select
                 id="jobseeker-recipient"
-                data-testid="recipient"
                 ref={jobSeekersRecipientRef}
-                name="recipient"
-                className="form-select"
-                defaultValue=""
-              >
-                <option value="" disabled hidden>Recipient</option>
-                <option>HR Manager</option>
-              </select>
+                options={[
+                  { value: 'HR Manager', label: 'HR Manager' }
+                ]}
+              />
             </div>
 
             <div className="form-group">
-              <label htmlFor="jobseeker-purpose">Purpose</label>
-              <select
+              <Label htmlFor="jobseeker-purpose">Purpose</Label>
+              <Select
                 id="jobseeker-purpose"
-                data-testid="purpose"
                 ref={jobSeekersPurposeRef}
-                name="purpose"
-                className="form-select"
-                defaultValue=""
-              >
-                <option value="" disabled hidden>Purpose</option>
-                <option>Job Application</option>
-                <option>Job Acceptance</option>
-                <option>Job Rejection</option>
-                <option>Thank You Email After Interview</option>
-                <option>Reference Request</option>
-                <option>Job Inquiry</option>
-                <option>Follow-up Email After Interview</option>
-                <option>Networking Email for Job Search</option>
-              </select>
+                options={[
+                  { value: 'Job Application', label: 'Job Application' },
+                  { value: 'Job Acceptance', label: 'Job Acceptance' },
+                  { value: 'Job Rejection', label: 'Job Rejection' },
+                  { value: 'Thank You Email After Interview', label: 'Thank You Email After Interview' },
+                  { value: 'Reference Request', label: 'Reference Request' },
+                  { value: 'Job Inquiry', label: 'Job Inquiry' },
+                  { value: 'Follow-up Email After Interview', label: 'Follow-up Email After Interview' },
+                  { value: 'Networking Email for Job Search', label: 'Networking Email for Job Search' }
+                ]}
+              />
             </div>
           </div>
         </div>
@@ -347,104 +316,62 @@ const EmailWriterPage = () => {
         <div className="email-group" style={{ display: selectedType === "HR/Employee" ? "block" : "none" }}>
           <div className="form-row">
             <div className="form-group">
-              <label htmlFor="employee-recipient">Recipient</label>
-              <select
+              <Label htmlFor="employee-recipient">Recipient</Label>
+              <Select
                 id="employee-recipient"
-                data-testid="recipient"
                 ref={employeeRecipientRef}
-                name="recipient"
-                className="form-select"
-                defaultValue=""
-              >
-                <option value="" disabled hidden>Recipient</option>
-                <option>Employee</option>
-                <option>HR</option>
-              </select>
+                options={[
+                  { value: 'Employee', label: 'Employee' },
+                  { value: 'HR', label: 'HR' }
+                ]}
+              />
             </div>
 
             <div className="form-group">
-              <label htmlFor="employee-purpose">Purpose</label>
-              <select
+              <Label htmlFor="employee-purpose">Purpose</Label>
+              <Select
                 id="employee-purpose"
-                data-testid="purpose"
                 ref={employeePurposeRef}
-                name="purpose"
-                className="form-select"
-                defaultValue=""
-              >
-                <option value="" disabled hidden>Purpose</option>
-                <option>Resignation Letter</option>
-                <option>Interview Invitation</option>
-                <option>Interview Confirmation</option>
-                <option value="Job Offer">Job Offer</option>
-                <option value="Promotion Request">Promotion Request</option>
-                <option value="Transfer Request">Transfer Request</option>
-                <option value="Performance Appraisal">Performance Appraisal</option>
-                <option value="Acknowledgment of Resignation">Acknowledgment of Resignation</option>
-                <option value="Welcome Email to New Employee">Welcome Email to New Employee</option>
-                <option value="Job Termination">Job Termination</option>
-              </select>
+                options={[
+                  { value: 'Resignation Letter', label: 'Resignation Letter' },
+                  { value: 'Interview Invitation', label: 'Interview Invitation' },
+                  { value: 'Interview Confirmation', label: 'Interview Confirmation' },
+                  { value: 'Job Offer', label: 'Job Offer' },
+                  { value: 'Promotion Request', label: 'Promotion Request' },
+                  { value: 'Transfer Request', label: 'Transfer Request' },
+                  { value: 'Performance Appraisal', label: 'Performance Appraisal' },
+                  { value: 'Acknowledgment of Resignation', label: 'Acknowledgment of Resignation' },
+                  { value: 'Welcome Email to New Employee', label: 'Welcome Email to New Employee' },
+                  { value: 'Job Termination', label: 'Job Termination' }
+                ]}
+              />
             </div>
           </div>
         </div>
 
-        {/* Personalized Content */}
         <div className="form-group">
-          <label htmlFor="personalized">Enter the content of the mail</label>
-          <textarea
+          <Label htmlFor="personalized">Enter the content of the mail</Label>
+          <TextArea
             id="personalized"
-            data-testid="personalized"
-            name="personalized"
             ref={personalizedRef}
-            className="form-textarea"
             placeholder="Eg. invite - birthday - 2nd december - venue"
           />
         </div>
 
-        {/* Error message display */}
         {error && <div className="error-message">{error}</div>}
 
-        {/* Button to compose email */}
-        <div className="form-action">
-          <button
-            className="btn-final"
-            onClick={handleComposeEmail}
-            disabled={isLoading}
-          >
-            {isLoading ? 'Generating...' : 'Compose Email'}
-          </button>
-        </div>
-
-        {/* Output box to display the composed email text */}
-        <div className="output-container">
-          <label htmlFor="output">Compose Email</label>
-          <div className="output-wrapper">
-            <textarea
-              id="output"
-              data-testid="output"
-              value={composedEmail}
-              readOnly
-              className="output-area"
-            />
-            <div className="output-actions">
-              <RiFileCopy2Line
-                className="copy-icon"
-                onClick={handleCopyToClipboard}
-                title="Copy to clipboard"
-              />
-              <button
-                className="feedback-button"
-                onClick={handleFeedback}
-                data-testid="feedback-button"
-              >
-                <FontAwesomeIcon icon={faComment} />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Feedback popup */}
-        {showFeed && <FeedbackPopup onClose={handleClosePopup} />}
+        <OutputSection
+          outputText={composedEmail}
+          onCopy={handleCopyToClipboard}
+          onFeedback={handleFeedback}
+          showFeed={showFeed}
+          onClosePopup={handleClosePopup}
+          isLoading={isLoading}
+          onGenerate={handleComposeEmail}
+          generateButtonText="Compose Email"
+          outputLabel="Composed Email"
+          FeedbackPopup={FeedbackPopup}
+        />
       </div>
     </div>
   );

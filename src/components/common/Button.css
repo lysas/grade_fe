@@ -1,0 +1,75 @@
+.btn-common {
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+}
+
+.primary {
+  background-color: #f69050 !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.primary:hover:not(:disabled) {
+  background-color: #fff !important;
+  color: #f69050 !important;
+  border: 2px solid #f69050 !important;
+  box-shadow: 0 0 0 2px #ffe5d0 !important;
+  cursor: pointer !important;
+}
+
+.primary:active {
+  background-color: #e58040 !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+}
+
+/* Disabled state */
+.btn-common:disabled,
+.btn-common[aria-disabled="true"] {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.icon {
+  background-color: white;
+  color: #0C0B6D;
+  border: 1px solid #0C0B6D;
+  padding: 8px;
+  width: 40px;
+  height: 40px;
+}
+
+.icon:hover:not(:disabled) {
+  background-color: #f0f0f0;
+}
+
+.btn-common.full-width {
+  width: 100%;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .btn-common {
+    padding: 12px 24px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-common {
+    padding: 8px 16px;
+    font-size: 14px;
+  }
+}

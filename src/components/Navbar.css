@@ -1,81 +1,146 @@
-/* Custom styles for profile dropdown */
+/* Updated styles for profile dropdown */
 .profile-dropdown {
-    position: absolute;
-    right: 0;
-    top: 100%;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    width: 250px;
-    z-index: 1000;
-    padding: 15px;
-    display: none;
-  }
-  
-  .profile-dropdown.show {
-    display: block;
-  }
-  
-  .dropdown-user-info {
+  position: absolute;
+  right: 20px;
+  top: calc(100% + 10px); /* Add some spacing below navbar */
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  width: 250px;
+  z-index: 1000;
+  padding: 15px;
+  display: none;
+}
+
+.profile-dropdown.show {
+  display: block;
+}
+
+.dropdown-user-info {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.dropdown-profile-photo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.dropdown-email {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 50px);
+  color: #333;
+  font-size: 0.9rem;
+}
+
+#profile-dropdown .dropdown-item {
+  padding: 12px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+  color: #333;
+  display: block;
+  width: 100%;
+}
+
+#profile-dropdown .dropdown-item:hover {
+  background-color: #f5f5f5 !important;
+  text-decoration: none;
+}
+
+.dropdown-divider {
+  height: 1px;
+  background-color: #e0e0e0;
+  margin: 15px 0;
+  border-bottom: 1px solid #d0d0d0;
+  opacity: 1;
+  width: 100%;
+}
+
+.logout {
+  color: #dc3545;
+  padding: 12px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.logout:hover {
+  background-color: #f5f5f5;
+}
+
+#profile-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+#profile-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+}
+
+.nav-profile-photo {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.nav-item.nav-link {
     display: flex;
     align-items: center;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
+    height: 100%;
+    padding: 0.5rem 1rem;
+    line-height: 1;
   }
-  
-  .dropdown-profile-photo {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    margin-right: 10px;
-    flex-shrink: 0;
+
+  .navbar-nav {
+    display: flex;
+    align-items: center;
+    height: 100%;
   }
-  
-  .dropdown-user-info span {
-    flex: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: calc(100% - 50px);
-  }
-  
-  .dropdown-item {
-    padding: 8px 10px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.2s;
-  }
-  
-  .dropdown-item:hover {
-    background-color: #f5f5f5;
-  }
-  
-  .dropdown-divider {
-    height: 1px;
-    background-color: #eee;
-    margin: 8px 0;
-  }
-  
-  .logout {
-    color: #dc3545;
-  }
-  
-  #profile-container {
-    position: relative;
-  }
-  
-  #profile-icon {
+
+  .nav-item.nav-link i {
+    font-size: 1.2rem;
+    color: #333;
+    transition: color 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 40px;
-    height: 40px;
+    width: 24px;
+    height: 24px;
   }
-  
-  .nav-profile-photo {
-    width: 30px;
-    height: 30px;
+
+  .nav-item.nav-link i:hover {
+    color: #f69050;
+  }
+
+  .nav-item.nav-link i.fa-bell {
+    position: relative;
+  }
+
+  /* Optional: Add a notification badge */
+  .nav-item.nav-link i.fa-bell::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 8px;
+    height: 8px;
+    background-color: #dc3545;
     border-radius: 50%;
-    object-fit: cover;
+    display: none; /* Hide by default, show when there are notifications */
   }

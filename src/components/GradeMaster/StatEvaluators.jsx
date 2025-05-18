@@ -14,11 +14,17 @@ const StatEvaluator = () => {
     const fetchEvaluationData = async () => {
       try {
         const userEmail = user?.email;
+        const userId = user?.id;
+        console.log('User ID:', userId);
+        console.log('User Email:', userEmail);
+
         const evaluatedResponse = await axios.get(
           `http://localhost:8000/api/grade/myCorrections/${userEmail}/`
         );
         const pendingResponse = await axios.get(
-          'http://localhost:8000/api/grade/evaluator_question/'
+          'http://localhost:8000/api/grade/evaluator_question/',{
+            params: { user_id:userId },
+          }
         );
 
         setEvaluatedPapers(evaluatedResponse.data);

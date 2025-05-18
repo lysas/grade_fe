@@ -740,8 +740,9 @@ const QuestionWhiz = () => {
   
               {/* Text Section */}
               <div style={{ display: showContent ? "block" : "none" }}>
-                <h3>Enter the Text</h3>
-                <div className="forrm-group-quiz">
+              <div className="forrm-group-quiz">
+
+                <label>Enter the Text</label>
                   <textarea
                     id="which-questions"
                     data-testid="which-questions"
@@ -755,8 +756,9 @@ const QuestionWhiz = () => {
   
               {/* Similar Questions Section */}
               <div style={{ display: showSimilar ? "block" : "none" }}>
-                <h3>Similar Questions</h3>
-                <div className="forrm-group-quiz">
+              <div className="forrm-group-quiz">
+
+              <label>Similar Questions</label>
                   <textarea
                     id="which-questions"
                     data-testid="which-questions"

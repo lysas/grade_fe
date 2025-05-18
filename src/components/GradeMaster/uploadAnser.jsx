@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useLocation, useNavigate } from 'react-router-dom';
-import SimpleDocViewer from './SimpleDocViewer'; // Import the new component
+import SimpleDocViewer from './SimpleDocViewer';
 import './UploadAnswer.css';
 
 const UploadAnswer = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { questionPaper, userEmail } = location.state || {};
+  const { questionPaper, questionPaperType, userEmail, userId } = location.state || {};
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState('');
@@ -17,10 +17,31 @@ const UploadAnswer = () => {
   const [previewUrl, setPreviewUrl] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // Get the question paper URL and file extension
-  const questionPaperUrl = questionPaper?.file 
-    ? `http://127.0.0.1:8000/media/question_papers/${questionPaper.file.split('/').pop()}`
-    : '';
+  // Get the question paper URL and file extension based on paper type
+  const getQuestionPaperUrl = () => {
+    if (!questionPaper?.file) return '';
+    
+    const fileName = questionPaper.file.split('/').pop();
+    let folder = '';
+    
+    // Determine folder based on question paper type
+    switch(questionPaperType) {
+      case 'previous_year':
+        folder = 'previous_year/';
+        break;
+      case 'generated':
+        folder = 'generated/';
+        break;
+      case 'sample':
+      default:
+        folder = 'sample/';  // Sample papers folder
+        break;
+    }
+    
+    return `http://127.0.0.1:8000/media/question_papers/${folder}${fileName}`;
+  };
+
+  const questionPaperUrl = getQuestionPaperUrl();
   const fileExtension = questionPaperUrl.split('.').pop().toLowerCase();
 
   // Clean up object URLs on component unmount
@@ -113,11 +134,23 @@ const UploadAnswer = () => {
 
     setLoading(true);
     const formData = new FormData();
-    formData.append('qid', questionPaper.id);
+    
+    // Required fields from the API
     formData.append('file', file);
-    formData.append('feedback', feedback);
-    formData.append('correction', correction);
-    formData.append('email', userEmail);
+    formData.append('user_id', location.state?.userId); // Get user ID from location state
+    formData.append('question_paper_type', questionPaperType);
+    formData.append('question_paper_id', questionPaper.id);
+    
+    // Optional fields
+    if (feedback) {
+      formData.append('feedback', feedback);
+    }
+    if (correction) {
+      formData.append('correction', correction);
+    }
+    if (userEmail) {
+      formData.append('email', userEmail);
+    }
 
     try {
       const response = await axios.post(
@@ -147,7 +180,7 @@ const UploadAnswer = () => {
       }, 1000);
       
     } catch (error) {
-      const errorMsg = error.response?.data?.message || 'Error uploading answer. Please try again.';
+      const errorMsg = error.response?.data?.error || error.response?.data?.message || 'Error uploading answer. Please try again.';
       setMessage(errorMsg);
       setMessageType('error');
       console.error('Error uploading answer:', error.response?.data || error);
@@ -181,9 +214,21 @@ const UploadAnswer = () => {
                 <p>
                   <strong>Title:</strong> {questionPaper.title}
                 </p>
+
+                <p>
+                  <strong>Subject:</strong> {questionPaper.subject}
+                </p>
+
                 <p>
                   <strong>Total Marks:</strong> {questionPaper.total_marks}
                 </p>
+
+                {questionPaperType === 'previous_year' && questionPaper.year && (
+                  <p>
+                    <strong>Year:</strong> {questionPaper.year}
+                  </p>
+                )}
+
                 <p>
                   <strong>Upload Date:</strong> {questionPaper.upload_date}
                 </p>
