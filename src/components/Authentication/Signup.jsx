@@ -23,19 +23,6 @@ const Signup = ({ onSwitchForm }) => {
   const [showOtpVerification, setShowOtpVerification] = useState(false);
   const [registeredEmail, setRegisteredEmail] = useState("");
   const navigate = useNavigate();
-  const [roles, setRoles] = useState({
-    student: false,
-    evaluator: false,
-    qp_uploader: false,
-    mentor: false
-  });
-
-  const handleRoleChange = (role) => {
-    setRoles(prev => ({
-      ...prev,
-      [role]: !prev[role]
-    }));
-  };
 
   const handleUsernameChange = (e) => {
     const value = e.target.value;
@@ -76,106 +63,52 @@ const Signup = ({ onSwitchForm }) => {
       setConfirmPasswordError("");
     }
   };
-  // In Signup.jsx
-const handleSignup = async (e) => {
-  e.preventDefault();
-  if (!agreeTerms) {
-    toast.error("You must agree to the terms before signing up.");
-    return;
-  }
-  if (!isValidEmail(email) || !username || password.length < 8 || password !== confirmPassword) {
-    return;
-  }
-  
-  setIsLoading(true);
-  
-  try {
-    await authService.register(
-      email.toLowerCase(),
-      username,
-      password,
-      confirmPassword,
-      roles
-    );
-    
-    setRegisteredEmail(email.toLowerCase());
-    setShowOtpVerification(true);
-    toast.success("OTP sent to your email. Please verify to complete registration.");
-  } catch (error) {
-    console.error("Signup error:", error);
-    toast.error(error.message || "Something went wrong. Please try again.");
-  } finally {
-    setIsLoading(false);
-  }
-};
 
-const handleGoogleSignupSuccess = async (response) => {
-
-  const selectedRoles = Object.keys(roles).filter((role) => roles[role]);
-  if (selectedRoles.length === 0) {
-    toast.error("Please select at least one role before signing up with Google.");
-    return;
-  }
-  setIsLoading(true);
-  
-  try {
-    await authService.googleLogin(response.credential, selectedRoles);
-    toast.success("Google signup successful! Please login with your credentials.");
-  
-    onSwitchForm(); // This will show the login form
-  } catch (error) {
-    console.error("Google signup error:", error);
-    toast.error(error.message || "An error occurred during Google signup");
-  } finally {
-    setIsLoading(false);
-  }
-};
-  // const handleSignup = async (e) => {
-  //   e.preventDefault();
-  //   if (!agreeTerms) {
-  //     toast.error("You must agree to the terms before signing up.");
-  //     return;
-  //   }
-  //   if (!isValidEmail(email) || !username || password.length < 8 || password !== confirmPassword) {
-  //     return;
-  //   }
+  const handleSignup = async (e) => {
+    e.preventDefault();
+    if (!agreeTerms) {
+      toast.error("You must agree to the terms before signing up.");
+      return;
+    }
+    if (!isValidEmail(email) || !username || password.length < 8 || password !== confirmPassword) {
+      return;
+    }
     
-  //   setIsLoading(true);
+    setIsLoading(true);
     
-  //   try {
-  //     await authService.register(
-  //       email.toLowerCase(),
-  //       username,
-  //       password,
-  //       confirmPassword,
-  //       roles
-  //     );
+    try {
+      await authService.register(
+        email.toLowerCase(),
+        username,
+        password,
+        confirmPassword
+      );
       
-  //     setRegisteredEmail(email.toLowerCase());
-  //     setShowOtpVerification(true);
-  //     toast.success("OTP sent to your email. Please verify to complete registration.");
-  //   } catch (error) {
-  //     console.error("Signup error:", error);
-  //     toast.error(error.message || "Something went wrong. Please try again.");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
+      setRegisteredEmail(email.toLowerCase());
+      setShowOtpVerification(true);
+      toast.success("OTP sent to your email. Please verify to complete registration.");
+    } catch (error) {
+      console.error("Signup error:", error);
+      toast.error(error.message || "Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  // const handleGoogleSignupSuccess = async (response) => {
-  //   setIsLoading(true);
+  const handleGoogleSignupSuccess = async (response) => {
+    setIsLoading(true);
     
-  //   try {
-  //     await authService.googleLogin(response.credential);
-  //     toast.success("Google signup successful!");
-  //     navigate("/");
-  //   } catch (error) {
-  //     console.error("Google signup error:", error);
-  //     toast.error(error.message || "An error occurred during Google signup");
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
+    try {
+      await authService.googleLogin(response.credential);
+      toast.success("Google signup successful! Please login with your credentials.");
+      onSwitchForm(); // This will show the login form
+    } catch (error) {
+      console.error("Google signup error:", error);
+      toast.error(error.message || "An error occurred during Google signup");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleGoogleSignupFailure = () => {
     toast.error("Google signup failed");
@@ -278,50 +211,6 @@ const handleGoogleSignupSuccess = async (response) => {
               {confirmPasswordError && <div className="error-message">{confirmPasswordError}</div>}
             </div>
             
-  <div className="role-selection">
-    <h4>Select Your Role(s):</h4>
-    <div className="role-options">
-      <label>
-        <input
-          type="checkbox"
-          checked={roles.student}
-          onChange={() => handleRoleChange('student')}
-          disabled={isLoading}
-        />
-        Student
-      </label>
-      <label>
-        <input
-          type="checkbox"
-          checked={roles.evaluator}
-          onChange={() => handleRoleChange('evaluator')}
-          disabled={isLoading}
-        />
-        Evaluator
-      </label>
-      <label>
-        <input
-          type="checkbox"
-          checked={roles.qp_uploader}
-          onChange={() => handleRoleChange('qp_uploader')}
-          disabled={isLoading}
-        />
-        QP Uploader
-      </label>
-      <label>
-        <input
-          type="checkbox"
-          checked={roles.mentor}
-          onChange={() => handleRoleChange('mentor')}
-          disabled={isLoading}
-        />
-        Mentor
-      </label>
-    </div>
-    {Object.values(roles).every(role => !role) && (
-      <div className="error-message">Please select at least one role</div>
-    )}
-  </div>
             <div className="checkbox-container">
               <input
                 type="checkbox"

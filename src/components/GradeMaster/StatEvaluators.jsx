@@ -42,6 +42,10 @@ const StatEvaluator = () => {
 
   const calculateSubjectDistribution = (papers) => {
     const subjectCounts = {};
+     if (!Array.isArray(papers)) {
+        console.error("calculateSubjectDistribution received non-array:", papers);
+        return {};
+    }
     papers.forEach((paper) => {
       subjectCounts[paper.subject] = (subjectCounts[paper.subject] || 0) + 1;
     });
@@ -77,35 +81,39 @@ const StatEvaluator = () => {
     Object.values(pendingSubjectData)
   );
 
+   // Check if there's any data to display in any of the charts
+   const hasPaperStatusData = evaluatedPapers.length + pendingPapers.length > 0;
+   const hasEvaluatedSubjectData = Object.entries(evaluatedSubjectData).length > 0;
+   const hasPendingSubjectData = Object.entries(pendingSubjectData).length > 0;
+
+  // If no data for any chart, return null
+  if (!hasPaperStatusData && !hasEvaluatedSubjectData && !hasPendingSubjectData) {
+    return null;
+  }
+
   return (
     <div className="stat-evaluator-page">
       <h1 className="page-title">Evaluator Statistics</h1>
       {error && <p className="error">{error}</p>}
       <div className="chart-container">
-        <div className="chart-box">
-          <h2>Evaluated vs Pending Papers</h2>
-          {evaluatedPapers.length + pendingPapers.length > 0 ? (
+        {hasPaperStatusData && (
+          <div className="chart-box">
+            <h2>Evaluated vs Pending Papers</h2>
             <Pie data={paperStatusChartData} />
-          ) : (
-            <p className="no-data-message">No data available.</p>
-          )}
-        </div>
-        <div className="chart-box">
-          <h2>Subject-Wise Evaluated Papers</h2>
-          {Object.entries(evaluatedSubjectData).length > 0 ? (
+          </div>
+        )}
+        {hasEvaluatedSubjectData && (
+          <div className="chart-box">
+            <h2>Subject-Wise Evaluated Papers</h2>
             <Pie data={evaluatedSubjectChartData} options={{ plugins: { legend: { display: true } } }} />
-          ) : (
-            <p className="no-data-message">No data available.</p>
-          )}
-        </div>
-        <div className="chart-box">
-          <h2>Subject-Wise Pending Papers</h2>
-          {Object.entries(pendingSubjectData).length > 0 ? (
+          </div>
+        )}
+        {hasPendingSubjectData && (
+          <div className="chart-box">
+            <h2>Subject-Wise Pending Papers</h2>
             <Pie data={pendingSubjectChartData} options={{ plugins: { legend: { display: true } } }} />
-          ) : (
-            <p className="no-data-message">No data available.</p>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

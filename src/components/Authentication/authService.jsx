@@ -1,3 +1,4 @@
+let userCache = null; // Add a cache variable
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 
@@ -226,6 +227,7 @@ verifyOtp: async (email, otp) => {
         localStorage.setItem('activeRole', response.user.active_role); // Store active role
         localStorage.setItem('is_profile_completed', response.user.is_profile_completed); // Store profile completion status
         localStorage.setItem('roles', response.user.roles); // Store is_allowed status
+        userCache = response.user; // Cache the user object on login
         return response;
       }
       throw new Error(response.detail || 'Login failed - no user data');
@@ -249,6 +251,7 @@ verifyOtp: async (email, otp) => {
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('activeRole', response.user.active_role); 
         console.log("active role",response.user.active_role);// Store active role
+        userCache = response.user; // Cache the user object on google login
         return response;
       }
       throw new Error(response.detail || 'Google login failed');
@@ -285,9 +288,16 @@ verifyOtp: async (email, otp) => {
   },
 
   getCurrentUser: () => {
+    if (userCache) {
+      return userCache; // Return cached user if available
+    }
     try {
       const user = localStorage.getItem('user');
-      return user ? JSON.parse(user) : null;
+      if (user) {
+        userCache = JSON.parse(user); // Cache user after parsing
+        return userCache;
+      }
+      return null;
     } catch (error) {
       console.error('Error parsing user data:', error);
       return null;
@@ -304,6 +314,7 @@ verifyOtp: async (email, otp) => {
     localStorage.removeItem('user');
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('activeRole'); // Remove active role
+    userCache = null; // Clear cache on logout
     
     window.dispatchEvent(new Event('storage'));
   },

@@ -16,8 +16,8 @@ const StatStudent = () => {
           params: { user_id:user?.id },
         });
 
-        setAvailablePapers(response.data.available_question_papers);
-        setAnsweredPapers(response.data.answered_question_papers);
+        setAvailablePapers(response.data.all.available_question_papers || []);
+        setAnsweredPapers(response.data.all.answered_question_papers || []);
         console.log('Fetched Question Papers:', response.data);
       } catch (err) {
         setError('Error fetching question papers.');
@@ -30,6 +30,10 @@ const StatStudent = () => {
 
   const calculateSubjectDistribution = (papers) => {
     const subjectCounts = {};
+    if (!Array.isArray(papers)) {
+        console.error("calculateSubjectDistribution received non-array:", papers);
+        return {};
+    }
     papers.forEach((paper) => {
       subjectCounts[paper.subject] = (subjectCounts[paper.subject] || 0) + 1;
     });
@@ -69,6 +73,14 @@ const StatStudent = () => {
     Object.values(answeredSubjectData)
   );
 
+  const hasQPData = availablePapers.length + answeredPapers.length > 0;
+  const hasAvailableSubjectData = Object.entries(availableSubjectData).length > 0;
+  const hasAnsweredSubjectData = Object.entries(answeredSubjectData).length > 0;
+
+  if (!hasQPData && !hasAvailableSubjectData && !hasAnsweredSubjectData) {
+    return null;
+  }
+
   return (
     <div className="stat-student-page">
       <h1 className='page'>Student Performance Statistics</h1>
@@ -76,33 +88,26 @@ const StatStudent = () => {
       {error && <p className="error">{error}</p>}
 
       <div className="chart-container">
-        <div className="chart-box">
-          <h2>Available vs Answered Question Papers</h2>
-          {availablePapers.length + answeredPapers.length > 0 ? (
+        {hasQPData && (
+          <div className="chart-box">
+            <h2>Available vs Answered Question Papers</h2>
             <Pie data={availableQPData} />
-          ) : (
-            <p className="no-data-message">No data available for Available vs Answered Question Papers.</p>
-          )}
-         
-        </div>
+          </div>
+        )}
 
-        <div className="chart-box">
-          <h2>Subject-Wise Available Question Papers</h2>
-          {Object.entries(availableSubjectData).length > 0 ? (
+        {hasAvailableSubjectData && (
+          <div className="chart-box">
+            <h2>Subject-Wise Available Question Papers</h2>
             <Pie data={availableSubjectChartData} options={{ plugins: { legend: { display: true } } }} />
-          ) : (
-            <p className="no-data-message">No data available for Available Question Papers.</p>
-          )}
-        </div>
+          </div>
+        )}
 
-        <div className="chart-box">
-          <h2>Subject-Wise Answered Question Papers</h2>
-          {Object.entries(answeredSubjectData).length > 0 ? (
+        {hasAnsweredSubjectData && (
+          <div className="chart-box">
+            <h2>Subject-Wise Answered Question Papers</h2>
             <Pie data={answeredSubjectChartData} options={{ plugins: { legend: { display: true } } }} />
-          ) : (
-            <p className="no-data-message">No data available for Answered Question Papers.</p>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -18,7 +18,6 @@ const Login = ({ onSwitchForm }) => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [role, setRole] = useState('');
 
   useEffect(() => {
     if (searchParams.get('session_expired')) {
@@ -55,7 +54,7 @@ const Login = ({ onSwitchForm }) => {
     setIsLoading(true);
     
     try {
-      await authService.login(email.toLowerCase(), password, role);
+      await authService.login(email.toLowerCase(), password);
       toast.success("Login successful");
       window.location.href = "/";
     } catch (error) {
@@ -67,15 +66,10 @@ const Login = ({ onSwitchForm }) => {
   };
 
   const handleGoogleLoginSuccess = async (response) => {
-
-    if (!role) {
-      toast.error("Please select a role before logging in with Google.");
-      return;
-    }
     setIsLoading(true);
     
     try {
-      await authService.googleLogin(response.credential, role);
+      await authService.googleLogin(response.credential);
       toast.success("Google login successful");
       window.location.href = "/";
     } catch (error) {
@@ -161,21 +155,6 @@ const Login = ({ onSwitchForm }) => {
               <span onClick={handleForgotPassword}>
                 Forgot Password?
               </span>
-            </div>
-            <div className="role-selection">
-              <h4>Select Active Role:</h4>
-              <select
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                disabled={isLoading}
-                required
-              >
-                <option value="">-- Select Role --</option>
-                <option value="student">Student</option>
-                <option value="evaluator">Evaluator</option>
-                <option value="qp_uploader">QP Uploader</option>
-                <option value="mentor">Mentor</option>
-              </select>
             </div>
             <button 
               type="submit" 

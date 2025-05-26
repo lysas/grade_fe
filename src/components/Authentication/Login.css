@@ -1,20 +1,28 @@
 .page1 {
+  width: 100%;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background-color: #f8f9fa;
-  /* margin-top: -40px; */
+  background-color: #f5f5f5;
+  padding: 0;
+  margin: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
 }
 
 .cover {
   display: flex;
   width: 100%;
-  max-width: 1200px;
+  height: 100vh;
   background-color: #fff;
-  border-radius: 10px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  margin: 0;
 }
 
 /* Left side styling */
@@ -24,6 +32,8 @@
   padding: 30px;
   position: relative;
   color: #fff;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .left-content {
@@ -80,8 +90,10 @@
   padding: 40px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  height: 100vh;
+  overflow-y: auto;
+  position: relative;
 }
 
 .logo-container {
@@ -107,6 +119,9 @@
 .login-form {
   width: 100%;
   max-width: 400px;
+  padding: 20px 0;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 .form-title {
@@ -164,13 +179,6 @@
   text-decoration: underline;
 }
 
-.reset-description {
-  text-align: center;
-  color: #666;
-  margin-bottom: 25px;
-  font-size: 15px;
-}
-
 .button1 {
   width: 100%;
   padding: 12px;
@@ -187,24 +195,6 @@
 
 .button1:hover {
   background-color: #45a049;
-}
-
-.button-secondary {
-  width: 100%;
-  padding: 12px;
-  background-color: transparent;
-  color: #333;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 16px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.button-secondary:hover {
-  background-color: #f1f1f1;
-  border-color: #ccc;
 }
 
 .social-login {
@@ -282,14 +272,6 @@
 @media (min-width: 769px) and (max-width: 1024px) {
   .right-signup {
     padding: 30px;
-  }
-  /* .page {
-    margin-top: -40px;
-  } */
-}
-@media screen and (min-width: 768px) {
-  .page1 {
-    margin-top: -40px;
   }
 }
 

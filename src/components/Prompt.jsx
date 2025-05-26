@@ -93,7 +93,8 @@ const Prompt = () => {
     appearance: "none",
     backgroundColor: "#e0e0e0",
     borderRadius: "5px",
-    outline: "none"
+    outline: "none",
+    color: "black"
   };
 
   const valueDisplayStyle = {
@@ -103,7 +104,8 @@ const Prompt = () => {
     borderRadius: "4px",
     minWidth: "40px",
     textAlign: "center",
-    backgroundColor: "#f9f9f9"
+    backgroundColor: "#f9f9f9",
+    color: "black"
   };
 
   const inputStyle = {

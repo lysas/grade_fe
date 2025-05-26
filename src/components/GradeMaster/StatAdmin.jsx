@@ -29,6 +29,10 @@ const StatAdmin = () => {
 
   const calculateDistribution = (data, key) => {
     const counts = {};
+    if (!Array.isArray(data)) {
+        console.error("calculateDistribution received non-array:", data);
+        return {};
+    }
     data.forEach((item) => {
       counts[item[key]] = (counts[item[key]] || 0) + 1;
     });
@@ -59,6 +63,15 @@ const StatAdmin = () => {
     Object.values(boardDistribution)
   );
 
+   // Check if there's any data to display in any of the charts
+   const hasSubjectData = Object.entries(subjectDistribution).length > 0;
+   const hasBoardData = Object.entries(boardDistribution).length > 0;
+
+  // If no data for any chart, return null
+  if (!hasSubjectData && !hasBoardData) {
+    return null;
+  }
+
   return (
     <div className="stat-student-page">
       <header  className="page-title-admin">
@@ -68,23 +81,19 @@ const StatAdmin = () => {
       {error && <p className="error">{error}</p>}
 
       <div className="chart-container">
-        <div className="chart-box">
-          <h2>Subject-Wise Uploaded Question</h2>
-          {Object.keys(subjectDistribution).length > 0 ? (
+        {hasSubjectData && (
+          <div className="chart-box">
+            <h2>Subject-Wise Uploaded Question</h2>
             <Pie data={subjectChartData} options={{ plugins: { legend: { display: true } } }} />
-          ) : (
-            <p className="no-data-message">No data available for Subject Distribution.</p>
-          )}
-        </div>
+          </div>
+        )}
 
-        <div className="chart-box">
-          <h2>Board-Wise Uploaded Question</h2>
-          {Object.keys(boardDistribution).length > 0 ? (
+        {hasBoardData && (
+          <div className="chart-box">
+            <h2>Board-Wise Uploaded Question</h2>
             <Pie data={boardChartData} options={{ plugins: { legend: { display: true } } }} />
-          ) : (
-            <p className="no-data-message">No data available for Board Distribution.</p>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

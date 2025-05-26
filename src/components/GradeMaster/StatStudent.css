@@ -4,74 +4,113 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    /* background: linear-gradient(to bottom, #4a90e2, #002f6c); */
-    color: #fff;
+    background-color: #f8f9fa; /* Light background */
+    color: #333; /* Darker text */
     min-height: 100vh;
-    padding: 20px;
-    font-family: 'Arial', sans-serif;
+    padding: 30px 20px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Modern font */
   }
   
   .page   {
-    margin-bottom: 20px;
-    color: #333;
+    margin-bottom: 30px;
+    color: #1a1a1a; /* Darker title color */
     text-align: center;
-    font-weight: 100;
-    font-size: 2.5rem;
+    font-weight: 600; /* Semi-bold title */
+    font-size: 2.2rem;
+    text-shadow: none; /* Remove text shadow */
   }
   
   .page-title-admin {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     margin-bottom: 30px;
-    font-weight: bold;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    font-weight: 600;
+    text-shadow: none;
+    color: #1a1a1a; /* Darker title color */
   }
   
   .error {
-    color: #ff5e5e;
-    background: rgba(255, 94, 94, 0.1);
-    padding: 10px;
-    border-radius: 5px;
+    color: #d32f2f; /* More standard error red */
+    background: #ffcdd2; /* Light red background */
+    padding: 15px;
+    border-radius: 8px;
     margin-bottom: 20px;
-    font-size: 1.1rem;
+    font-size: 1rem;
+    border: 1px solid #ef9a9a; /* Add a subtle border */
   }
   
   .chart-container {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 20px;
+    gap: 30px; /* Increased gap */
     width: 100%;
+    max-width: 1200px; /* Max width for container */
   }
   
   .chart-box {
-    background: #fff;
-    color: #333;
-    border-radius: 10px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    width: 300px;
-    max-width: 90%;
+    background: #ffffff; /* White background for cards */
+    color: #333; 
+    border-radius: 12px; /* More rounded corners */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Softer shadow */
+    padding: 25px; /* Increased padding */
+    width: 350px; /* Slightly wider cards */
+    max-width: 100%;
     text-align: center;
+    display: flex; /* Flexbox for content alignment */
+    flex-direction: column;
+    justify-content: space-between;
   }
   
   .chart-box h2 {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-    color: #002f6c;
+    font-size: 1.6rem; /* Slightly larger heading */
+    margin-bottom: 20px; /* Increased space */
+    color: #0056b3; /* A shade of blue */
+    padding-bottom: 10px; /* Add padding below heading */
+    border-bottom: 1px solid #eee; /* Subtle separator */
   }
   
   .chart-box canvas {
     max-width: 100%;
-    height: auto;
+    height: auto; /* Maintain aspect ratio */
+    max-height: 400px; /* Limit maximum height */
+    margin-top: 15px; /* Space above chart */
+  }
+  
+  .no-data-message {
+    font-size: 1rem;
+    color: #777; /* Greyed out text */
+    padding: 30px;
+    background-color: #f0f0f0; /* Light background for message */
+    border-radius: 8px;
+    margin-top: 20px;
   }
   
   @media (max-width: 768px) {
     .chart-box {
-      width: 90%;
+      width: 100%; /* Full width on smaller screens */
+      padding: 20px;
     }
   
-    .page-title {
+    .page {
       font-size: 2rem;
+    }
+
+    .page-title-admin {
+        font-size: 2rem;
+    }
+
+    .chart-container {
+        gap: 20px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .page, .page-title-admin {
+      font-size: 1.8rem;
+    }
+
+    .chart-box h2 {
+        font-size: 1.4rem;
     }
   }
   

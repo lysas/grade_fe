@@ -1,53 +1,80 @@
 .grade-master-container {
   text-align: center;
-  font-family: 'Arial', sans-serif;
-  background-color: #f9f9f9;
-  padding: 20px;
-  border-radius: 10px;
-  max-width: 1000px;
-  margin: 0 auto;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+  background-color: #ffffff;
+  padding: 2rem;
+  border-radius: 16px;
+  max-width: 1200px;
+  margin: 2rem auto;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
 }
 
 .grade-master-title {
-  font-size: 2.5em;
-  color: #333;
-  margin-bottom: 20px;
+  font-size: 2.8em;
+  color: #1a1a1a;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0073e6, #00a3ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.5px;
 }
 
 .roles-section {
-  margin: 30px 0;
+  margin: 2.5rem 0;
+  padding: 0 1rem;
 }
 
 .roles {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  padding: 1rem;
 }
 
 .role {
-  width: 200px;
-  background-color: #fff;
-  padding: 15px;
-  margin: 10px;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(0, 115, 230, 0.1);
+  cursor: pointer;
+}
+
+.role:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 30px rgba(0, 115, 230, 0.15);
+  border-color: rgba(0, 115, 230, 0.2);
+  cursor: pointer;
 }
 
 .role h3 {
   color: #0073e6;
-  font-size: 1.5em;
-  margin-bottom: 10px;
+  font-size: 1.6em;
+  margin-bottom: 1rem;
+  font-weight: 600;
 }
 
 .role ul {
   list-style-type: none;
   padding: 0;
+  text-align: left;
 }
 
 .role ul li {
   font-size: 1.1em;
-  margin: 5px 0;
+  margin: 0.8rem 0;
+  color: #4a4a4a;
+  display: flex;
+  align-items: center;
+}
+
+.role ul li::before {
+  content: "•";
+  color: #0073e6;
+  font-weight: bold;
+  margin-right: 0.5rem;
 }
 
 .auth-buttons {
@@ -80,4 +107,167 @@
 
 .signup-button:hover {
   background-color: #218838;
+}
+
+/* Add to your GradeMaster.css */
+.role-selection-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem;
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.role-selection-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.role-card {
+  border: 2px solid #eef2f7;
+  border-radius: 12px;
+  padding: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #ffffff;
+}
+
+.role-card:hover {
+  border-color: #0073e6;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 115, 230, 0.1);
+}
+
+.role-card.selected {
+  border-color: #0073e6;
+  background-color: #f8fbff;
+  box-shadow: 0 8px 20px rgba(0, 115, 230, 0.15);
+}
+
+.role-card input[type="checkbox"] {
+  margin-right: 1rem;
+  width: 18px;
+  height: 18px;
+  accent-color: #0073e6;
+}
+
+.role-card label {
+  cursor: pointer;
+  display: block;
+}
+
+.role-card h3 {
+  margin: 0 0 0.8rem 0;
+  color: #1a1a1a;
+  font-size: 1.4em;
+  font-weight: 600;
+}
+
+.role-card p {
+  margin: 0;
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.submit-roles-button {
+  background: linear-gradient(135deg, #0073e6, #00a3ff);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 115, 230, 0.2);
+}
+
+.submit-roles-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 115, 230, 0.3);
+}
+
+.submit-roles-button:disabled {
+  background: #e0e0e0;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.error-message {
+  background-color: #fff2f2;
+  color: #dc3545;
+  padding: 1rem;
+  border-radius: 8px;
+  margin: 1rem 0;
+  border: 1px solid #ffcdd2;
+  font-weight: 500;
+  animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+  10%, 90% { transform: translate3d(-1px, 0, 0); }
+  20%, 80% { transform: translate3d(2px, 0, 0); }
+  30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+  40%, 60% { transform: translate3d(4px, 0, 0); }
+}
+
+.grade-master-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem 2rem;
+  background: linear-gradient(to right, #ffffff, #f8fbff);
+  border-bottom: 1px solid rgba(0, 115, 230, 0.1);
+  margin-bottom: 2rem;
+  border-radius: 12px 12px 0 0;
+}
+
+.switch-role-button {
+  padding: 0.8rem 1.5rem;
+  background: linear-gradient(135deg, #0073e6, #00a3ff);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 115, 230, 0.2);
+}
+
+.switch-role-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 115, 230, 0.3);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .grade-master-container {
+    padding: 1rem;
+    margin: 1rem;
+  }
+
+  .grade-master-title {
+    font-size: 2.2em;
+  }
+
+  .roles {
+    grid-template-columns: 1fr;
+  }
+
+  .role-selection-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .grade-master-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
 }

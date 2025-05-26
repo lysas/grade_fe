@@ -1,4 +1,4 @@
-import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { AppContext } from "./components/AppContext";
 import { ToastContainer } from "react-toastify";
@@ -8,9 +8,11 @@ import EntityRecognizer from "./components/EntityRecognizer";
 import EmailWriterPage from "./components/EmailWriterPage";
 import TranslationPage from "./components/TranslationPage";
 import TransliterationPage from "./components/TransliterationPage";
+import EasyWithAI from "./components/easywithai";
+import Home from "./components/Home";
 import Prompt from "./components/Prompt";
 import "./App.css";
-import Navbar from "./components/Navbar";
+import MainSidebar from './components/common/MainSidebar';
 import footerHtml from './html/Footer.html?raw';
 
 // Bootstrap imports
@@ -48,116 +50,126 @@ import Student from './components/GradeMaster/Student';
 import Evaluator from './components/GradeMaster/Evaluator';
 import Admin from './components/GradeMaster/Admin';
 import Mentor from './components/GradeMaster/Mentor';
-import logo from './assets/logo.png';
-import userProfile from './assets/userProfile.jpeg';
 import Login from "./components/Authentication/Login";
-import Sidebar from './components/common/Sidebar';
+import CodeEditor from "./components/Programming/CodeEditor";
+import GenerateQuestions from "./components/Programming/GenerateQuestions";
+import QuestionList from "./components/Programming/QuestionList";
 
 const App = () => {
   const location = useLocation();
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const isSpecialRoute = location.pathname === "/authenticate" || 
                      location.pathname === "/reset-password" ||
-                     location.pathname === "/questiongenerator" || 
-                     location.pathname === "/grade-master" || 
-                     location.pathname.startsWith("/grade-master") || 
                      location.pathname === "/login";
   const isquestionGeneratorRoute = location.pathname === "/questiongenerator";
+  const isGradeMasterRoute = location.pathname.startsWith("/grade-master");
+  const isProgrammingRoute = location.pathname.startsWith("/programming") || 
+                            location.pathname === "/qngenerate";
+  const isHomePage = location.pathname === "/" || location.pathname === "/easywithai";
+  const isProfilePage = location.pathname === "/profile";
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
   const menuItems = [
-    { path: "/entity", label: "Entity Recognizer", icon: "👨‍💼" },
+    { path: "/easywithai", label: "EasyWithAI", icon: "🤖" },
     { path: "/email-writer", label: "Email Writer", icon: "✉️" },
     { path: "/translation", label: "Translation", icon: "🌐" },
     { path: "/transliteration", label: "Transliteration", icon: "📝" }
   ];
 
+  // Check if we should show the sidebar
+  const shouldShowSidebar = !isSpecialRoute && !isquestionGeneratorRoute && 
+                          !isGradeMasterRoute && !isProfilePage && !isProgrammingRoute &&
+                          location.pathname !== "/easywithai"&& location.pathname !== "/";
+
+  // Add event listener for sidebar state changes
+  useEffect(() => {
+    const handleSidebarState = (e) => {
+      setIsSidebarCollapsed(e.detail);
+    };
+    window.addEventListener('sidebarStateChange', handleSidebarState);
+    return () => window.removeEventListener('sidebarStateChange', handleSidebarState);
+  }, []);
+
   return (
     <GoogleOAuthProvider clientId={clientId}>
-      <div className="app-container" style={{
-        display: "flex",
-        flexDirection: "column",
-        minHeight: "100vh",
-        backgroundColor: "#f1f1f1",
-      }}>
-        <Navbar />
+      <div className="app-container">
         <ToastContainer position="top-right" autoClose={3000} />
       
-        <div className="main-content" style={{ 
-          display: "flex",
-          flex: 1,
-          maxWidth: "1200px",
-          margin: "0 auto",
-          width: "100%",
-          backgroundColor: "#fff",
-          boxShadow: isquestionGeneratorRoute ? "0px" : "0 0 20px rgba(150, 107, 107, 0.15)"
-        }}>
-          {/* Left Sidebar - only show if not on auth route */}
-          {!isSpecialRoute && <Sidebar menuItems={menuItems} />}
+        <div className="main-content">
+          {/* Main Sidebar - show on all pages except special routes and programming routes */}
+          {!isSpecialRoute && !isProgrammingRoute && <MainSidebar />}
           
-          {/* Main Content */}
-          <div className="content-area" style={{ 
-            flex: 1,
-            padding: "20px",
-            overflowY: "auto",
-            backgroundColor: "white",
-            minHeight: "calc(100vh - 60px)",
-            border: "1px solid #ccc",
+          {/* Content Wrapper */}
+          <div className={`content-wrapper ${isSidebarCollapsed ? 'collapsed' : ''}`} style={{ 
+            marginLeft: (isSpecialRoute || isProgrammingRoute) ? "0" : (isSidebarCollapsed ? "60px" : "250px"),
+            transition: "margin-left 0.3s ease"
           }}>
-            <Routes>
-              <Route path="/" element={<EntityRecognizer />} />
-              <Route path="/entity" element={<EntityRecognizer />} />
-              <Route path="/email-writer" element={<EmailWriterPage />} />
-              <Route path="/translation" element={<TranslationPage />} />
-              <Route path="/transliteration" element={<TransliterationPage />} />
-              <Route path="/authenticate" element={<Authentication />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/questiongenerator" element={<QuestionWhiz/>}></Route>
-              {/* gradeMaster */}
-              <Route path="/grade-master/*" element={<GradeMaster />} />
-              <Route path="/grade-master/student" element={<Student />} />
-              <Route path="/grade-master/mentor" element={<Mentor />} />
-              <Route path="/grade-master/qp_uploader" element={<Admin />} />
-              <Route path="/grade-master/evaluator" element={<Evaluator />} />
-              <Route path="/grade-master/historygrade" element={<HistoryGrade />} />
-            {/* <Route path="/grade-master/upgrade" element={<Upgrade />} /> */}
-            {/* <Route path="/grade-master/history" element={<History />} /> */}
-           
-              <Route path="/grade-master/upload-answer" element={<UploadAnswer />} />
-              <Route path="/grade-master/correct" element={<Correct />} />
-              <Route path="/grade-master/result" element={<Result />} />
-              <Route path="/grade-master/uploadHistory" element={<UploadHistory />} />
-              <Route path="/grade-master/myCorrection" element={<MyCorrection />} />
-              <Route path="/grade-master/studenthistory" element={<StudentHistory />} />
-              <Route path="/grade-master/upload-each-question" element={<QuestionPaperGen />} />
-              <Route path="/grade-master/statstudent" element={<StatStudent />} />
-              <Route path="/grade-master/statistics" element={<Statistics />} />
-              <Route path="/grade-master/statevaluator" element={<StatEvaluators />} />
-              <Route path="/grade-master/statadmin" element={<StatAdmin />} />
-              <Route path="/grade-master/notifications" element={<Notifications />} />
-              <Route path="/grade-master/role-completion" element={<RoleRedirectPage />} />
-              <Route path="/grade-master/profileSection" element={<ProfileSection />} />
-              <Route path="/grade-master/main" element={<Main />} />
-              <Route path="/login" element={<Login />} /> 
-            </Routes>
-          </div>
-
-          {/* Right Sidebar - only show if not on auth route */}
-          {!isSpecialRoute && (
-            <div className="settings-panel" style={{ 
-              width: "250px",
-              padding: "20px",
-              borderLeft: "1px solid #eaeaea",
-              backgroundColor: "#fff",
-              overflowY: "auto"
-            }}>
-              <Prompt />
+            {/* Main Content */}
+            <div className="content-area">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/entity" element={<EntityRecognizer />} />
+                <Route path="/easywithai" element={<EasyWithAI />} />
+                <Route path="/email-writer" element={<EmailWriterPage />} />
+                <Route path="/translation" element={<TranslationPage />} />
+                <Route path="/transliteration" element={<TransliterationPage />} />
+                <Route path="/text-summarizer" element={<EntityRecognizer />} />
+                <Route path="/code-generator" element={<EntityRecognizer />} />
+                <Route path="/question-extractor" element={<EntityRecognizer />} />
+                <Route path="/password-generator" element={<EntityRecognizer />} />
+                <Route path="/authenticate" element={<Authentication />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="/questiongenerator" element={<QuestionWhiz/>}></Route>
+                {/* gradeMaster */}
+                <Route path="/grade-master/*" element={<GradeMaster />} />
+                <Route path="/grade-master/student" element={<Student />} />
+                <Route path="/grade-master/mentor" element={<Mentor />} />
+                <Route path="/grade-master/qp_uploader" element={<Admin />} />
+                <Route path="/grade-master/evaluator" element={<Evaluator />} />
+                <Route path="/grade-master/historygrade" element={<HistoryGrade />} />
+                <Route path="/grade-master/upload-answer" element={<UploadAnswer />} />
+                <Route path="/grade-master/correct" element={<Correct />} />
+                <Route path="/grade-master/result" element={<Result />} />
+                <Route path="/grade-master/uploadHistory" element={<UploadHistory />} />
+                <Route path="/grade-master/myCorrection" element={<MyCorrection />} />
+                <Route path="/grade-master/studenthistory" element={<StudentHistory />} />
+                <Route path="/grade-master/upload-each-question" element={<QuestionPaperGen />} />
+                <Route path="/grade-master/statstudent" element={<StatStudent />} />
+                <Route path="/grade-master/statistics" element={<Statistics />} />
+                <Route path="/grade-master/statevaluator" element={<StatEvaluators />} />
+                <Route path="/grade-master/statadmin" element={<StatAdmin />} />
+                <Route path="/grade-master/notifications" element={<Notifications />} />
+                <Route path="/grade-master/role-completion" element={<RoleRedirectPage />} />
+                <Route path="/grade-master/profileSection" element={<ProfileSection />} />
+                <Route path="/grade-master/main" element={<Main />} />
+                <Route path="/login" element={<Login />} />
+                {/* Programming routes */}
+                <Route path="/qngenerate" element={<GenerateQuestions />} />
+                <Route path="/programming" element={<QuestionList />} />
+                <Route path="/programming/code-editor/:id" element={<CodeEditor />} />
+              </Routes>
             </div>
-          )}
+
+            {/* Right Sidebar - only show if not on special routes and not on profile page */}
+            {shouldShowSidebar && (
+              <div className="settings-panel">
+                <Prompt />
+              </div>
+            )}
+          </div>
         </div>
       
-        <div dangerouslySetInnerHTML={{ __html: footerHtml }} />
+        {/* Only show footer on home page */}
+        {isHomePage && (
+          <div className={`footer-container ${isSidebarCollapsed ? 'collapsed' : ''}`} style={{ 
+            marginLeft: (isSpecialRoute || isProgrammingRoute) ? "0" : (isSidebarCollapsed ? "60px" : "250px"),
+            transition: "margin-left 0.3s ease"
+          }}>
+            <div dangerouslySetInnerHTML={{ __html: footerHtml }} />
+          </div>
+        )}
       </div>
     </GoogleOAuthProvider>
   );

@@ -187,7 +187,8 @@ const EntityRecognizer = () => {
                 cursor: 'pointer',
                 overflow: 'hidden',
                 textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                color: 'black'
               }}
               role="button"
               aria-haspopup="listbox"
@@ -226,7 +227,8 @@ const EntityRecognizer = () => {
                       cursor: 'pointer',
                       backgroundColor: entities.some(e => e.value === option.value)
                         ? '#e9ecef'
-                        : 'white'
+                        : 'white',
+                      color: 'black'
                     }}
                     role="option"
                     aria-selected={entities.some(e => e.value === option.value)}
@@ -275,7 +277,7 @@ const EntityRecognizer = () => {
               backgroundColor: '#FAFAFA',
               border: '1px solid #ccc',
               borderRadius: '8px',
-              color: "black"
+              color: 'black'
             }}
           />
         </div>
