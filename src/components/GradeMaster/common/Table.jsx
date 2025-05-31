@@ -35,7 +35,7 @@ const Table = ({
               >
                 {columns.map((column, colIndex) => (
                   <td key={colIndex}>
-                    {renderCell ? renderCell(column, row) : row[column.accessor]}
+                    {renderCell ? renderCell(column, row, rowIndex) : row[column.accessor]}
                   </td>
                 ))}
               </tr>

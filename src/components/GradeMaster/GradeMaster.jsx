@@ -4,6 +4,8 @@ import Student from './Student';
 import Mentor from './Mentor';
 import Admin from './Admin';
 import Evaluator from './Evaluator';
+import GradingResult from './GradingResult';
+import UploadAnswer from './uploadAnser';
 import './GradeMaster.css';
 import { authService } from "../Authentication/authService";
 
@@ -28,6 +30,7 @@ const GradeMaster = () => {
     role: activeRole,
     roles: user?.roles || [],
     is_allowed: user?.is_allowed,
+    is_profile_completed: user?.is_profile_completed,
   };
 
   // Handle logout or getting started
@@ -256,9 +259,22 @@ const GradeMaster = () => {
   const MainDashboard = () => (
     <div className="roles-section">
       <h2>Welcome to GradeMaster</h2>
+      {error && <div className="error-message">{error}</div>}
+      
+      {!userData.is_profile_completed && (
+        <div className="profile-completion-alert">
+          <p>Please complete your profile to access all features</p>
+          <button 
+            onClick={() => navigate('/grade-master/profileSection')}
+            className="complete-profile-button"
+          >
+            Complete Your Profile
+          </button>
+        </div>
+      )}
       <p>Select a role to continue:</p>
       
-      {error && <div className="error-message">{error}</div>}
+
       
       <div className="roles">
         {userData.roles.includes('student') && (
@@ -302,8 +318,6 @@ const GradeMaster = () => {
           </div>
         )}
       </div>
-      
-
     </div>
   );
 
@@ -311,19 +325,19 @@ const GradeMaster = () => {
     <div className="grade-master-container">
       <h1 className="grade-master-title">GradeMaster</h1>
 
-      <Routes>
-        <Route path="/student" element={<Student />} />
-        <Route path="/mentor" element={<Mentor />} />
-        <Route path="/qp_uploader" element={<Admin />} />
-        <Route path="/evaluator" element={<Evaluator />} />
-        <Route path="/" element={
-          isRoleSelectionMode ? (
-            <RoleSelectionComponent />
-          ) : (
-            <MainDashboard />
-          )
-        } />
-      </Routes>
+      {isRoleSelectionMode ? (
+        <RoleSelectionComponent />
+      ) : (
+        <Routes>
+          <Route path="/" element={<MainDashboard />} />
+          <Route path="/student" element={<Student />} />
+          <Route path="/mentor" element={<Mentor />} />
+          <Route path="/qp_uploader" element={<Admin />} />
+          <Route path="/evaluator" element={<Evaluator />} />
+          <Route path="/grading-result" element={<GradingResult />} />
+          <Route path="/upload-answer" element={<UploadAnswer />} />
+        </Routes>
+      )}
     </div>
   );
 };

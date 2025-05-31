@@ -271,3 +271,37 @@
     text-align: center;
   }
 }
+
+.profile-completion-alert {
+  /* background-color: #f8f5ff;
+  border: 1px solid #e0d5ff; */
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.profile-completion-alert p {
+  color: #4a4a4a;
+  margin-bottom: 1rem;
+  font-size: 1.1rem;
+}
+
+.complete-profile-button {
+  background: linear-gradient(135deg, #38a7df, #04cee0);
+  color: white;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(111, 66, 193, 0.2);
+}
+
+.complete-profile-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(111, 66, 193, 0.3);
+  background: linear-gradient(135deg, #32a1a3, #4db6b8);
+}

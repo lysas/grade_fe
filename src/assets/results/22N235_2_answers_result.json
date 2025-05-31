@@ -1,0 +1,141 @@
+{
+    "total_score": 30,
+    "max_possible_score": 40,
+    "results": [
+      {
+        "question_number": "Q1",
+        "question_type": "mixed",
+        "allocated_marks": 10,
+        "obtained_marks": 5,
+        "student_answer": "Infrastructure as a service\ncloud computing service model that allows\nauss to virtual computing resources",
+        "expected_answer": "Answer will be evaluated based on content analysis and diagram comparison",
+        "diagram_comparison": "N/A",
+        "feedback": "The student's answer is incomplete and contains a spelling error ('auss' instead of 'access').  While it mentions Infrastructure as a Service and cloud computing, it lacks detail and a proper explanation of its functionality. 5 marks awarded for partially correct identification of IaaS."
+      },
+      {
+        "question_number": "Q2",
+        "question_type": "mixed",
+        "allocated_marks": 10,
+        "obtained_marks": 7,
+        "student_answer": {
+          "tables": [
+            {
+              "heading": [
+                "Horizontal Business\nProcess",
+                "Vertical Business\nProcess"
+              ],
+              "rows": [
+                {
+                  "Horizontal Business\nProcess": "CRM",
+                  "Vertical Business\nProcess": "Banking and finance"
+                },
+                {
+                  "Horizontal Business\nProcess": "HR Management",
+                  "Vertical Business\nProcess": "Billing"
+                },
+                {
+                  "Horizontal Business\nProcess": "Procurement",
+                  "Vertical Business\nProcess": "Tracking payment"
+                }
+              ]
+            }
+          ]
+        },
+        "expected_answer": "Answer will be evaluated based on content analysis and diagram comparison",
+        "diagram_comparison": "N/A",
+        "feedback": "The table structure is correct. However, the examples provided for vertical and horizontal business processes are not entirely accurate.  'Billing' and 'Tracking Payment' are more accurately considered sub-processes within broader vertical processes.  7 marks awarded for the correct structure and partially accurate examples."
+      },
+      {
+        "question_number": "Q3",
+        "question_type": "mixed",
+        "allocated_marks": 10,
+        "obtained_marks": 10,
+        "student_answer": {
+          "equations": [
+            {
+              "step": 1,
+              "equation": "x^2+x+12=0"
+            },
+            {
+              "step": 2,
+              "equation": "x^2+4x+3x+12=0"
+            },
+            {
+              "step": 3,
+              "equation": "x(x+4)+3(x+4)=0"
+            },
+            {
+              "step": 4,
+              "equation": "(x+4)(x+3) = 0"
+            },
+            {
+              "step": 5,
+              "equation": "x+4=0"
+            },
+            {
+              "step": 6,
+              "equation": "x=-4"
+            },
+            {
+              "step": 7,
+              "equation": "x+3=0"
+            },
+            {
+              "step": 8,
+              "equation": "x=-3"
+            }
+          ]
+        },
+        "expected_answer": "Answer will be evaluated based on content analysis and diagram comparison",
+        "diagram_comparison": "N/A",
+        "feedback": "The steps for solving the quadratic equation are mathematically correct and clearly presented. Full marks awarded."
+      },
+      {
+        "question_number": "Q4",
+        "question_type": "mixed",
+        "allocated_marks": 10,
+        "obtained_marks": 8,
+        "student_answer": {
+          "text": "Integration as a Service\ncloud computing service model that allows\nintegration of Application, data, system of\nan organization\n• Connect Desperate systems\n• Ensure seamless data proursing",
+          "tables": [
+            {
+              "heading": [
+                "Types",
+                "Focus",
+                "AWS"
+              ],
+              "rows": [
+                {
+                  "Types": "Application\nIntegration",
+                  "Focus": "Integrating\ndifferent\nApplications",
+                  "AWS": "Aws Data Syn"
+                },
+                {
+                  "Types": "Data\nIntegration",
+                  "Focus": "Integration\nof Data\nfrom bot\nDifferent\nSources",
+                  "AWS": "AWS GLUE"
+                }
+              ]
+            }
+          ],
+          "diagram": {
+            "1": "C:\\Users\\Pream\\OneDrive\\Desktop\\intern grade be\\grade_be\\media/output\\2d941c79-1327-4934-beda-42686ae1a06d\\images/Q4_22N235_1.png"
+          }
+        },
+        "expected_answer": "Answer will be evaluated based on content analysis and diagram comparison",
+        "diagram_comparison": "The student's diagram is identical to the reference diagram. ",
+        "feedback": "The description of Integration as a Service (IaaS) is partially correct but contains a spelling error ('proursing'). The table on AWS services is mostly accurate, but 'Aws Data Syn' should be corrected to 'AWS DataSync'.  Diagram is perfectly accurate. 8 marks awarded."
+      }
+    ],
+    "student_id": "22N235_2_answers",
+    "grading_metadata": {
+      "student_diagrams_count": 1,
+      "reference_diagrams_count": 1,
+      "questions_with_diagrams": [
+        "Q4"
+      ],
+      "reference_questions_with_diagrams": [
+        "Q4"
+      ]
+    }
+  }

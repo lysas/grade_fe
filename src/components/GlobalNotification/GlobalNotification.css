@@ -1,0 +1,228 @@
+.notification-bell {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  cursor: pointer;
+  padding: 8px;
+  color: #666;
+  transition: all 0.3s ease;
+  z-index: 1000;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.notification-bell:hover {
+  color: #333;
+  background: #f8f9fa;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.notification-badge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #ff4444;
+  color: white;
+  border-radius: 50%;
+  padding: 2px 6px;
+  font-size: 12px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.notification-center {
+  position: fixed;
+  top: 70px;
+  right: -400px;
+  width: 380px;
+  max-height: 80vh;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  z-index: 1000;
+  transition: right 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.notification-center.show {
+  right: 20px;
+}
+
+.notification-header {
+  padding: 16px;
+  border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+}
+
+.notification-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #333;
+  font-weight: 600;
+}
+
+.notification-header button {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.notification-header button:hover {
+  background: #f8f9fa;
+  color: #333;
+}
+
+.notification-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px;
+  background: white;
+}
+
+.notification-item {
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  background: #f8f9fa;
+  border-left: 4px solid #ddd;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.notification-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: #fff;
+}
+
+.notification-item.success {
+  border-left-color: #28a745;
+  background: #f0fff4;
+}
+
+.notification-item.success:hover {
+  background: #e6f4ea;
+}
+
+.notification-item.error {
+  border-left-color: #dc3545;
+  background: #fff5f5;
+}
+
+.notification-item.error:hover {
+  background: #fce8e6;
+}
+
+.notification-item.info {
+  border-left-color: #17a2b8;
+  background: #f0f8ff;
+}
+
+.notification-item.info:hover {
+  background: #e6f4f8;
+}
+
+.notification-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.notification-content i {
+  margin-top: 2px;
+  color: inherit;
+}
+
+.notification-content span {
+  color: #333;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.notification-time {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.notification-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.view-result-button {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.view-result-button:hover {
+  background: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.remove-notification-button {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.remove-notification-button:hover {
+  background: rgba(0, 0, 0, 0.05);
+  color: #333;
+}
+
+.no-notifications {
+  text-align: center;
+  color: #666;
+  padding: 24px;
+  font-size: 14px;
+  background: white;
+}
+
+/* Add specific text colors for different notification types */
+.notification-item.success .notification-content span {
+  color: #1e7e34;
+}
+
+.notification-item.error .notification-content span {
+  color: #dc3545;
+}
+
+.notification-item.info .notification-content span {
+  color: #17a2b8;
+}
+
+/* Ensure text remains visible on hover */
+.notification-item:hover .notification-content span,
+.notification-item:hover .notification-time {
+  color: inherit;
+} 

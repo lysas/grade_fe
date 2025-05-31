@@ -1,0 +1,302 @@
+.full-gr-page {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.full-gr-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.full-gr-title {
+    font-size: 28px;
+    color: #004aad;
+    margin: 0;
+}
+
+.full-gr-back-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.3s ease;
+}
+
+.full-gr-back-button i {
+    margin-right: 5px;
+}
+
+.full-gr-back-button:hover {
+    background-color: #0056b3;
+}
+
+.full-gr-container {
+    margin-top: 20px;
+}
+
+.full-gr-data-display {
+    background-color: #e9e9eb;
+    padding: 15px;
+    border-radius: 5px;
+    overflow-x: auto;
+    text-align: left;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #333;
+}
+
+.full-gr-summary {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.full-gr-summary h3 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.full-gr-question-card {
+    padding: 0;
+    margin-bottom: 20px;
+    border: none;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 20px;
+}
+
+.full-gr-question-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #ccc;
+}
+
+.full-gr-question-header h4 {
+    margin: 0;
+    font-size: 18px;
+    color: #004aad;
+}
+
+.full-gr-score {
+    font-size: 16px;
+    font-weight: bold;
+    color: #555;
+}
+
+.full-gr-content-section {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px dotted #eee;
+}
+
+.full-gr-content-section:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.full-gr-content-section h5 {
+    font-size: 16px;
+    color: #000000;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.full-gr-text {
+    color: #333;
+    line-height: 1.6;
+}
+
+.full-gr-text p {
+    margin: 0 0 8px 0;
+}
+
+.full-gr-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    background: white;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.full-gr-table th,
+.full-gr-table td {
+    padding: 12px;
+    border: 1px solid #dee2e6;
+    text-align: left;
+    font-family: inherit;
+    font-size: 14px;
+    color: #333;
+}
+
+.full-gr-table th {
+    background-color: #e0e0e0;
+    font-weight: 600;
+}
+
+.full-gr-equations {
+    margin: 16px 0;
+}
+
+.full-gr-equation-step {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
+    padding: 8px;
+    background: white;
+    border-radius: 4px;
+}
+
+.full-gr-step-number {
+    color: #666;
+    min-width: 80px;
+}
+
+.full-gr-equation {
+    color: #333;
+    font-family: monospace;
+}
+
+.full-gr-content-section.feedback {
+    background-color: #fff3cd;
+    border-left: 4px solid #ffc107;
+    padding: 15px;
+    border-radius: 4px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.full-gr-content-section.feedback h5 {
+    color: #333;
+    font-weight: bold;
+}
+
+.full-gr-criterion {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #ffeeba;
+}
+
+.full-gr-criterion:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.full-gr-criterion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: #333;
+}
+
+.full-gr-criterion-feedback {
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.full-gr-mistakes {
+    margin-top: 8px;
+}
+
+.full-gr-mistakes h6 {
+    margin: 0 0 8px 0;
+    color: #dc3545;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.full-gr-mistakes ul {
+    margin: 0;
+    padding-left: 20px;
+    color: #333;
+}
+
+.full-gr-mistakes ul li {
+    margin-bottom: 4px;
+}
+
+.full-gr-diagram {
+    margin: 16px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+}
+
+.full-gr-diagram-container {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    width: 100%;
+}
+
+.full-gr-diagram-container h6 {
+    margin: 0 0 10px 0;
+    color: #333;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.full-gr-diagram-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    display: block;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+    padding: 5px;
+    background: white;
+}
+
+.full-gr-diagram-comparison {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #ffeeba;
+}
+
+.full-gr-diagram-comparison h5 {
+    color: #333;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.full-gr-error-container {
+    text-align: center;
+    padding: 30px;
+    border: 1px solid #dc3545;
+    border-radius: 8px;
+    background-color: #ffe6e6;
+    margin-top: 50px;
+}
+
+.full-gr-error-container h2 {
+    color: #dc3545;
+    margin-bottom: 15px;
+}
+
+.full-gr-error-container p {
+    margin-bottom: 20px;
+    color: #666;
+} 

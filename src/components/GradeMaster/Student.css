@@ -417,7 +417,7 @@
 
 /* Status and Messages */
 .pendingStatus {
-  color: #ed8936;
+  color: #666;
   font-style: italic;
   font-size: 13px;
 }
@@ -730,4 +730,14 @@
     border-collapse: collapse;
     border: 1px solid #e2e8f0;
   }
+}
+
+.result-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.result-buttons button {
+  white-space: nowrap;
 }

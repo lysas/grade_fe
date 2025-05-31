@@ -30,7 +30,6 @@ import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const currentUser = authService.getCurrentUser();
-  console.log('Home component rendered. Current User:', currentUser?.id, currentUser);
   const [expandedSections, setExpandedSections] = useState({});
   const titleRef = useRef(null);
   const [credits, setCredits] = useState({
@@ -90,31 +89,19 @@ const Home = () => {
   if (!currentUser) {
     return (
       <div className="home-root">
-        <div className="home-toolbox">
-          <div className="home-toolbox-content">
-            <span className="home-toolbox-text">Please Log In</span>
-            <p className="home-toolbox-description">to view this page</p>
+        <div className="service-item p-4 text-center">
+          <div className="service-icon">
+            <FontAwesomeIcon icon={faUserShield} />
           </div>
+          <h5>Please Log In</h5>
+          <p>to view this page</p>
         </div>
       </div>
     );
   }
 
   const userName = currentUser?.username || currentUser?.email || "User";
-  const loginStreak = 3;
-  const tierProgress = 0;
-  const tierGoal = "Contributor";
-
-  let userRoles = [];
-  if (currentUser?.roles) {
-    userRoles = Array.isArray(currentUser.roles) ? currentUser.roles : currentUser.roles.split(',');
-  } else {
-    const rolesString = localStorage.getItem('roles');
-    userRoles = rolesString ? rolesString.split(',') : [];
-  }
-
-  const publicActivity = Array(21).fill(false);
-  const daysOfWeek = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  const userRoles = Array.isArray(currentUser.roles) ? currentUser.roles : currentUser.roles?.split(',') || [];
 
   const toggleSection = (roleKey) => {
     setExpandedSections(prevState => ({
@@ -126,11 +113,14 @@ const Home = () => {
   const renderStatisticsSections = () => {
     if (!userRoles || userRoles.length === 0) {
       return (
-        <div className="home-toolset-row">
-          <div className="home-toolbox">
-            <div className="home-toolbox-content">
-              <span className="home-toolbox-text">Loading Statistics</span>
-              <p className="home-toolbox-description">fetching user data</p>
+        <div className="row g-4">
+          <div className="col-sm-6 col-lg-3">
+            <div className="service-item p-4 text-center">
+              <div className="service-icon">
+                <FontAwesomeIcon icon={faQuestionCircle} />
+              </div>
+              <h5>Loading Statistics</h5>
+              <p>fetching user data</p>
             </div>
           </div>
         </div>
@@ -167,23 +157,17 @@ const Home = () => {
         const { icon, color } = roleMap[roleKey];
         
         roleButtons.push(
-          <div 
-            key={roleKey} 
-            className="home-toolbox" 
-            onClick={() => toggleSection(roleKey)}
-            style={{ '--hover-color': color }}
-          >
-            <div className="home-toolbox-content">
-              <span className="home-toolbox-text">{roleMap[roleKey].title}</span>
-              <p className="home-toolbox-description">
-                Click to {isExpanded ? 'hide' : 'show'} statistics
-              </p>
+          <div key={roleKey} className="col-sm-6 col-lg-3">
+            <div 
+              className="service-item p-4 text-center animate-card"
+              onClick={() => toggleSection(roleKey)}
+            >
+              <div className="service-icon">
+                <FontAwesomeIcon icon={icon} style={{ color }} />
+              </div>
+              <h5>{roleMap[roleKey].title}</h5>
+              <p>Click to {isExpanded ? 'hide' : 'show'} statistics</p>
             </div>
-            <FontAwesomeIcon 
-              icon={icon} 
-              className="home-toolbox-img"
-              style={{ color: color }}
-            />
           </div>
         );
 
@@ -199,13 +183,15 @@ const Home = () => {
 
     if (roleButtons.length === 0) {
       return (
-        <div className="home-toolset-row">
-          <div className="home-toolbox">
-            <div className="home-toolbox-content">
-              <span className="home-toolbox-text">Welcome</span>
-              <p className="home-toolbox-description">No statistics available</p>
+        <div className="row g-4">
+          <div className="col-sm-6 col-lg-3">
+            <div className="service-item p-4 text-center">
+              <div className="service-icon">
+                <FontAwesomeIcon icon={faQuestionCircle} />
+              </div>
+              <h5>Welcome</h5>
+              <p>No statistics available</p>
             </div>
-            <FontAwesomeIcon icon={faQuestionCircle} className="home-toolbox-img" />
           </div>
         </div>
       );
@@ -213,7 +199,7 @@ const Home = () => {
 
     return (
       <div className="all-stats-container">
-        <div className="home-toolset-row">
+        <div className="row g-4">
           {roleButtons}
         </div>
         {sectionsToRender}
@@ -223,39 +209,97 @@ const Home = () => {
 
   return (
     <div className="home-root">
-      <h1 className="home-title" ref={titleRef}>
-        Welcome, {userName}
-      </h1>
-      <p className="home-description">
-        Track your progress and explore your statistics across different roles.
-      </p>
-
-      <div className="home-toolset-row">
-        <div className="home-toolbox">
-          <div className="home-toolbox-content">
-            <span className="home-toolbox-text">CREDIT BALANCE</span>
+      <div className="section-title">
+        <h2>Welcome, {userName}</h2>
+        <p>Track your progress and explore your statistics across different roles.</p>
+      </div>
+  
+      <div className="row g-4">
+        {/* Credit Balance - Always show */}
+        <div className="col-sm-6 col-lg-3">
+          <div className="service-item p-4 text-center">
+            <div className="service-icon">
+              <FontAwesomeIcon icon={faCoins} />
+            </div>
+            <h5>CREDIT BALANCE</h5>
             {credits.loading ? (
-              <p className="home-toolbox-description">Loading...</p>
+              <p>Loading...</p>
             ) : (
-              <p className="home-toolbox-description">{credits.total_credit.toFixed(7)}</p>
+              <p>{credits.total_credit.toFixed(7)}</p>
             )}
           </div>
-          <FontAwesomeIcon icon={faCoins} className="home-toolbox-img" />
         </div>
-
+  
+        {/* Programming Challenge - Conditional */}
         {programmingQuestions.length > 0 && (
-          <div className="home-toolbox">
-            <div className="home-toolbox-content">
-              <span className="home-toolbox-text">LATEST CHALLENGE</span>
-              <p className="home-toolbox-description">{programmingQuestions[0].title}</p>
-              <p className="home-toolbox-description">Difficulty: {programmingQuestions[0].difficulty}</p>
+          <div className="col-sm-6 col-lg-3">
+            <div className="service-item p-4 text-center" onClick={handleProgrammingClick}>
+              <div className="service-icon">
+                <FontAwesomeIcon icon={faCode} />
+              </div>
+              <h5>LATEST CHALLENGE</h5>
+              <p>{programmingQuestions[0].title}</p>
+              <p>Difficulty: {programmingQuestions[0].difficulty}</p>
             </div>
-             <FontAwesomeIcon icon={faCode} className="home-toolbox-img" />
+          </div>
+        )}
+  
+        {/* Student Statistics - Conditional */}
+        {userRoles.some(role => role.toLowerCase() === 'student') && (
+          <div className="col-sm-6 col-lg-3">
+            <div className="service-item p-4 text-center" onClick={() => toggleSection('student')}>
+              <div className="service-icon">
+                <FontAwesomeIcon icon={faGraduationCap} style={{ color: '#457ef1' }} />
+              </div>
+              <h5>Student Statistics</h5>
+              <p>Click to {expandedSections['student'] ? 'hide' : 'show'} statistics</p>
+            </div>
+          </div>
+        )}
+  
+        {/* Evaluator Statistics - Conditional */}
+        {userRoles.some(role => role.toLowerCase() === 'evaluator') && (
+          <div className="col-sm-6 col-lg-3">
+            <div className="service-item p-4 text-center" onClick={() => toggleSection('evaluator')}>
+              <div className="service-icon">
+                <FontAwesomeIcon icon={faChalkboardTeacher} style={{ color: '#fba452' }} />
+              </div>
+              <h5>Evaluator Statistics</h5>
+              <p>Click to {expandedSections['evaluator'] ? 'hide' : 'show'} statistics</p>
+            </div>
+          </div>
+        )}
+  
+        {/* Admin Statistics - Conditional */}
+        {userRoles.some(role => role.toLowerCase() === 'qp_uploader') && (
+          <div className="col-sm-6 col-lg-3">
+            <div className="service-item p-4 text-center" onClick={() => toggleSection('qp_uploader')}>
+              <div className="service-icon">
+                <FontAwesomeIcon icon={faUserShield} style={{ color: '#2d5bb8' }} />
+              </div>
+              <h5>Admin Statistics</h5>
+              <p>Click to {expandedSections['qp_uploader'] ? 'hide' : 'show'} statistics</p>
+            </div>
           </div>
         )}
       </div>
-
-      {renderStatisticsSections()}
+  
+      {/* Statistics sections content */}
+      {Object.keys(expandedSections).map(roleKey => {
+        if (expandedSections[roleKey]) {
+          const roleMap = {
+            'student': <StatStudent />,
+            'evaluator': <StatEvaluator />,
+            'qp_uploader': <StatAdmin />
+          };
+          return (
+            <div key={`content-${roleKey}`} className="section-content mt-4">
+              {roleMap[roleKey]}
+            </div>
+          );
+        }
+        return null;
+      })}
     </div>
   );
 };

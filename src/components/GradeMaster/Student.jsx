@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import userProfile from "./userProfile.jpeg";
 import { authService } from "../Authentication/authService";
 import QuestionPaperGenerator from "./QuestionPaperGenerator";
 import Button from "./common/Button";
@@ -28,35 +27,18 @@ const Student = () => {
   const [showQuestionGenerator, setShowQuestionGenerator] = useState(false);
   
   const navigate = useNavigate();
-  const [isEditing, setIsEditing] = useState(false);
   const currentYear = new Date().getFullYear();
   const lastFiveYears = Array.from({ length: 5 }, (_, index) => currentYear - index);
   
   const user = authService.getCurrentUser();
-  const [selectedRole, setSelectedRole] = useState(
-    localStorage.getItem("activeRole") 
-  );
-  let allRoles = [];
-  try {
-    allRoles = JSON.parse(localStorage.getItem("roles") || "[]");
-  } catch (e) {
-    allRoles = localStorage.getItem("roles")?.split(",") || [];
-  }
   
   const userData = {
     id: user?.id,
     email: user?.email,
-    role: localStorage.getItem("activeRole"),
     is_premium: localStorage.getItem("is_premium"),
   };
-  const [isAddingRole, setIsAddingRole] = useState(false);
-  const userRoles = ["qp_uploader", "evaluator", "student", "mentor"];
-  const [selectedNewRole, setSelectedNewRole] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const isPremium = userData.is_premium === "true";
-  const isProfileCompleted = localStorage.getItem("is_profile_completed");
-  const prof = isProfileCompleted === "true";
   
   const getUniqueYears = (papers) => {
     if (!papers || papers.length === 0) return ["All Years"];
@@ -73,11 +55,6 @@ const Student = () => {
       return date.getFullYear().toString();
     });
     return ["All Years", ...new Set(years.filter(Boolean))];
-  };
-  
-  const handleRedirect = () => {
-    localStorage.setItem("previousPage", window.location.pathname);
-    navigate("/grade-master/profileSection");
   };
 
   // Allow viewing all question papers regardless of subscription status
@@ -132,6 +109,7 @@ const Student = () => {
       }
 
       const response = await axios.get(endpoint, { params });
+      console.log('API Response for answered papers:', response.data.answered_question_papers);
 
       const sortedAnsweredPapers =
         response.data.answered_question_papers.sort(
@@ -193,8 +171,6 @@ const Student = () => {
   }, [userData.id]);
 
   // Refetch when question paper type or year changes
-  // Only fetch new data when questionPaperType changes or when selectedYear changes
-  // and the question paper type is "previous_year"
   useEffect(() => {
     if (!showQuestionGenerator) {
       fetchQuestionPapers();
@@ -211,7 +187,7 @@ const Student = () => {
     navigate("/grade-master/upload-answer", {
       state: {
         questionPaper: qp,
-        questionPaperType: questionPaperType, // Pass the type to know which endpoint to use
+        questionPaperType: questionPaperType,
         userId: userData.id,
         userEmail: userData.email,
       },
@@ -219,7 +195,6 @@ const Student = () => {
   };
 
   const handleViewPaper = (file) => {
-    // Modified to use different paths based on question paper type
     const basePath = "http://127.0.0.1:8000/media/question_papers/";
     let folder;
     
@@ -242,20 +217,18 @@ const Student = () => {
   };
 
   const handleViewAnswer = (answerFile) => {
-    // Modified to match the same pattern as question papers
     const basePath = "http://127.0.0.1:8000/media/answer_uploads/";
-    let folder;
-
     const fileName = answerFile.split("/").pop();
     window.open(`${basePath}/${fileName}`, "_blank");
   };
 
-  const handleSeeResult = (qpId, f) => {
+  const handleSeeResult = (qpId, f, paperTitle) => {
     navigate("/grade-master/result", {
       state: { 
         questionPaperId: qpId, 
         feedbackId: f,
-        questionPaperType: questionPaperType // Pass the type for the result page
+        questionPaperType: questionPaperType,
+        questionPaperTitle: paperTitle,
       },
     });
   };
@@ -290,12 +263,10 @@ const Student = () => {
 
   const handleQuestionTypeChange = (e) => {
     setQuestionPaperType(e.target.value);
-    // Reset year selection when changing question type
     setSelectedYear("All Years");
-    // Close question generator if it's open
     setShowQuestionGenerator(false);
   };
-  
+
   // Apply filters whenever filter criteria change
   useEffect(() => {
     applyFilters();
@@ -304,60 +275,7 @@ const Student = () => {
   const handleCancel = () => {
     setShowPremiumAlert(false);
   };
-  
-  const handleRoleChange = (newRole) => {
-    localStorage.setItem("activeRole", newRole);
-    setSelectedRole(newRole);
-    setIsEditing(false);
-    navigate(`/grade-master/${newRole}`);
-    window.location.reload();
-  };
-  
-  const availableRoles = userRoles.filter((role) => !allRoles.includes(role));
 
-  const handleNewRoleChange = (newRole) => {
-    setSelectedNewRole(newRole);
-  };
-
-  const handleSubmitNewRole = async () => {
-    if (!selectedNewRole) return;
-  
-    setIsSubmitting(true);
-  
-    try {
-      const response = await axios.post(
-        "http://localhost:8000/api/add_role/",
-        {
-          user_id: userData.id,
-          new_role: selectedNewRole,
-        },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
-  
-      if (response.status === 200) {
-        alert("Role added successfully!");
-  
-        const updatedRoles = [...allRoles, selectedNewRole];
-        localStorage.setItem("roles", JSON.stringify(updatedRoles));
-        window.location.reload();
-      } else {
-        alert("Failed to add role.");
-      }
-    } catch (error) {
-      console.error(
-        "Error adding role",
-        error.response ? error.response.data : error.message
-      );
-      alert("An error occurred while adding the role.");
-    }
-  
-    setIsSubmitting(false);
-  };
-  
   const handleStartQuestionGenerator = () => {
     setShowQuestionGenerator(true);
   };
@@ -382,7 +300,7 @@ const Student = () => {
     { header: "Total Marks", accessor: "total_marks" },
     { header: "Upload Date", accessor: "upload_date" },
     { header: "My Answer", accessor: "answer" },
-    { header: "Result", accessor: "result" }
+    { header: "Grading", accessor: "result" }
   ];
 
   const renderAvailablePaperCell = (column, row) => {
@@ -411,6 +329,39 @@ const Student = () => {
     }
   };
 
+  const handleViewGradingResult = async (id) => {
+    if (!id) {
+      console.error('No ID provided');
+      alert('Error: No ID found');
+      return;
+    }
+
+    try {
+      console.log('Fetching grading result for ID:', id);
+      const response = await axios.get(`http://localhost:8000/api/grade/grading-result/${id}/`);
+      console.log('Grading result response:', response.data);
+      
+      const result = response.data;
+      
+      if (result.graded) {
+        navigate('/grade-master/grading-result', {
+          state: {
+            resultData: result.result_data,
+            gradingId: result.grading_id,
+            answerId: id,
+            questionPaper: result.question_paper,
+            questionPaperType: questionPaperType,
+          }
+        });
+      } else {
+        alert('Grading result is not available yet. Please try again later.');
+      }
+    } catch (error) {
+      console.error('Error fetching grading result:', error);
+      alert('Error fetching grading result. Please try again later.');
+    }
+  };
+
   const renderAnsweredPaperCell = (column, row) => {
     switch (column.accessor) {
       case "title":
@@ -432,15 +383,29 @@ const Student = () => {
           </Button>
         );
       case "result":
-        return row.result_status === "See Result" ? (
-          <Button
-            variant="purple"
-            onClick={() => handleSeeResult(row.id, row.feedback_id)}
-          >
-            See Result
-          </Button>
-        ) : (
-          <span className="pendingStatus">{row.result_status}</span>
+        return (
+          <div className="result-buttons">
+            {row.result_status === "See Result" && row.feedback_id && (
+              <Button
+                variant="purple"
+                onClick={() => handleSeeResult(row.id, row.feedback_id, row.title)}
+              >
+                Manual Grading
+              </Button>
+            )}
+            {row.answer_file && (
+              <Button
+                variant="success"
+                onClick={() => handleViewGradingResult(row.answer_id)}
+                style={{ marginLeft: '8px' }}
+              >
+                AI Grading
+              </Button>
+            )}
+            {!row.result_status && !row.answer_file && (
+              <span className="pendingStatus">Pending</span>
+            )}
+          </div>
         );
       default:
         return row[column.accessor];
@@ -469,20 +434,6 @@ const Student = () => {
           <ProfileCard
             userData={userData}
             isPremium={isPremium}
-            prof={prof}
-            selectedRole={selectedRole}
-            allRoles={allRoles}
-            isEditing={isEditing}
-            setIsEditing={setIsEditing}
-            handleRoleChange={handleRoleChange}
-            isAddingRole={isAddingRole}
-            setIsAddingRole={setIsAddingRole}
-            selectedNewRole={selectedNewRole}
-            handleNewRoleChange={handleNewRoleChange}
-            handleSubmitNewRole={handleSubmitNewRole}
-            isSubmitting={isSubmitting}
-            availableRoles={availableRoles}
-            handleRedirect={handleRedirect}
           />
       
           {error && <p className="error">{error}</p>}

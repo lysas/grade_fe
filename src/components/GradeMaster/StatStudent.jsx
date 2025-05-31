@@ -89,25 +89,25 @@ const StatStudent = () => {
 
       <div className="chart-container">
         {hasQPData && (
-          <div className="chart-box">
-            <h2>Available vs Answered Question Papers</h2>
+        <div className="chart-box">
+          <h2>Available vs Answered Question Papers</h2>
             <Pie data={availableQPData} />
           </div>
-        )}
-
+          )}
+         
         {hasAvailableSubjectData && (
-          <div className="chart-box">
-            <h2>Subject-Wise Available Question Papers</h2>
+        <div className="chart-box">
+          <h2>Subject-Wise Available Question Papers</h2>
             <Pie data={availableSubjectChartData} options={{ plugins: { legend: { display: true } } }} />
           </div>
-        )}
+          )}
 
         {hasAnsweredSubjectData && (
-          <div className="chart-box">
-            <h2>Subject-Wise Answered Question Papers</h2>
+        <div className="chart-box">
+          <h2>Subject-Wise Answered Question Papers</h2>
             <Pie data={answeredSubjectChartData} options={{ plugins: { legend: { display: true } } }} />
           </div>
-        )}
+          )}
       </div>
     </div>
   );

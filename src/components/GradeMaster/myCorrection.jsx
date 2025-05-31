@@ -31,6 +31,12 @@ const MyCorrection = () => {
     navigate('/grade-master/result', { state: { feedbackId: f } });
   };
 
+  const handleViewAnswer = (answerFile) => {
+    const basePath = "http://127.0.0.1:8000/media/answer_uploads/";
+    const fileName = answerFile.split("/").pop();
+    window.open(`${basePath}/${fileName}`, "_blank");
+  };
+
   return (
     <div className="my-correction-page">
       <header className="correction-header">
@@ -60,44 +66,43 @@ const MyCorrection = () => {
               corrections.map((correction, index) => (
                 <tr key={index}>
                   <td>
-                  <button
-                    className="view-button"
-                    onClick={() =>
-                      window.open(
-                        `http://127.0.0.1:8000/media/question_papers/${correction.question_file.split('/').pop()}`,
-                        '_blank'
-                      )
-                    }
-                  >
-                    {correction.qp_title}
-                  </button></td>
-                  <td>{correction.board}</td>
-                  <td>{correction.subject}</td>
-                  <td>{correction.total_marks}</td>
-                  
-                  <td>
                     <button
                       className="view-button"
                       onClick={() =>
                         window.open(
-                          `http://127.0.0.1:8000/media/answers/${correction.answer_file.split('/').pop()}`,
+                          `http://127.0.0.1:8000/media/question_papers/${correction.question_file.split('/').pop()}`,
                           '_blank'
                         )
                       }
                     >
+                      {correction.qp_title}
+                    </button>
+                  </td>
+                  <td>{correction.board}</td>
+                  <td>{correction.subject}</td>
+                  <td>{correction.total_marks}</td>
+                  <td>
+                    <button
+                      className="view-button"
+                      onClick={() => handleViewAnswer(correction.answer_file)}
+                    >
                       View Answer
                     </button>
                   </td>
-                  <td><button className="view-button" onClick={() => handleSeeResult(correction.feedback)}>
+                  <td>
+                    <button 
+                      className="view-button" 
+                      onClick={() => handleSeeResult(correction.feedback)}
+                    >
                       See Result
                     </button>
-                    </td>
+                  </td>
                   <td>{correction.corrected_date}</td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td >No corrections found.</td>
+                <td colSpan="7">No corrections found.</td>
               </tr>
             )}
           </tbody>

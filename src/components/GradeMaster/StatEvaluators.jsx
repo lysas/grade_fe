@@ -97,23 +97,23 @@ const StatEvaluator = () => {
       {error && <p className="error">{error}</p>}
       <div className="chart-container">
         {hasPaperStatusData && (
-          <div className="chart-box">
-            <h2>Evaluated vs Pending Papers</h2>
+        <div className="chart-box">
+          <h2>Evaluated vs Pending Papers</h2>
             <Pie data={paperStatusChartData} />
           </div>
-        )}
+          )}
         {hasEvaluatedSubjectData && (
-          <div className="chart-box">
-            <h2>Subject-Wise Evaluated Papers</h2>
+        <div className="chart-box">
+          <h2>Subject-Wise Evaluated Papers</h2>
             <Pie data={evaluatedSubjectChartData} options={{ plugins: { legend: { display: true } } }} />
           </div>
-        )}
+          )}
         {hasPendingSubjectData && (
-          <div className="chart-box">
-            <h2>Subject-Wise Pending Papers</h2>
+        <div className="chart-box">
+          <h2>Subject-Wise Pending Papers</h2>
             <Pie data={pendingSubjectChartData} options={{ plugins: { legend: { display: true } } }} />
           </div>
-        )}
+          )}
       </div>
     </div>
   );

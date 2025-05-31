@@ -82,18 +82,18 @@ const StatAdmin = () => {
 
       <div className="chart-container">
         {hasSubjectData && (
-          <div className="chart-box">
-            <h2>Subject-Wise Uploaded Question</h2>
+        <div className="chart-box">
+          <h2>Subject-Wise Uploaded Question</h2>
             <Pie data={subjectChartData} options={{ plugins: { legend: { display: true } } }} />
           </div>
-        )}
+          )}
 
         {hasBoardData && (
-          <div className="chart-box">
-            <h2>Board-Wise Uploaded Question</h2>
+        <div className="chart-box">
+          <h2>Board-Wise Uploaded Question</h2>
             <Pie data={boardChartData} options={{ plugins: { legend: { display: true } } }} />
           </div>
-        )}
+          )}
       </div>
     </div>
   );
