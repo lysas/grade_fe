@@ -27,18 +27,12 @@ const UploadHistory = () => {
     fetchUploads();
   }, []);
 
-  const handleBack = () => {
-    navigate("/grade-master/admin"); // Navigate back to the Admin dashboard
-  };
+
 
   return (
     <div className="upload-history-page">
       <header className="history-header">
         <h1>Upload History</h1>
-
-        <button className="back-button" onClick={handleBack}>
-          Back to Admin
-        </button>
       </header>
 
       {error && <p className="error">{error}</p>}
@@ -73,7 +67,7 @@ const UploadHistory = () => {
                         if (upload.file_name) {
                           const fileName = upload.file_name.split("/").pop();
                           window.open(
-                            `http://127.0.0.1:8000/media/question_papers/${fileName}`,
+                            `http://127.0.0.1:8000/media/question_papers/sample/${fileName}`,
                             "_blank"
                           );
                         } else {

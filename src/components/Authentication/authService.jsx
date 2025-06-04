@@ -304,6 +304,10 @@ verifyOtp: async (email, otp) => {
     }
   },
 
+  updateUserCache: (userData) => {
+    userCache = userData; // Update the cache with new user data
+  },
+
   isAuthenticated: () => {
     return !!localStorage.getItem('token');
   },

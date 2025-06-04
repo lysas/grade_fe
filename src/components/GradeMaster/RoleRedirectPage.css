@@ -31,16 +31,15 @@
 .role-redirect-form-group label {
   font-size: 16px;
   font-weight: 500;
-  color: #555;
+  color: #333;
 }
 
 .role-redirect-form-group input[type="file"] {
-  padding: 10px;
-  font-size: 16px;
+  padding: 8px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  outline: none;
-  transition: border-color 0.2s;
+  color: #333;
+  background-color: white;
 }
 
 .role-redirect-form-group input[type="file"]:focus {
@@ -48,8 +47,8 @@
 }
 
 .role-redirect-submit-btn {
-  background-color: #007bff;
-  color: #fff;
+  background-color: #0a66df;
+  color: white;
   border: none;
   border-radius: 4px;
   padding: 10px 20px;
@@ -66,6 +65,12 @@
 
 .role-redirect-multi-select-dropdown {
   width: 100%;
+  margin-bottom: 15px;
+}
+
+.role-redirect-multi-select-dropdown input[type="text"] {
+  color: #333;
+  background-color: white;
 }
 
 .role-redirect-dropdown-header {
@@ -113,7 +118,7 @@
   width: 100%;
   max-width: 500px;
   margin: 0 auto;
-  padding: 20px;
+  padding: 40px;
   border: 1px solid #d9d9d9;
   border-radius: 8px;
   background: #f9f9f9;
@@ -123,10 +128,33 @@
 
 .admin-approval-container h2 {
   font-size: 24px;
-  color: #0056b3;
+  color: #0a66df;
+  margin-bottom: 20px;
 }
 
 .admin-approval-container p {
   font-size: 16px;
+  color: #333;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+/* Style for the dropdown text */
+.role-redirect-multi-select-dropdown div {
+  color: #333;
+}
+
+/* Style for the dropdown options */
+.role-redirect-multi-select-dropdown label {
+  color: #333;
+  cursor: pointer;
+}
+
+/* Style for the selected values text */
+.role-redirect-multi-select-dropdown div[style*="border: 1px solid #ccc"] {
   color: #333;
 }

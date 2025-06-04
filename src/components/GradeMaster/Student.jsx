@@ -35,10 +35,10 @@ const Student = () => {
   const userData = {
     id: user?.id,
     email: user?.email,
-    is_premium: localStorage.getItem("is_premium"),
+    is_premium: user?.is_premium || false,
   };
 
-  const isPremium = userData.is_premium === "true";
+  const isPremium = userData.is_premium === true;
   
   const getUniqueYears = (papers) => {
     if (!papers || papers.length === 0) return ["All Years"];

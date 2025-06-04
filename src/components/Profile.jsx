@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { toast } from "react-toastify";
@@ -8,6 +6,7 @@ import { FaUserCircle, FaCoins, FaSignOutAlt, FaChevronDown, FaChevronUp } from 
 import { authService } from './Authentication/authService';
 import { PaymentService } from './Upgrade/PaymentService';
 import CreditUpgrade from './Upgrade/CreditUpgrade';
+import BillingTab from './Billing/BillingTab';
 import './Profile.css';
 
 function Profile() {
@@ -21,7 +20,9 @@ function Profile() {
   });
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('profile'); // 'profile' or 'billing'
   const activeRole = localStorage.getItem('activeRole');
+
   useEffect(() => {
     const checkAuthAndLoadData = async () => {
       try {
@@ -38,8 +39,8 @@ function Profile() {
             id: storedUser.id,
             email: storedUser.email,
             username: storedUser.username,
-            full_name: storedUser.full_name || storedUser.username ,
-            role:  activeRole,
+            full_name: storedUser.full_name || storedUser.username,
+            role: activeRole,
           });
           
           await loadUserCredits();
@@ -98,68 +99,87 @@ function Profile() {
         <h1><FaUserCircle className="profile-icon" /> My Profile</h1>
       </div>
       
-      <div className="profile-content">
-        <div className="profile-card">
-          <div className="profile-info">
-            <div className="profile-photo-container">
-              <FaUserCircle className="profile-photo" />
-            </div>
-            <div className="profile-text">
-              <h2>{userData.full_name}</h2>
-              <p className="profile-email">{userData.email}</p>
-              <p className="profile-id">User ID: {userData.id}</p>
-              <p className="profile-email"> Role: {userData.role}</p>
-            </div>
-          </div>
+      <div className="profile-tabs">
+        <button 
+          className={`profile-tab ${activeTab === 'profile' ? 'active' : ''}`}
+          onClick={() => setActiveTab('profile')}
+        >
+          Profile Information
+        </button>
+        <button 
+          className={`profile-tab ${activeTab === 'billing' ? 'active' : ''}`}
+          onClick={() => setActiveTab('billing')}
+        >
+          Billing & Usage
+        </button>
+      </div>
 
-          <div className="credit-card">
-            <div className="credit-header">
-              <FaCoins className="credit-icon" />
-              <h3>Credit Balance</h3>
+      <div className="profile-content">
+        {activeTab === 'profile' ? (
+          <div className="profile-card">
+            <div className="profile-info">
+              <div className="profile-photo-container">
+                <FaUserCircle className="profile-photo" />
+              </div>
+              <div className="profile-text">
+                <h2>{userData.full_name}</h2>
+                <p className="profile-email">{userData.email}</p>
+                <p className="profile-id">User ID: {userData.id}</p>
+                <p className="profile-email">Role: {userData.role}</p>
+              </div>
             </div>
-            
-            {credits.loading ? (
-              <div className="credit-loading">
-                <div className="spinner small"></div>
+
+            <div className="credit-card">
+              <div className="credit-header">
+                <FaCoins className="credit-icon" />
+                <h3>Credit Balance</h3>
               </div>
-            ) : (
-              <div className="credit-details">
-                <div className="credit-row">
-                  <span>Free Credits:</span>
-                  <span className="credit-amount free">${credits.free_credit.toFixed(7)}</span>
+              
+              {credits.loading ? (
+                <div className="credit-loading">
+                  <div className="spinner small"></div>
                 </div>
-                <div className="credit-row">
-                  <span>Paid Credits:</span>
-                  <span className="credit-amount paid">${credits.paid_credit.toFixed(7)}</span>
-                </div>
-                <div className="credit-row total">
-                  <span>Total Credits:</span>
-                  <span className="credit-amount total">${credits.total_credit.toFixed(7)}</span>
-                </div>
-              </div>
-            )}
-            
-            <button 
-              className="upgrade-toggle-btn"
-              onClick={() => setShowUpgrade(!showUpgrade)}
-            >
-              {showUpgrade ? (
-                <>
-                  <FaChevronUp /> Hide Upgrade Options
-                </>
               ) : (
-                <>
-                  <FaChevronDown /> Upgrade Credits
-                </>
+                <div className="credit-details">
+                  <div className="credit-row">
+                    <span>Free Credits:</span>
+                    <span className="credit-amount free">${credits.free_credit.toFixed(7)}</span>
+                  </div>
+                  <div className="credit-row">
+                    <span>Paid Credits:</span>
+                    <span className="credit-amount paid">${credits.paid_credit.toFixed(7)}</span>
+                  </div>
+                  <div className="credit-row total">
+                    <span>Total Credits:</span>
+                    <span className="credit-amount total">${credits.total_credit.toFixed(7)}</span>
+                  </div>
+                </div>
               )}
-            </button>
+              
+              <button 
+                className="upgrade-toggle-btn"
+                onClick={() => setShowUpgrade(!showUpgrade)}
+              >
+                {showUpgrade ? (
+                  <>
+                    <FaChevronUp /> Hide Upgrade Options
+                  </>
+                ) : (
+                  <>
+                    <FaChevronDown /> Upgrade Credits
+                  </>
+                )}
+              </button>
+
+              {showUpgrade && (
+                <div className="upgrade-section">
+                  <CreditUpgrade onUpgradeComplete={loadUserCredits} />
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-        
-        {showUpgrade && (
-          <div className="upgrade-section">
-            <CreditUpgrade onCreditsUpdated={loadUserCredits} />
-          </div>
+        ) : (
+          <BillingTab />
         )}
         
         <button onClick={handleLogout} className="logout-btn">

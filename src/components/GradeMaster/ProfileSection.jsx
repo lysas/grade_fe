@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
@@ -49,7 +48,7 @@ const ProfileSection = () => {
         const response = await axios.post(
           "http://127.0.0.1:8000/api/update-profile/",
           {
-            user_id: userId, // Ensure the correct user ID is sent
+            user_id: userId,
             ...formData,
           },
           {
@@ -60,9 +59,27 @@ const ProfileSection = () => {
         );
   
         if (response.status === 200) {
-          alert("Profile updated successfully!");
-          // Update LocalStorage to reflect profile completion
+          // Update the user object in localStorage
+          const updatedUser = {
+            ...user,
+            is_profile_completed: true,
+            full_name: formData.full_name,
+            country: formData.country,
+            state: formData.state,
+            city: formData.city,
+            address_line1: formData.address_line1,
+            address_line2: formData.address_line2,
+            phone_number: formData.phone_number
+          };
+          
+          // Update localStorage
+          localStorage.setItem("user", JSON.stringify(updatedUser));
           localStorage.setItem("is_profile_completed", "true");
+          
+          // Update auth service cache
+          authService.updateUserCache(updatedUser);
+          
+          alert("Profile updated successfully!");
           // Retrieve the previous page URL (or fallback to home page)
           const previousPage = localStorage.getItem("previousPage") || "/";
           localStorage.removeItem("previousPage"); // Clear stored value

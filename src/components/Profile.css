@@ -73,10 +73,10 @@
 
 /* Profile Page Styles */
 .profile-page {
+  padding: 2rem;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 2rem;
-  min-height: calc(100vh - 4rem);
+  color: #2c3e50;
 }
 
 .profile-loading {
@@ -107,22 +107,51 @@
 }
 
 .profile-header {
-  text-align: center;
   margin-bottom: 2rem;
-  color: #2c3e50;
 }
 
 .profile-header h1 {
-  font-size: 2.5rem;
+  font-size: 2rem;
+  color: #2c3e50;
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem;
 }
 
 .profile-icon {
-  font-size: 2.2rem;
   color: #3498db;
+}
+
+/* Profile Tabs */
+.profile-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #e9ecef;
+  padding-bottom: 1rem;
+}
+
+.profile-tab {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: none;
+  color: #7f8c8d;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-radius: 8px;
+}
+
+.profile-tab:hover {
+  color: #3498db;
+  background: #f8f9fa;
+}
+
+.profile-tab.active {
+  color: #3498db;
+  background: #ebf5fb;
+  font-weight: 600;
 }
 
 .profile-content {
@@ -134,56 +163,43 @@
 .profile-card {
   background: white;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .profile-info {
   display: flex;
-  align-items: center;
   gap: 2rem;
+  margin-bottom: 2rem;
 }
 
 .profile-photo-container {
-  width: 100px;
-  height: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-shrink: 0;
 }
 
 .profile-photo {
-  font-size: 100px;
-  color: #7f8c8d;
+  font-size: 6rem;
+  color: #3498db;
 }
 
 .profile-text h2 {
-  margin: 0;
-  font-size: 1.8rem;
+  margin: 0 0 0.5rem 0;
   color: #2c3e50;
+  font-size: 1.8rem;
 }
 
-.profile-email {
-  margin: 0.5rem 0;
+.profile-email, .profile-id {
   color: #7f8c8d;
+  margin: 0.25rem 0;
   font-size: 1rem;
-}
-
-.profile-id {
-  margin: 0;
-  font-size: 0.9rem;
-  color: #95a5a6;
 }
 
 /* Credit Card Styles */
 .credit-card {
-  background: #f8f9fa;
-  border-radius: 10px;
+  background: white;
+  border-radius: 12px;
   padding: 1.5rem;
-  border: 1px solid #e9ecef;
+  margin-top: 2rem;
 }
 
 .credit-header {
@@ -195,121 +211,105 @@
 
 .credit-header h3 {
   margin: 0;
-  font-size: 1.3rem;
   color: #2c3e50;
+  font-size: 1.3rem;
 }
 
 .credit-icon {
+  color: #3498db;
   font-size: 1.5rem;
-  color: #f39c12;
-}
-
-.credit-loading {
-  display: flex;
-  justify-content: center;
-  padding: 1rem;
 }
 
 .credit-details {
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 1rem;
 }
 
 .credit-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0;
+  padding: 0.75rem 0;
   border-bottom: 1px solid #e9ecef;
 }
 
-.credit-row:last-child {
-  border-bottom: none;
-}
-
-.credit-row.total {
-  padding-top: 0.8rem;
-  margin-top: 0.5rem;
-  border-top: 1px solid #e9ecef;
-  font-weight: bold;
+.credit-row span:first-child {
+  color: #7f8c8d;
+  font-weight: 500;
 }
 
 .credit-amount {
   font-weight: 600;
+  color: #2c3e50;
 }
 
 .credit-amount.free {
-  color: #27ae60;
+  color: #2ecc71;
 }
 
 .credit-amount.paid {
-  color: #3498db;
+  color: #f1c40f;
 }
 
 .credit-amount.total {
-  color: #2c3e50;
-  font-size: 1.1rem;
+  color: #3498db;
+}
+
+.credit-loading {
+  display: flex;
+  justify-content: center;
+  padding: 2rem;
 }
 
 /* Upgrade Section */
 .upgrade-toggle-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem;
-  width: 100%;
-  margin-top: 1.5rem;
-  padding: 0.8rem;
-  background-color: #3498db;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  color: #2c3e50;
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  margin-top: 1.5rem;
+  width: 100%;
+  justify-content: center;
 }
 
 .upgrade-toggle-btn:hover {
-  background-color: #2980b9;
+  background: #e9ecef;
+  color: #3498db;
 }
 
 .upgrade-section {
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 2rem;
-  animation: fadeIn 0.3s ease-in-out;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
 }
 
 /* Logout Button */
 .logout-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
   gap: 0.5rem;
-  width: 100%;
-  max-width: 300px;
-  margin: 2rem auto 0;
-  padding: 0.8rem;
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  font-size: 1rem;
-  font-weight: 500;
+  padding: 0.75rem 1.5rem;
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  color: #e74c3c;
+  font-size: 0.95rem;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.2s ease;
+  margin-top: 2rem;
 }
 
 .logout-btn:hover {
-  background-color: #c0392b;
+  background: #fdedec;
+  color: #c0392b;
 }
 
 /* Responsive Design */
@@ -317,22 +317,24 @@
   .profile-page {
     padding: 1rem;
   }
-  
-  .profile-card {
-    padding: 1.5rem;
-  }
-  
+
   .profile-info {
     flex-direction: column;
-    text-align: center;
-    gap: 1rem;
-  }
-  
-  .profile-text {
+    align-items: center;
     text-align: center;
   }
-  
-  .profile-header h1 {
-    font-size: 2rem;
+
+  .profile-tabs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .profile-tab {
+    width: 100%;
+    text-align: center;
+  }
+
+  .credit-card {
+    padding: 1rem;
   }
 }

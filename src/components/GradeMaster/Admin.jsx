@@ -96,7 +96,7 @@ const Admin = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/api/grade/upload/",
+        "http://localhost:8000/api/grade/upload/sample/",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );

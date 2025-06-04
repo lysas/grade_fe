@@ -68,5 +68,20 @@ export const PaymentService = {
         'Payment verification failed. Please contact support.'
       );
     }
+  },
+
+  generateInvoice: async (paymentId) => {
+    try {
+      const response = await api.post('/api/generate-invoice/', {
+        razorpay_payment_id: paymentId
+      });
+      return response.data;
+    } catch (error) {
+      console.error('Invoice generation failed:', error);
+      throw new Error(
+        error.response?.data?.error || 
+        'Failed to generate invoice. Please contact support.'
+      );
+    }
   }
 };

@@ -17,6 +17,7 @@ const GradeMaster = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [initialLoad, setInitialLoad] = useState(true);
+  const [showAddRoleButton, setShowAddRoleButton] = useState(false);
 
   // Check if the user is logged in by looking at local storage
   const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
@@ -32,6 +33,10 @@ const GradeMaster = () => {
     is_allowed: user?.is_allowed,
     is_profile_completed: user?.is_profile_completed,
   };
+
+  // Check if user has all roles
+  const allRoles = ['student', 'mentor', 'qp_uploader', 'evaluator'];
+  const hasAllRoles = allRoles.every(role => userData.roles.includes(role));
 
   // Handle logout or getting started
   const handleGetStarted = () => {
@@ -96,6 +101,69 @@ const GradeMaster = () => {
       }
     } catch (error) {
       setError('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Handle adding new roles
+  const handleAddRoles = async () => {
+    setIsRoleSelectionMode(true);
+    // Pre-select roles that user already has
+    setSelectedRoles(userData.roles);
+  };
+
+  // Handle adding new roles submission
+  const handleAddRolesSubmission = async () => {
+    if (selectedRoles.length === 0) {
+      setError('Please select at least one role');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      // Get only the newly selected roles (roles that weren't in userData.roles)
+      const newRoles = selectedRoles.filter(role => !userData.roles.includes(role));
+      
+      // Add each new role one by one
+      for (const newRole of newRoles) {
+        const response = await fetch('http://127.0.0.1:8000/api/add_role/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            user_id: userData.id,
+            new_role: newRole
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          if (errorData.message === "Role already assigned.") {
+            continue; // Skip if role is already assigned
+          }
+          throw new Error(errorData.error || 'Failed to add role');
+        }
+      }
+
+      // Update local user data with new roles
+      const updatedUser = {
+        ...user,
+        roles: [...userData.roles, ...newRoles]
+      };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      // Exit role selection mode
+      setIsRoleSelectionMode(false);
+      setShowAddRoleButton(false);
+      // Refresh the page to show updated roles
+      window.location.reload();
+    } catch (error) {
+      setError(error.message || 'Network error. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -173,6 +241,9 @@ const GradeMaster = () => {
       if (!userData.roles.length) {
         setIsRoleSelectionMode(true);
       } else {
+        // Check if user has all roles
+        setShowAddRoleButton(!hasAllRoles);
+        
         // User has roles - check if they're on a specific role route
         const isOnRoleRoute = location.pathname !== '/grade-master' && 
                              location.pathname !== '/grade-master/';
@@ -213,47 +284,59 @@ const GradeMaster = () => {
       }
       setInitialLoad(false);
     }
-  }, [isLoggedIn, userData.roles, activeRole, navigate, userData.is_allowed, initialLoad, location.pathname]);
+  }, [isLoggedIn, userData.roles, activeRole, navigate, userData.is_allowed, initialLoad, location.pathname, hasAllRoles]);
 
   // Role selection component
-  const RoleSelectionComponent = () => (
-    <div className="role-selection-container">
-      <h2>Select Your Roles</h2>
-      <p>Choose the roles you want to have access to:</p>
-      
-      {error && <div className="error-message">{error}</div>}
-      
-      <div className="role-selection-grid">
-        {[
+  const RoleSelectionComponent = () => {
+    // Filter out already selected roles when in add role mode
+    const availableRoles = showAddRoleButton 
+      ? [
           { key: 'student', label: 'Student', description: 'Take tests, give feedback, get results' },
           { key: 'mentor', label: 'Mentor', description: 'View student details, monitor performance' },
           { key: 'qp_uploader', label: 'Admin', description: 'Upload question papers' },
           { key: 'evaluator', label: 'Evaluator', description: 'Download answer sheets, update marks' }
-        ].map(role => (
-          <div key={role.key} className={`role-card ${selectedRoles.includes(role.key) ? 'selected' : ''}`}>
-            <input
-              type="checkbox"
-              id={role.key}
-              checked={selectedRoles.includes(role.key)}
-              onChange={() => handleRoleToggle(role.key)}
-            />
-            <label htmlFor={role.key}>
-              <h3>{role.label}</h3>
-              <p>{role.description}</p>
-            </label>
-          </div>
-        ))}
+        ].filter(role => !userData.roles.includes(role.key))
+      : [
+          { key: 'student', label: 'Student', description: 'Take tests, give feedback, get results' },
+          { key: 'mentor', label: 'Mentor', description: 'View student details, monitor performance' },
+          { key: 'qp_uploader', label: 'Admin', description: 'Upload question papers' },
+          { key: 'evaluator', label: 'Evaluator', description: 'Download answer sheets, update marks' }
+        ];
+
+    return (
+      <div className="role-selection-container">
+        <h2>{showAddRoleButton ? 'Add More Roles' : 'Select Your Roles'}</h2>
+        <p>{showAddRoleButton ? 'Select additional roles you want to have access to:' : 'Choose the roles you want to have access to:'}</p>
+        
+        {error && <div className="error-message">{error}</div>}
+        
+        <div className="role-selection-grid">
+          {availableRoles.map(role => (
+            <div key={role.key} className={`role-card ${selectedRoles.includes(role.key) ? 'selected' : ''}`}>
+              <input
+                type="checkbox"
+                id={role.key}
+                checked={selectedRoles.includes(role.key)}
+                onChange={() => handleRoleToggle(role.key)}
+              />
+              <label htmlFor={role.key}>
+                <h3>{role.label}</h3>
+                <p>{role.description}</p>
+              </label>
+            </div>
+          ))}
+        </div>
+        
+        <button 
+          onClick={showAddRoleButton ? handleAddRolesSubmission : handleRoleSubmission}
+          disabled={loading || selectedRoles.length === 0}
+          className="submit-roles-button"
+        >
+          {loading ? 'Updating...' : (showAddRoleButton ? 'Add Selected Roles' : 'Continue with Selected Roles')}
+        </button>
       </div>
-      
-      <button 
-        onClick={handleRoleSubmission}
-        disabled={loading || selectedRoles.length === 0}
-        className="submit-roles-button"
-      >
-        {loading ? 'Updating...' : 'Continue with Selected Roles'}
-      </button>
-    </div>
-  );
+    );
+  };
 
   // Main dashboard with role navigation
   const MainDashboard = () => (
@@ -261,20 +344,27 @@ const GradeMaster = () => {
       <h2>Welcome to GradeMaster</h2>
       {error && <div className="error-message">{error}</div>}
       
-      {!userData.is_profile_completed && (
-        <div className="profile-completion-alert">
-          <p>Please complete your profile to access all features</p>
+      <div className="actions-container">
+        {!userData.is_profile_completed && (
           <button 
             onClick={() => navigate('/grade-master/profileSection')}
-            className="complete-profile-button"
+            className="action-button"
           >
             Complete Your Profile
           </button>
-        </div>
-      )}
-      <p>Select a role to continue:</p>
-      
+        )}
 
+        {showAddRoleButton && (
+          <button 
+            onClick={handleAddRoles}
+            className="action-button"
+          >
+            Add More Roles
+          </button>
+        )}
+      </div>
+
+      <p>Select a role to continue:</p>
       
       <div className="roles">
         {userData.roles.includes('student') && (

@@ -1,18 +1,32 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Main.css"; // Import CSS for styling
+import { useNavigate } from "react-router-dom";
+import { authService } from "../Authentication/authService";
 
 const Main = () => {
+  console.log("Main component rendering");
   const [adminRequests, setAdminRequests] = useState([]);
   const [evaluatorRequests, setEvaluatorRequests] = useState([]);
+  const navigate = useNavigate();
+  const user = authService.getCurrentUser();
 
   useEffect(() => {
+    // Check if user has admin role
+    const userRoles = Array.isArray(user?.roles) ? user?.roles : user?.roles?.split(',') || [];
+    if (!userRoles.includes('admin')) {
+      navigate('/grade-master'); // Redirect to main page if not admin
+      return;
+    }
+
+    console.log("Fetching requests...");
     // Fetch requests from the backend
     axios
       .get("http://127.0.0.1:8000/api/grade/main-requests/") 
       .then((response) => {
+        console.log("Received response:", response.data);
         const data = response.data;
-        const admin = data.filter((request) => request.role === "admin");
+        const admin = data.filter((request) => request.role === "qp_uploader");
         const evaluator = data.filter((request) => request.role === "evaluator");
         setAdminRequests(admin);
         setEvaluatorRequests(evaluator);
@@ -20,7 +34,7 @@ const Main = () => {
       .catch((error) => {
         console.error("Error fetching requests:", error);
       });
-  }, []);
+  }, [navigate, user]);
 
   const handleAction = (id, action) => {
     const url = `http://127.0.0.1:8000/api/grade/accept_main_request/${id}/${action}/`; // Update with your backend URL
@@ -42,7 +56,7 @@ const Main = () => {
   const renderTable = (requests, role) => (
     <div className={`main-request-section main-request-section-${role}`}>
       <h2 className={`main-request-title main-request-title-${role}`}>
-        {role === "admin" ? "Admin Requests" : "Evaluator Requests"}
+        {role === "admin" ? "Qp Uploader Requests" : "Evaluator Requests"}
       </h2>
       <div className="main-request-table-wrapper">
         <table className={`main-request-table main-request-table-${role}`}>

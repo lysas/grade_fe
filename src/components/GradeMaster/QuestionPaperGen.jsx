@@ -212,7 +212,7 @@ const QuestionBank = () => {
     const questionToSubmit = questions.find((q) => q.id === questionId);
     try {
       const response = await fetch(
-        "http://localhost:8000/api/grade/questions/",
+        "http://localhost:8000/api/grade/questions/sample/",
         {
           method: "POST",
           headers: {

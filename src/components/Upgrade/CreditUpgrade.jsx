@@ -55,6 +55,7 @@ const CreditUpgrade = ({ onCreditsUpdated }) => {
             const verification = await PaymentService.verifyPayment(verificationData);
             
             if (verification.status === 'success') {
+              console.log('Payment verification successful:', verification);
               toast.success(`Payment successful! $${verification.paid_credit.toFixed(7)} added to your account`);
               if (onCreditsUpdated) onCreditsUpdated();
             } else {
