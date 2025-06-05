@@ -15,6 +15,13 @@ import "./App.css";
 import MainSidebar from './components/common/MainSidebar';
 import footerHtml from './html/Footer.html?raw';
 
+// Organization components
+import OrganizationDashboard from './components/Organization/OrganizationDashboard';
+import StudentManagement from './components/Organization/StudentManagement';
+import TestManagement from './components/Organization/TestManagement';
+import ProgressTracking from './components/Organization/ProgressTracking';
+import OrganizationProfile from "./components/Organization/OrganizationProfile";
+
 // Bootstrap imports
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -58,6 +65,10 @@ import QuestionList from "./components/Programming/QuestionList";
 import FullGradingDetails from './components/GradeMaster/FullGradingDetails';
 import { NotificationProvider } from './contexts/NotificationContext';
 import GlobalNotification from './components/GlobalNotification/GlobalNotification';
+import './components/Organization/Organization.css';
+import OrganizationLogin from "./components/Authentication/OrganizationLogin";
+import OrganizationSignup from "./components/Authentication/OrganizationSignup";
+import OrganizationOTPVerification from "./components/Authentication/OrganizationOTPVerification";
 
 const App = () => {
   const location = useLocation();
@@ -67,6 +78,7 @@ const App = () => {
                      location.pathname === "/login";
   const isquestionGeneratorRoute = location.pathname === "/questiongenerator";
   const isGradeMasterRoute = location.pathname.startsWith("/grade-master");
+  const isOrganization  = location.pathname.startsWith("/organization");
   const isProgrammingRoute = location.pathname.startsWith("/programming") || 
                             location.pathname === "/qngenerate";
   const isHomePage = location.pathname === "/" || location.pathname === "/easywithai";
@@ -83,7 +95,8 @@ const App = () => {
   // Check if we should show the sidebar
   const shouldShowSidebar = !isSpecialRoute && !isquestionGeneratorRoute && 
                           !isGradeMasterRoute && !isProfilePage && !isProgrammingRoute &&
-                          location.pathname !== "/easywithai"&& location.pathname !== "/";
+                          location.pathname !== "/easywithai"&& location.pathname !== "/"
+                          &&!isOrganization;
 
   // Add event listener for sidebar state changes
   useEffect(() => {
@@ -103,11 +116,11 @@ const App = () => {
         
           <div className="main-content">
             {/* Main Sidebar - show on all pages except special routes and programming routes */}
-            {!isSpecialRoute && !isProgrammingRoute && <MainSidebar />}
+            {!isSpecialRoute && !isProgrammingRoute && !isOrganization && <MainSidebar />}
             
             {/* Content Wrapper */}
             <div className={`content-wrapper ${isSidebarCollapsed ? 'collapsed' : ''}`} style={{ 
-              marginLeft: (isSpecialRoute || isProgrammingRoute) ? "0" : (isSidebarCollapsed ? "60px" : "250px"),
+              marginLeft: (isSpecialRoute || isProgrammingRoute || isOrganization) ? "0" : (isSidebarCollapsed ? "60px" : "250px"),
               transition: "margin-left 0.3s ease"
             }}>
               {/* Main Content */}
@@ -157,6 +170,18 @@ const App = () => {
                   <Route path="/qngenerate" element={<GenerateQuestions />} />
                   <Route path="/programming" element={<QuestionList />} />
                   <Route path="/programming/code-editor/:id" element={<CodeEditor />} />
+                  {/* Organization routes */}
+                  <Route path="/organization" element={<OrganizationDashboard />}>
+                    <Route index element={<StudentManagement />} />
+                    <Route path="students" element={<StudentManagement />} />
+                    <Route path="tests" element={<TestManagement />} />
+                    <Route path="progress" element={<ProgressTracking />} />
+                    <Route path="profile" element={<OrganizationProfile />} />
+                  </Route>
+                  {/* Organization authentication routes */}
+                  <Route path="/organization-login" element={<OrganizationLogin />} />
+                  <Route path="/organization-signup" element={<OrganizationSignup />} />
+                  <Route path="/organization-verify-otp" element={<OrganizationOTPVerification />} />
                 </Routes>
               </div>
 
@@ -172,7 +197,7 @@ const App = () => {
           {/* Only show footer on home page */}
           {isHomePage && (
             <div className={`footer-container ${isSidebarCollapsed ? 'collapsed' : ''}`} style={{ 
-              marginLeft: (isSpecialRoute || isProgrammingRoute) ? "0" : (isSidebarCollapsed ? "60px" : "250px"),
+              marginLeft: (isSpecialRoute || isProgrammingRoute || isOrganization) ? "0" : (isSidebarCollapsed ? "60px" : "250px"),
               transition: "margin-left 0.3s ease"
             }}>
               <div dangerouslySetInnerHTML={{ __html: footerHtml }} />

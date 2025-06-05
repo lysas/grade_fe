@@ -373,5 +373,101 @@ refreshTokenIfNeeded: async () => {
     console.error('Error refreshing token:', error);
     return false;
   }
+},
+
+organizationLogin: async (email, password) => {
+  try {
+    const response = await handleRequest('/api/organization/login/', 'POST', { 
+      email: email.toLowerCase(), 
+      password
+    });
+
+    if (response && response.organization) {
+      localStorage.setItem('token', response.tokens?.access);
+      localStorage.setItem('refreshToken', response.tokens?.refresh);
+      localStorage.setItem('organization', JSON.stringify(response.organization));
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('isOrganization', 'true');
+      userCache = response.organization; // Cache the organization object
+      return response;
+    }
+    throw new Error(response.detail || 'Organization login failed - no organization data');
+  } catch (error) {
+    console.error('Organization login error:', error);
+    throw error;
+  }
+},
+
+organizationGoogleLogin: async (idToken) => {
+  try {
+    const response = await handleRequest('/api/organization/login/', 'POST', { 
+      id_token: idToken
+    });
+
+    if (response && response.organization) {
+      localStorage.setItem('token', response.tokens?.access);
+      localStorage.setItem('refreshToken', response.tokens?.refresh);
+      localStorage.setItem('organization', JSON.stringify(response.organization));
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('isOrganization', 'true');
+      userCache = response.organization; // Cache the organization object
+      return response;
+    }
+    throw new Error(response.detail || 'Organization Google login failed');
+  } catch (error) {
+    console.error('Organization Google login error:', error);
+    throw error;
+  }
+},
+
+organizationRegister: async (name, email, password, confirmPassword) => {
+  try {
+    const response = await handleRequest('/api/organization/signup/', 'POST', {
+      name,
+      email: email.toLowerCase(),
+      password,
+      confirm_password: confirmPassword
+    });
+
+    return response;
+  } catch (error) {
+    console.error('Organization registration error:', error);
+    throw error;
+  }
+},
+
+organizationVerifyOtp: async (email, otp) => {
+  try {
+    const response = await handleRequest('/api/organization/verify-otp/', 'POST', {
+      email: email.toLowerCase(),
+      otp
+    });
+
+    if (response && response.organization) {
+      localStorage.setItem('token', response.tokens?.access);
+      localStorage.setItem('refreshToken', response.tokens?.refresh);
+      localStorage.setItem('organization', JSON.stringify(response.organization));
+      localStorage.setItem('isLoggedIn', 'true');
+      localStorage.setItem('isOrganization', 'true');
+      userCache = response.organization;
+      return response;
+    }
+    throw new Error(response.detail || 'Organization OTP verification failed');
+  } catch (error) {
+    console.error('Organization OTP verification error:', error);
+    throw error;
+  }
+},
+
+organizationResendOtp: async (email) => {
+  try {
+    const response = await handleRequest('/api/organization/resend-otp/', 'POST', {
+      email: email.toLowerCase()
+    });
+    return response;
+  } catch (error) {
+    console.error('Organization resend OTP error:', error);
+    throw error;
+  }
 }
 };

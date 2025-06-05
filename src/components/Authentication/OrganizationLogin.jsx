@@ -7,15 +7,13 @@ import { authService } from "./authService";
 import logo from "../../assets/logo.png";
 import lap from "../../assets/lap.png";
 import "./Login.css";
-import ForgotPassword from "./ForgotPassword";
 
-const Login = ({ onSwitchForm }) => {
+const OrganizationLogin = ({ onSwitchForm }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -54,11 +52,11 @@ const Login = ({ onSwitchForm }) => {
     setIsLoading(true);
     
     try {
-      await authService.login(email.toLowerCase(), password);
-      toast.success("Login successful");
-      window.location.href = "/";
+      const response = await authService.organizationLogin(email.toLowerCase(), password);
+      toast.success("Organization login successful");
+      navigate('/organization'); // Navigate to organization dashboard
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Organization login error:", error);
       toast.error(error.message || "Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
@@ -69,9 +67,9 @@ const Login = ({ onSwitchForm }) => {
     setIsLoading(true);
     
     try {
-      await authService.googleLogin(response.credential);
+      await authService.organizationGoogleLogin(response.credential);
       toast.success("Google login successful");
-      window.location.href = "/";
+      navigate('/organization'); // Navigate to organization dashboard
     } catch (error) {
       console.error("Google login error:", error);
       toast.error(error.message || "An error occurred during Google login");
@@ -84,34 +82,22 @@ const Login = ({ onSwitchForm }) => {
     toast.error("Google login failed");
   };
 
-  const handleForgotPassword = () => {
-    setShowForgotPassword(true);
-  };
-
-  const handleBackToLogin = () => {
-    setShowForgotPassword(false);
-  };
-
   const isValidEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
-  if (showForgotPassword) {
-    return <ForgotPassword onBackToLogin={handleBackToLogin} />;
-  }
 
   return (
     <div className="page1">
       <div className="cover">
         <div className="left-signup">
           <div className="left-content">
-            <h2 className="left-title">Why Sign Up?</h2>
-            <p className="left-subtitle">Access a 15-day free trial of:</p>
+            <h2 className="left-title">Organization Benefits</h2>
+            <p className="left-subtitle">Access powerful features for your institution:</p>
             <ul className="benefits-list">
-              <li>Most advanced AI powered Question Generator/Grader</li>
-              <li>Multiple content input sources</li>
-              <li>Multiple question types</li>
-              <li>Export in PDF, Word or Excel format</li>
-              <li>Conduct Test and Assess yourself</li>
-              <li>Integration with your existing LMS or ERP</li>
+              <li>Manage multiple users and roles</li>
+              <li>Track student progress and performance</li>
+              <li>Generate and grade assessments</li>
+              <li>Customize question papers</li>
+              <li>Export results and analytics</li>
+              <li>Integration with your existing systems</li>
             </ul>
             <img src={lap} alt="Laptop" className="image" />
           </div>
@@ -120,11 +106,10 @@ const Login = ({ onSwitchForm }) => {
         <div className="right-signup">
           <div className="logo-container">
             <img src={logo} alt="Logo" className="logo-image" />
-            {/* <h3 className="lysa">Lysa Solutions</h3> */}
           </div>
           
           <form className="login-form" onSubmit={handleLogin}>
-            <h3 className="form-title">Welcome, Let's get started!</h3>
+            <h3 className="form-title">Organization Login</h3>
             <div className="input-container1">
               <input
                 type="email"
@@ -132,7 +117,7 @@ const Login = ({ onSwitchForm }) => {
                 value={email}
                 onChange={handleEmailChange}
                 className={emailError ? "input-error" : ""}
-                placeholder="Enter your email"
+                placeholder="Enter organization email"
                 required
                 disabled={isLoading}
               />
@@ -145,16 +130,11 @@ const Login = ({ onSwitchForm }) => {
                 value={password}
                 onChange={handlePasswordChange}
                 className={passwordError ? "input-error" : ""}
-                placeholder="Enter your password"
+                placeholder="Enter password"
                 required
                 disabled={isLoading}
               />
               {passwordError && <div className="error-message">{passwordError}</div>}
-            </div>
-            <div className="forgot-password-link">
-              <span onClick={handleForgotPassword}>
-                Forgot Password?
-              </span>
             </div>
             <button 
               type="submit" 
@@ -174,22 +154,16 @@ const Login = ({ onSwitchForm }) => {
               </div>
             </div>
             <p className="switch-form">
-              New User?{" "}
-              <span onClick={onSwitchForm} className="switch-link">
-                Signup
+              New Organization?{" "}
+              <span onClick={() => navigate('/organization-signup')} className="switch-link">
+                Register
               </span>
             </p>
-            <div className="organization-login">
-              <p>
-                Are you an organization?{" "}
-                <span 
-                  onClick={() => navigate('/organization-login')} 
-                  className="switch-link"
-                >
-                  Organization Login
-                </span>
-              </p>
-            </div>
+            <p className="switch-form">
+              <span onClick={() => navigate('/login')} className="switch-link">
+                Back to User Login
+              </span>
+            </p>
           </form>
         </div>
       </div>
@@ -197,4 +171,4 @@ const Login = ({ onSwitchForm }) => {
   );
 };
 
-export default Login;
+export default OrganizationLogin; 
