@@ -1,73 +1,154 @@
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import './Organization.css';
+import logo from '../../assets/logo.png';
+import userProfile from '../../assets/userProfile.jpeg';
+import { authService } from '../Authentication/authService';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { 
+  faHome, 
+  faUsers,
+  faChartBar,
+  faFileAlt,
+  faUserCircle
+} from '@fortawesome/free-solid-svg-icons';
 
-const OrganizationSidebar = ({ isCollapsed, onCollapse }) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+const OrganizationSidebar = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
+  const dropdownRef = useRef(null);
+  const user = authService.getCurrentUser();
 
-  const menuItems = [
-    {
-      path: '/organization/students',
-      label: 'Student Management',
-      icon: 'fas fa-user-graduate'
-    },
-    {
-      path: '/organization/tests',
-      label: 'Test Management',
-      icon: 'fas fa-file-alt'
-    },
-    {
-      path: '/organization/progress',
-      label: 'Progress Tracking',
-      icon: 'fas fa-chart-line'
-    },
-    {
-      path: '/organization/profile',
-      label: 'Profile',
-      icon: 'fas fa-user-circle'
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowProfileDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Close dropdown when sidebar is collapsed
+  useEffect(() => {
+    if (isCollapsed) {
+      setShowProfileDropdown(false);
     }
+  }, [isCollapsed]);
+
+  const mainMenuItems = [
+    { path: "/organization/students", label: "Student Management", icon: faUsers },
+    { path: "/organization/tests", label: "Test Management", icon: faFileAlt },
+    { path: "/organization/progress", label: "Progress Tracking", icon: faChartBar },
   ];
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+  const handleNavigation = (path) => {
+    navigate(path);
+    setShowProfileDropdown(false);
+  };
+
+  const handleLogout = () => {
+    authService.logout();
+    navigate('/authenticate');
+    setShowProfileDropdown(false);
+  };
+
+  const toggleSidebar = () => {
+    const newState = !isCollapsed;
+    setIsCollapsed(newState);
+    // Dispatch event to notify App component
+    window.dispatchEvent(new CustomEvent('sidebarStateChange', { detail: newState }));
   };
 
   return (
-    <div className={`organization-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
-      <div className="sidebar-header p-3 bg-primary text-white">
-        <div className="d-flex justify-content-between align-items-center">
-          <h4 className={`mb-0 ${isCollapsed ? 'd-none' : ''}`}>Organization Dashboard</h4>
-          <div className="d-flex align-items-center">
-            <button 
-              className="btn btn-link text-white p-0 me-2"
-              onClick={() => onCollapse(!isCollapsed)}
-            >
-              <i className={`fas ${isCollapsed ? 'fa-chevron-right' : 'fa-chevron-left'}`}></i>
-            </button>
-            <button 
-              className="btn btn-link text-white d-md-none p-0"
-              onClick={toggleMobileMenu}
-            >
-              <i className={`fas ${isMobileMenuOpen ? 'fa-times' : 'fa-bars'}`}></i>
-            </button>
-          </div>
-        </div>
+    <div className={`main-sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+      <div className="main-sidebar-header" onClick={toggleSidebar} style={{ cursor: 'pointer' }}>
+        <img src={logo} alt="Logo" className="main-sidebar-logo" />
       </div>
-      <div className={`sidebar-menu ${isMobileMenuOpen ? 'show' : ''}`}>
-        {menuItems.map((item) => (
-          <NavLink
-            key={item.path}
-            to={item.path}
-            className={({ isActive }) =>
-              `sidebar-item d-flex align-items-center p-3 ${
-                isActive ? 'active' : ''
-              }`
-            }
-            onClick={() => setIsMobileMenuOpen(false)}
+
+      <nav className="main-sidebar-nav">
+        <ul className="main-sidebar-menu">
+          {mainMenuItems.map(({ path, label, icon }) => (
+            <li key={path}>
+              <div 
+                onClick={() => handleNavigation(path)}
+                className={`main-nav-link ${location.pathname === path ? 'active' : ''}`}
+              >
+                <span className="main-menu-icon">
+                  <FontAwesomeIcon icon={icon} />
+                </span>
+                {!isCollapsed && <span className="main-menu-label">{label}</span>}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      {/* Profile Section at bottom */}
+      <div className="main-sidebar-profile" ref={dropdownRef}>
+        <div 
+          className={`profile-trigger ${showProfileDropdown ? 'active' : ''}`}
+          onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+        >
+          <div className="profile-image-container">
+            <img src={userProfile} alt="Profile" className="profile-image" />
+            {!isCollapsed && showProfileDropdown && (
+              <div className="profile-status-indicator"></div>
+            )}
+          </div>
+          {!isCollapsed && (
+            <div className="profile-info">
+              <span className="profile-name">{user?.email || 'User'}</span>
+              <span className="profile-role">{user?.role_org || 'Organization Admin'}</span>
+            </div>
+          )}
+        </div>
+
+        {showProfileDropdown && !isCollapsed && (
+          <div
+            style={{
+              position: 'fixed',
+              bottom: '120px',
+              left: '30px',
+              width: '180px',
+              background: 'white',
+              border: '1px solid #eaeaea',
+              borderRadius: '8px',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+              zIndex: 99999,
+              overflow: 'hidden'
+            }}
           >
-            <i className={`${item.icon} ${isCollapsed ? 'mx-auto' : 'me-3'}`}></i>
-            {!isCollapsed && <span>{item.label}</span>}
-          </NavLink>
-        ))}
+            <Link 
+              to="/organization/profile" 
+              className="dropdown-item"
+              onClick={() => setShowProfileDropdown(false)}
+            >
+              <span className="dropdown-icon">👤</span>
+              <span className="dropdown-label">Organization Profile</span>
+            </Link>
+            <Link 
+              to="/organization/notifications" 
+              className="dropdown-item"
+              onClick={() => setShowProfileDropdown(false)}
+            >
+              <span className="dropdown-icon">🔔</span>
+              <span className="dropdown-label">Notifications</span>
+            </Link>
+            <div className="dropdown-divider"></div>
+            <div 
+              className="dropdown-item logout" 
+              onClick={handleLogout}
+            >
+              <span className="dropdown-icon">🚪</span>
+              <span className="dropdown-label">Logout</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

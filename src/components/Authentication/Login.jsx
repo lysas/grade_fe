@@ -183,10 +183,10 @@ const Login = ({ onSwitchForm }) => {
               <p>
                 Are you an organization?{" "}
                 <span 
-                  onClick={() => navigate('/organization-login')} 
+                  onClick={() => navigate('/organization-register')} 
                   className="switch-link"
                 >
-                  Organization Login
+                  Register your Organization
                 </span>
               </p>
             </div>

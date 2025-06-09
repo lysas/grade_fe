@@ -10,7 +10,8 @@ import {
   faRobot, 
   faQuestion, 
   faChartBar,
-  faCode 
+  faCode,
+  faBuilding 
 } from '@fortawesome/free-solid-svg-icons';
 
 const MainSidebar = () => {
@@ -47,6 +48,15 @@ const MainSidebar = () => {
     { path: "/grade-master", label: "Grade Master", icon: faChartBar },
     { path: "/programming", label: "Programming", icon: faCode },
   ];
+
+  // Add organization menu item if user is an organization admin
+  if (user?.role_org === 'admin') {
+    mainMenuItems.push({ 
+      path: "/organization", 
+      label: "Organization", 
+      icon: faBuilding 
+    });
+  }
 
   const handleNavigation = (path) => {
     if (path === '/questiongenerator' || path === '/grade-master') {

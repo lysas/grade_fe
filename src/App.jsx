@@ -21,6 +21,7 @@ import StudentManagement from './components/Organization/StudentManagement';
 import TestManagement from './components/Organization/TestManagement';
 import ProgressTracking from './components/Organization/ProgressTracking';
 import OrganizationProfile from "./components/Organization/OrganizationProfile";
+import AcceptInvitation from './components/Auth/AcceptInvitation';
 
 // Bootstrap imports
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -66,9 +67,7 @@ import FullGradingDetails from './components/GradeMaster/FullGradingDetails';
 import { NotificationProvider } from './contexts/NotificationContext';
 import GlobalNotification from './components/GlobalNotification/GlobalNotification';
 import './components/Organization/Organization.css';
-import OrganizationLogin from "./components/Authentication/OrganizationLogin";
 import OrganizationSignup from "./components/Authentication/OrganizationSignup";
-import OrganizationOTPVerification from "./components/Authentication/OrganizationOTPVerification";
 
 const App = () => {
   const location = useLocation();
@@ -96,7 +95,7 @@ const App = () => {
   const shouldShowSidebar = !isSpecialRoute && !isquestionGeneratorRoute && 
                           !isGradeMasterRoute && !isProfilePage && !isProgrammingRoute &&
                           location.pathname !== "/easywithai"&& location.pathname !== "/"
-                          &&!isOrganization;
+                          &&!isOrganization && location.pathname !== "/accept-invitation";
 
   // Add event listener for sidebar state changes
   useEffect(() => {
@@ -179,9 +178,9 @@ const App = () => {
                     <Route path="profile" element={<OrganizationProfile />} />
                   </Route>
                   {/* Organization authentication routes */}
-                  <Route path="/organization-login" element={<OrganizationLogin />} />
-                  <Route path="/organization-signup" element={<OrganizationSignup />} />
-                  <Route path="/organization-verify-otp" element={<OrganizationOTPVerification />} />
+                  <Route path="/organization-register" element={<OrganizationSignup />} />
+                  {/* Student invitation route */}
+                  <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
                 </Routes>
               </div>
 

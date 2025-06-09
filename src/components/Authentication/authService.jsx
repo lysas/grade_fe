@@ -294,7 +294,7 @@ verifyOtp: async (email, otp) => {
     try {
       const user = localStorage.getItem('user');
       if (user) {
-        userCache = JSON.parse(user); // Cache user after parsing
+        userCache = JSON.parse(user);
         return userCache;
       }
       return null;
