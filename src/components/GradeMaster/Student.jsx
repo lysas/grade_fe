@@ -25,10 +25,25 @@ const Student = () => {
   const [availableYears, setAvailableYears] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [showQuestionGenerator, setShowQuestionGenerator] = useState(false);
+  const [organizationTests, setOrganizationTests] = useState([]);
   
   const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
   const lastFiveYears = Array.from({ length: 5 }, (_, index) => currentYear - index);
+  
+  // Add function to format UTC time to local time
+  const formatLocalTime = (utcTimeString) => {
+    if (!utcTimeString) return '';
+    const date = new Date(utcTimeString);
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
   
   const user = authService.getCurrentUser();
   
@@ -36,9 +51,12 @@ const Student = () => {
     id: user?.id,
     email: user?.email,
     is_premium: user?.is_premium || false,
+    organization: user?.organization || null,
+    role_org: user?.role_org || null,
   };
 
   const isPremium = userData.is_premium === true;
+  const isStudent = userData.role_org === 'student';
   
   const getUniqueYears = (papers) => {
     if (!papers || papers.length === 0) return ["All Years"];
@@ -173,9 +191,71 @@ const Student = () => {
   // Refetch when question paper type or year changes
   useEffect(() => {
     if (!showQuestionGenerator) {
-      fetchQuestionPapers();
+      if (questionPaperType === "organization") {
+        fetchOrganizationTests();
+      } else {
+        fetchQuestionPapers();
+      }
     }
   }, [questionPaperType, questionPaperType === "previous_year" ? selectedYear : null, showQuestionGenerator]);
+
+  // Fetch organization tests
+  const fetchOrganizationTests = async () => {
+    console.log("fetchOrganizationTests called, isStudent:", isStudent);
+    if (!isStudent) return;
+    
+    try {
+      const token = localStorage.getItem('token');
+      console.log("Making API call to fetch organization tests...");
+      const response = await axios.get(
+        `http://localhost:8000/api/organization/tests/assigned_tests/`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      console.log("Organization tests response:", response.data);
+      setOrganizationTests(response.data.data || []);
+    } catch (err) {
+      console.error("Error fetching organization tests:", err);
+    }
+  };
+
+  // Check if test is currently available based on start time and duration
+  const isTestAvailable = (test) => {
+    const now = new Date();
+    const startTime = new Date(test.start_time);
+    const endTime = new Date(startTime.getTime() + test.duration_minutes * 60000);
+    
+    return now >= startTime && now <= endTime;
+  };
+
+  // Handle organization test upload
+  const handleOrganizationTestUpload = (test) => {
+    if (!isTestAvailable(test)) {
+      alert("This test is not available at the moment. Please check the start time and duration.");
+      return;
+    }
+
+    navigate("/grade-master/upload-answer", {
+      state: {
+        questionPaper: {
+          id: test.id,
+          title: test.title,
+          description: test.description,
+          start_time: test.start_time,
+          duration_minutes: test.duration_minutes,
+          file: test.question_paper?.pdf_file,
+          type: "organization"  // Add this to identify it's an organization test
+        },
+        questionPaperType: "organization",
+        userId: userData.id,
+        userEmail: userData.email,
+        organizationId: userData.organization?.id  // Add organization ID
+      },
+    });
+  };
 
   const handleUpload = (qp) => {
     if (!canUploadAnswer(qp)) {
@@ -194,7 +274,12 @@ const Student = () => {
     });
   };
 
-  const handleViewPaper = (file) => {
+  const handleViewPaper = (file, questionPaperType = questionPaperType) => {
+    if (!file) {
+      console.error("No file provided");
+      return;
+    }
+
     const basePath = "http://127.0.0.1:8000/media/question_papers/";
     let folder;
     
@@ -208,12 +293,17 @@ const Student = () => {
       case "generated":
         folder = "generated";
         break;
+      case "organization":
+        folder = "organization";
+        break;
       default:
         folder = "qp_uploader";
     }
     
     const fileName = file.split("/").pop();
-    window.open(`${basePath}${folder}/${fileName}`, "_blank");
+    const url = `${basePath}${folder}/${fileName}`;
+    console.log("Opening question paper URL:", url);
+    window.open(url, "_blank");
   };
 
   const handleViewAnswer = (answerFile) => {
@@ -262,9 +352,16 @@ const Student = () => {
   };
 
   const handleQuestionTypeChange = (e) => {
-    setQuestionPaperType(e.target.value);
+    const newType = e.target.value;
+    console.log("Question type changed to:", newType);
+    setQuestionPaperType(newType);
     setSelectedYear("All Years");
     setShowQuestionGenerator(false);
+    
+    if (newType === "organization") {
+      console.log("Fetching organization tests...");
+      fetchOrganizationTests();
+    }
   };
 
   // Apply filters whenever filter criteria change
@@ -412,6 +509,28 @@ const Student = () => {
     }
   };
 
+  // Handle viewing organization test question paper
+  const handleViewOrganizationQuestionPaper = async (testId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `http://localhost:8000/api/organization/tests/${testId}/question_paper/`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      
+      if (response.data.status === 'success') {
+        window.open(response.data.data.pdf_url, '_blank');
+      }
+    } catch (err) {
+      console.error("Error fetching question paper:", err);
+      alert("Error fetching question paper. Please try again.");
+    }
+  };
+
   return (
     <div className="studentPage">
       <Alert
@@ -449,6 +568,7 @@ const Student = () => {
                 selectedYear={selectedYear}
                 handleYearFilterChange={handleYearFilterChange}
                 availableYears={availableYears}
+                hasOrganization={isStudent}
               />
             </div>
     
@@ -467,27 +587,79 @@ const Student = () => {
                   </div>
                 )}
                 
-                <div className="sectionSubheader">
-                  <h4>Available Question Papers</h4>
-                </div>
-                
-                <Table
-                  columns={availablePapersColumns}
-                  data={filteredAvailablePapers}
-                  emptyMessage="No Question Papers Found"
-                  renderCell={renderAvailablePaperCell}
-                />
-                
-                <div className="sectionSubheader">
-                  <h4>Answered Question Papers</h4>
-                </div>
-                
-                <Table
-                  columns={answeredPapersColumns}
-                  data={filteredAnsweredPapers}
-                  emptyMessage="No Answered Papers Found"
-                  renderCell={renderAnsweredPaperCell}
-                />
+                {questionPaperType === "organization" ? (
+                  <>
+                    <div className="sectionSubheader">
+                      <h4>Assigned Organization Tests</h4>
+                    </div>
+                    
+                    <Table
+                      columns={[
+                        { header: "Test Title", accessor: "title" },
+                        { header: "Description", accessor: "description" },
+                        { header: "Start Time", accessor: "start_time" },
+                        { header: "Duration (minutes)", accessor: "duration_minutes" },
+                        { header: "Status", accessor: "status" },
+                        { header: "Action", accessor: "action" }
+                      ]}
+                      data={organizationTests.map(test => ({
+                        ...test,
+                        title: (
+                          <Button 
+                            variant="viewButton" 
+                            onClick={() => {
+                              console.log("Test data:", test);
+                              if (test.question_paper?.pdf_file) {
+                                handleViewPaper(test.question_paper.pdf_file, "organization");
+                              } else {
+                                console.error("No question paper found for test:", test);
+                              }
+                            }}
+                            disabled={!isTestAvailable(test)}
+                          >
+                            {test.title}
+                          </Button>
+                        ),
+                        start_time: formatLocalTime(test.start_time),
+                        status: isTestAvailable(test) ? "Available" : "Not Available",
+                        action: (
+                          <Button
+                            variant="success"
+                            onClick={() => handleOrganizationTestUpload(test)}
+                            disabled={!isTestAvailable(test)}
+                          >
+                            Take Test
+                          </Button>
+                        )
+                      }))}
+                      emptyMessage="No Organization Tests Found"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <div className="sectionSubheader">
+                      <h4>Available Question Papers</h4>
+                    </div>
+                    
+                    <Table
+                      columns={availablePapersColumns}
+                      data={filteredAvailablePapers}
+                      emptyMessage="No Question Papers Found"
+                      renderCell={renderAvailablePaperCell}
+                    />
+                    
+                    <div className="sectionSubheader">
+                      <h4>Answered Question Papers</h4>
+                    </div>
+                    
+                    <Table
+                      columns={answeredPapersColumns}
+                      data={filteredAnsweredPapers}
+                      emptyMessage="No Answered Papers Found"
+                      renderCell={renderAnsweredPaperCell}
+                    />
+                  </>
+                )}
               </>
             )}
           </section>

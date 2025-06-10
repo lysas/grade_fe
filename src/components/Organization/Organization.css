@@ -758,3 +758,319 @@ body {
 .logout-button i {
     font-size: 1.1rem;
 }
+
+/* Test Results Page Styles */
+.test-results-page {
+  padding: 30px;
+  max-width: 1200px;
+  margin: 20px auto;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.test-results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.test-results-header h2 {
+  color: #343a40;
+  font-size: 2.2em;
+  font-weight: 600;
+  margin: 0;
+}
+
+.test-selector .form-select {
+  width: 250px;
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: 1px solid #ced4da;
+  font-size: 1em;
+  color: #495057;
+  background-color: #fff;
+  transition: all 0.3s ease-in-out;
+}
+
+.test-selector .form-select:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+.results-section {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 30px;
+}
+
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.results-header h3 {
+  color: #343a40;
+  font-size: 1.8em;
+  font-weight: 500;
+  margin: 0;
+}
+
+.results-summary .badge {
+  font-size: 0.9em;
+  padding: 8px 12px;
+  border-radius: 50px;
+  margin-left: 10px;
+  font-weight: 600;
+}
+
+.loading-spinner, .no-results {
+  text-align: center;
+  padding: 50px 0;
+  color: #6c757d;
+  font-size: 1.1em;
+}
+
+.loading-spinner .spinner-border {
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 15px;
+}
+
+.no-results p {
+  margin: 0;
+}
+
+.alert-danger {
+  background-color: #f8d7da;
+  color: #721c24;
+  border-color: #f5c6cb;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.action-buttons .btn {
+  margin-right: 5px;
+  font-size: 0.85em;
+}
+
+.action-buttons .btn .fas {
+  margin-right: 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .test-results-page {
+    padding: 20px;
+    margin: 10px;
+  }
+
+  .test-results-header {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
+
+  .test-results-header h2 {
+    margin-bottom: 15px;
+    font-size: 1.8em;
+  }
+
+  .test-selector .form-select {
+    width: 100%;
+  }
+
+  .results-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .results-header h3 {
+    margin-bottom: 15px;
+    font-size: 1.5em;
+  }
+
+  .results-summary .badge {
+    margin-left: 0;
+    margin-top: 10px;
+  }
+}
+
+/* --- Tabbed Interface Styles for Test Results Page --- */
+.tabs-container {
+  margin-bottom: 25px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+}
+
+.nav-tabs {
+  border-bottom: 1px solid #dee2e6;
+  margin-bottom: 15px;
+}
+
+.nav-tabs .nav-item .nav-link {
+  color: #495057;
+  border: 1px solid transparent;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+  padding: 10px 15px;
+  margin-right: 5px;
+  transition: all 0.3s ease;
+}
+
+.nav-tabs .nav-item .nav-link:hover {
+  border-color: #e9ecef #e9ecef #dee2e6;
+  background-color: #f8f9fa;
+}
+
+.nav-tabs .nav-item .nav-link.active {
+  color: #2563eb;
+  background-color: #fff;
+  border-color: #dee2e6 #dee2e6 #fff;
+  font-weight: 600;
+}
+
+.tab-content {
+  padding: 15px 0;
+}
+
+.test-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.test-list .list-group-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 15px;
+  border: 1px solid #e0e0e0;
+  margin-bottom: 8px;
+  border-radius: 6px;
+  background-color: #fcfcfc;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.test-list .list-group-item:hover {
+  background-color: #e9f0ff;
+  border-color: #cce5ff;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 123, 255, 0.1);
+}
+
+.test-list .list-group-item.active {
+  background-color: #e0edff; /* Light blue background for active */
+  border-color: #a0c4ff;
+  color: #1a56cc;
+  font-weight: 600;
+}
+
+.test-date {
+  font-size: 0.9em;
+  color: #6c757d;
+}
+
+/* Additional general UI improvements for TestResults page (not table) */
+.no-test-selected, .no-tests-available {
+  padding: 50px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-top: 25px;
+}
+
+.no-test-selected p, .no-tests-available p {
+  font-size: 1.1em;
+  color: #6c757d;
+}
+
+/* Responsive adjustments for tabs */
+@media (max-width: 768px) {
+  .tabs-container {
+    padding: 15px;
+  }
+
+  .nav-tabs .nav-item .nav-link {
+    padding: 8px 10px;
+    font-size: 0.9em;
+  }
+
+  .test-list .list-group-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .test-date {
+    margin-top: 5px;
+    margin-left: 0 !important;
+  }
+}
+
+/* --- Search Bar Styles --- */
+.search-bar .form-control {
+  width: 100%;
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: 1px solid #ced4da;
+  font-size: 1em;
+  color: #495057;
+  background-color: #fff;
+  transition: all 0.3s ease-in-out;
+}
+
+.search-bar .form-control:focus {
+  border-color: #80bdff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  outline: none;
+}
+
+/* --- Scrollable Test List Styles --- */
+.test-list-scrollable {
+  max-height: 300px; /* Adjust as needed */
+  overflow-y: auto;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #fff;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* Scrollbar styling (for Webkit browsers) */
+.test-list-scrollable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.test-list-scrollable::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.test-list-scrollable::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.test-list-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Responsive adjustments for search bar */
+@media (max-width: 768px) {
+  .search-bar {
+    margin-bottom: 20px;
+  }
+}

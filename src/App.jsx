@@ -22,6 +22,7 @@ import TestManagement from './components/Organization/TestManagement';
 import ProgressTracking from './components/Organization/ProgressTracking';
 import OrganizationProfile from "./components/Organization/OrganizationProfile";
 import AcceptInvitation from './components/Auth/AcceptInvitation';
+import TestResults from "./components/Organization/TestResults";
 
 // Bootstrap imports
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -174,6 +175,7 @@ const App = () => {
                     <Route index element={<StudentManagement />} />
                     <Route path="students" element={<StudentManagement />} />
                     <Route path="tests" element={<TestManagement />} />
+                    <Route path="test-results" element={<TestResults />} />
                     <Route path="progress" element={<ProgressTracking />} />
                     <Route path="profile" element={<OrganizationProfile />} />
                   </Route>

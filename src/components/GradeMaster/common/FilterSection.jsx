@@ -8,7 +8,8 @@ const FilterSection = ({
   handleSubjectFilterChange,
   selectedYear,
   handleYearFilterChange,
-  availableYears
+  availableYears,
+  hasOrganization
 }) => {
   return (
     <div className="filterContainer">
@@ -24,6 +25,9 @@ const FilterSection = ({
         <option value="sample">Sample Question Papers</option>
         <option value="previous_year">Previous Year Question Papers</option>
         <option value="generated">Generated Question Papers</option>
+        {hasOrganization && (
+          <option value="organization">Organization Tests</option>
+        )}
       </select>
       
       <label htmlFor="subject-filter" className="filterLabel">

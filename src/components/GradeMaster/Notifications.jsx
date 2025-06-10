@@ -45,7 +45,7 @@ const Notifications = () => {
 
         // Fetch notifications for all roles
         const responses = await Promise.all(notificationPromises);
-        
+        console.log(responses);
         // Combine notifications from all roles
         const allNotifications = responses.flatMap(response => 
           response.status === 200 ? response.data : []

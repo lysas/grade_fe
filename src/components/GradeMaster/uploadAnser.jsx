@@ -377,6 +377,11 @@ const UploadAnswer = () => {
     formData.append('question_paper_type', questionPaperType);
     formData.append('question_paper_id', questionPaper.id);
 
+    // Add organization ID if this is an organization test
+    if (questionPaperType === 'organization' && location.state?.organizationId) {
+      formData.append('organization_id', location.state.organizationId);
+    }
+
     try {
       const response = await axios.post(uploadEndpoint, formData, {
         headers: {
@@ -421,9 +426,8 @@ const UploadAnswer = () => {
       }
 
     } catch (error) {
-      console.error('Upload error:', error);
-      const errorMsg = error.response?.data?.error || 'Error uploading files';
-      setMessage(errorMsg);
+      console.error('Error uploading answer:', error);
+      setMessage(error.response?.data?.message || 'Error uploading answer');
       setMessageType('error');
     } finally {
       setLoading(false);

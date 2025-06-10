@@ -7,14 +7,8 @@ const Table = ({
   emptyMessage = "No Data Found",
   className = '',
   onRowClick,
+  renderCell
 }) => {
-  const renderCell = (column, row) => {
-    if (column.renderCell) {
-      return column.renderCell(column, row);
-    }
-    return row[column.accessor];
-  };
-
   return (
     <div className="tableContainer">
       <table className={`customTable ${className}`}>
@@ -41,7 +35,12 @@ const Table = ({
               >
                 {columns.map((column, colIndex) => (
                   <td key={colIndex}>
-                    {renderCell(column, row)}
+                    {column.renderCell 
+                      ? column.renderCell(column, row) 
+                      : renderCell 
+                      ? renderCell(column, row) 
+                      : row[column.accessor]
+                    }
                   </td>
                 ))}
               </tr>
@@ -53,4 +52,4 @@ const Table = ({
   );
 };
 
-export default Table; 
+export default Table;

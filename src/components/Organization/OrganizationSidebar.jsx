@@ -10,7 +10,8 @@ import {
   faUsers,
   faChartBar,
   faFileAlt,
-  faUserCircle
+  faUserCircle,
+  faClipboardList
 } from '@fortawesome/free-solid-svg-icons';
 
 const OrganizationSidebar = () => {
@@ -43,6 +44,7 @@ const OrganizationSidebar = () => {
   const mainMenuItems = [
     { path: "/organization/students", label: "Student Management", icon: faUsers },
     { path: "/organization/tests", label: "Test Management", icon: faFileAlt },
+    { path: "/organization/test-results", label: "Test Results", icon: faClipboardList },
     { path: "/organization/progress", label: "Progress Tracking", icon: faChartBar },
   ];
 

@@ -731,7 +731,6 @@
     border: 1px solid #e2e8f0;
   }
 }
-
 .result-buttons {
   display: flex;
   align-items: center;
@@ -741,3 +740,4 @@
 .result-buttons button {
   white-space: nowrap;
 }
+

@@ -1,0 +1,84 @@
+/* Table styles */
+.tableContainer {
+  margin-top: 20px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.customTable {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.customTable th {
+  background: #f8f9fa;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  border-bottom: 2px solid #dee2e6;
+}
+
+.customTable td {
+  padding: 12px;
+  border-bottom: 1px solid #dee2e6;
+  color: #212529;
+}
+
+/* Action buttons in table */
+.tableActionButtons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.tableActionButtons .btn {
+  padding: 6px 12px;
+  font-size: 14px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.tableActionButtons .btn i {
+  font-size: 14px;
+}
+
+.tableActionButtons .btn-danger {
+  background-color: #dc3545;
+  border-color: #dc3545;
+  color: white;
+}
+
+.tableActionButtons .btn-danger:hover {
+  background-color: #c82333;
+  border-color: #bd2130;
+}
+
+.tableActionButtons .btn-info {
+  background-color: #17a2b8;
+  border-color: #17a2b8;
+  color: white;
+}
+
+.tableActionButtons .btn-info:hover {
+  background-color: #138496;
+  border-color: #117a8b;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .tableActionButtons {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .tableActionButtons .btn {
+    width: 100%;
+    justify-content: center;
+  }
+} 

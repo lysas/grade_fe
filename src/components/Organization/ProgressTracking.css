@@ -1,0 +1,69 @@
+/* Stats Cards */
+.hover-card {
+  transition: all 0.3s ease;
+  background: white;
+}
+
+.hover-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+}
+
+.stats-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.hover-card:hover .stats-icon {
+  transform: scale(1.1);
+}
+
+.card-title {
+  font-size: 1.5rem;
+  color: #2d3748;
+  margin-bottom: 0;
+}
+
+.card-subtitle {
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .card-title {
+    font-size: 1.25rem;
+  }
+  
+  .stats-icon {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* Page title */
+h2 {
+  color: #2d3748;
+  font-weight: 600;
+  letter-spacing: -0.5px;
+}
+
+/* Card body padding */
+.card-body {
+  padding: 1rem;
+}
+
+/* Ensure consistent height for cards */
+.card {
+  min-height: 100px;
+}
+
+/* Adjust icon size */
+.stats-icon i {
+  font-size: 1.25rem;
+} 
