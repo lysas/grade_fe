@@ -23,6 +23,7 @@ import ProgressTracking from './components/Organization/ProgressTracking';
 import OrganizationProfile from "./components/Organization/OrganizationProfile";
 import AcceptInvitation from './components/Auth/AcceptInvitation';
 import TestResults from "./components/Organization/TestResults";
+import CreateTest from "./components/Organization/CreateTest";
 
 // Bootstrap imports
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -69,6 +70,8 @@ import { NotificationProvider } from './contexts/NotificationContext';
 import GlobalNotification from './components/GlobalNotification/GlobalNotification';
 import './components/Organization/Organization.css';
 import OrganizationSignup from "./components/Authentication/OrganizationSignup";
+import TestTaking from './components/GradeMaster/TestTaking';
+import ManualAnswerView from './components/GradeMaster/ManualAnswerView';
 
 const App = () => {
   const location = useLocation();
@@ -78,6 +81,8 @@ const App = () => {
                      location.pathname === "/login";
   const isquestionGeneratorRoute = location.pathname === "/questiongenerator";
   const isGradeMasterRoute = location.pathname.startsWith("/grade-master");
+  const isTestTake = location.pathname.startsWith("/grade-master/take-test");
+
   const isOrganization  = location.pathname.startsWith("/organization");
   const isProgrammingRoute = location.pathname.startsWith("/programming") || 
                             location.pathname === "/qngenerate";
@@ -115,12 +120,12 @@ const App = () => {
           <ToastContainer position="top-right" autoClose={3000} />
         
           <div className="main-content">
-            {/* Main Sidebar - show on all pages except special routes and programming routes */}
-            {!isSpecialRoute && !isProgrammingRoute && !isOrganization && <MainSidebar />}
+            {/* Main Sidebar - show on all pages except special routes, programming routes, and grade-master routes */}
+            {!isSpecialRoute && !isProgrammingRoute && !isOrganization && !isTestTake && <MainSidebar />}
             
             {/* Content Wrapper */}
             <div className={`content-wrapper ${isSidebarCollapsed ? 'collapsed' : ''}`} style={{ 
-              marginLeft: (isSpecialRoute || isProgrammingRoute || isOrganization) ? "0" : (isSidebarCollapsed ? "60px" : "250px"),
+              marginLeft: (isSpecialRoute || isProgrammingRoute || isOrganization || isTestTake) ? "0" : (isSidebarCollapsed ? "60px" : "250px"),
               transition: "margin-left 0.3s ease"
             }}>
               {/* Main Content */}
@@ -175,6 +180,7 @@ const App = () => {
                     <Route index element={<StudentManagement />} />
                     <Route path="students" element={<StudentManagement />} />
                     <Route path="tests" element={<TestManagement />} />
+                    <Route path="create-test" element={<CreateTest />} />
                     <Route path="test-results" element={<TestResults />} />
                     <Route path="progress" element={<ProgressTracking />} />
                     <Route path="profile" element={<OrganizationProfile />} />
@@ -183,6 +189,8 @@ const App = () => {
                   <Route path="/organization-register" element={<OrganizationSignup />} />
                   {/* Student invitation route */}
                   <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
+                  <Route path="/grade-master/take-test/:testId" element={<TestTaking />} />
+                  <Route path="/grade-master/manual-answer" element={<ManualAnswerView />} />
                 </Routes>
               </div>
 

@@ -20,6 +20,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import Table from '../GradeMaster/common/Table';
 import { Button } from '../common';
+import './StudentManagement.css';
 
 // Configure axios defaults
 axios.defaults.baseURL = 'http://localhost:8000';  // Update this with your backend URL

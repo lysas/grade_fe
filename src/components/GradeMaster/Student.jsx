@@ -26,6 +26,10 @@ const Student = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showQuestionGenerator, setShowQuestionGenerator] = useState(false);
   const [organizationTests, setOrganizationTests] = useState([]);
+  const [testSubmissions, setTestSubmissions] = useState({});
+  const [submittedAnswers, setSubmittedAnswers] = useState({});
+  const [showAnswerModal, setShowAnswerModal] = useState(false);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
   
   const navigate = useNavigate();
   const currentYear = new Date().getFullYear();
@@ -199,7 +203,53 @@ const Student = () => {
     }
   }, [questionPaperType, questionPaperType === "previous_year" ? selectedYear : null, showQuestionGenerator]);
 
-  // Fetch organization tests
+  // Add function to check if test is already submitted
+  const checkTestSubmission = async (testId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `http://localhost:8000/api/organization/tests/${testId}/check_submission/`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      return response.data.submitted;
+    } catch (err) {
+      console.error("Error checking test submission:", err);
+      return false;
+    }
+  };
+
+  // Add function to fetch submitted answers
+  const fetchSubmittedAnswers = async (testId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(
+        `http://localhost:8000/api/organization/tests/${testId}/results/`,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        }
+      );
+      
+      if (response.data.status === 'success' && response.data.data) {
+        // Find the current user's result
+        const userResult = response.data.data.find(
+          result => result.student_email === userData.email
+        );
+        return userResult || null;
+      }
+      return null;
+    } catch (err) {
+      console.error("Error fetching submitted answers:", err);
+      return null;
+    }
+  };
+
+  // Update fetchOrganizationTests to also fetch submitted answers
   const fetchOrganizationTests = async () => {
     console.log("fetchOrganizationTests called, isStudent:", isStudent);
     if (!isStudent) return;
@@ -216,7 +266,24 @@ const Student = () => {
         }
       );
       console.log("Organization tests response:", response.data);
-      setOrganizationTests(response.data.data || []);
+      const tests = response.data.data || [];
+      setOrganizationTests(tests);
+
+      // Check submissions and fetch answers for each test
+      const submissions = {};
+      const answers = {};
+      for (const test of tests) {
+        // Check both PDF and manual question submissions
+        const submitted = await checkTestSubmission(test.id);
+        submissions[test.id] = submitted;
+        
+        if (submitted) {
+          const answerData = await fetchSubmittedAnswers(test.id);
+          answers[test.id] = answerData;
+        }
+      }
+      setTestSubmissions(submissions);
+      setSubmittedAnswers(answers);
     } catch (err) {
       console.error("Error fetching organization tests:", err);
     }
@@ -238,23 +305,43 @@ const Student = () => {
       return;
     }
 
-    navigate("/grade-master/upload-answer", {
-      state: {
-        questionPaper: {
-          id: test.id,
-          title: test.title,
-          description: test.description,
-          start_time: test.start_time,
-          duration_minutes: test.duration_minutes,
-          file: test.question_paper?.pdf_file,
-          type: "organization"  // Add this to identify it's an organization test
+    // Check if test is already submitted
+    if (testSubmissions[test.id]) {
+      alert("You have already submitted this test.");
+      return;
+    }
+
+    // Check if test has PDF question paper or manual questions
+    if (test.question_paper?.pdf_file) {
+      // For PDF question papers, navigate to upload answer page
+      navigate("/grade-master/upload-answer", {
+        state: {
+          questionPaper: {
+            id: test.id,
+            title: test.title,
+            description: test.description,
+            file: test.question_paper.pdf_file
+          },
+          questionPaperType: "organization",
+          userId: userData.id,
+          userEmail: userData.email,
         },
-        questionPaperType: "organization",
-        userId: userData.id,
-        userEmail: userData.email,
-        organizationId: userData.organization?.id  // Add organization ID
-      },
-    });
+      });
+    } else {
+      // For manual questions, navigate to take test page
+      navigate(`/grade-master/take-test/${test.id}`, {
+        state: {
+          test: {
+            id: test.id,
+            title: test.title,
+            description: test.description,
+            start_time: test.start_time,
+            duration_minutes: test.duration_minutes,
+            question_paper: test.question_paper
+          }
+        }
+      });
+    }
   };
 
   const handleUpload = (qp) => {
@@ -306,10 +393,20 @@ const Student = () => {
     window.open(url, "_blank");
   };
 
-  const handleViewAnswer = (answerFile) => {
-    const basePath = "http://127.0.0.1:8000/media/answer_uploads/";
-    const fileName = answerFile.split("/").pop();
-    window.open(`${basePath}/${fileName}`, "_blank");
+  const handleViewAnswer = (answerFile, answerText, testTitle) => {
+    if (answerFile) {
+      // Handle PDF-based answer
+      const fileUrl = answerFile.startsWith('http') ? answerFile : `http://localhost:8000${answerFile}`;
+      window.open(fileUrl, '_blank');
+    } else if (answerText) {
+      // Navigate to the manual answer view page
+      navigate('/grade-master/manual-answer', {
+        state: {
+          answerData: answerText,
+          testTitle: testTitle
+        }
+      });
+    }
   };
 
   const handleSeeResult = (qpId, f, paperTitle) => {
@@ -474,7 +571,7 @@ const Student = () => {
         return (
           <Button
             variant="primary"
-            onClick={() => handleViewAnswer(row.answer_file)}
+            onClick={() => handleViewAnswer(row.answer_file, row.answer_text, row.test_title)}
           >
             Download
           </Button>
@@ -529,6 +626,92 @@ const Student = () => {
       console.error("Error fetching question paper:", err);
       alert("Error fetching question paper. Please try again.");
     }
+  };
+
+  // Add AnswerModal component
+  const AnswerModal = ({ isOpen, onClose, answerData }) => {
+    if (!isOpen) return null;
+
+    return (
+      <div className="modal-overlay">
+        <div className="modal-content">
+          <div className="modal-header">
+            <h2>Student Answers</h2>
+            <button className="close-button" onClick={onClose}>&times;</button>
+          </div>
+          <div className="modal-body">
+            {Object.entries(answerData).map(([questionId, data], index) => (
+              <div key={questionId} className="answer-question">
+                <div className="question-header">
+                  <span className="question-number">Q{index + 1}</span>
+                  <div className="question-text">
+                    {data.question_text}
+                  </div>
+                </div>
+                <div className="answer-text">
+                  {data.answer_text}
+                </div>
+                <div className="score-container">
+                  {data.is_evaluated && (
+                    <>
+                      <span className="score">Score: {data.score}</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Add function to check if test is starting within 30 minutes
+  const isTestStartingSoon = (test) => {
+    const now = new Date();
+    const startTime = new Date(test.start_time);
+    const timeUntilStart = startTime - now;
+    return timeUntilStart > 0 && timeUntilStart <= 30 * 60 * 1000; // 30 minutes in milliseconds
+  };
+
+  // Add function to check if test is currently ongoing
+  const isTestOngoing = (test) => {
+    const now = new Date();
+    const startTime = new Date(test.start_time);
+    const endTime = new Date(startTime.getTime() + test.duration_minutes * 60000);
+    return now >= startTime && now <= endTime;
+  };
+
+  // Add function to get upcoming tests
+  const getUpcomingTests = () => {
+    return organizationTests.filter(test => isTestStartingSoon(test));
+  };
+
+  // Add function to get ongoing tests
+  const getOngoingTests = () => {
+    return organizationTests.filter(test => isTestOngoing(test));
+  };
+
+  // Add function to format remaining time
+  const formatRemainingTime = (test) => {
+    const now = new Date();
+    const startTime = new Date(test.start_time);
+    
+    if (now < startTime) {
+      // Test hasn't started yet
+      const minutesUntilStart = Math.ceil((startTime - now) / 60000);
+      return `Starts in ${minutesUntilStart} min`;
+    } else {
+      // Test is ongoing
+      return `Started`;
+    }
+  };
+
+  // Add function to get button variant based on test status
+  const getButtonVariant = (test) => {
+    const now = new Date();
+    const startTime = new Date(test.start_time);
+    return now >= startTime ? "btn-danger" : "btn-warning";
   };
 
   return (
@@ -590,7 +773,31 @@ const Student = () => {
                 {questionPaperType === "organization" ? (
                   <>
                     <div className="sectionSubheader">
-                      <h4>Assigned Organization Tests</h4>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <h4>Available Organization Tests</h4>
+                        <div className="active-tests">
+                          {getOngoingTests().map(test => (
+                            <Button
+                              key={test.id}
+                              className={getButtonVariant(test)}
+                              onClick={() => handleOrganizationTestUpload(test)}
+                              style={{ marginLeft: '10px' }}
+                            >
+                              {test.title} - {formatRemainingTime(test)}
+                            </Button>
+                          ))}
+                          {getUpcomingTests().map(test => (
+                            <Button
+                              key={test.id}
+                              className={getButtonVariant(test)}
+                              onClick={() => handleOrganizationTestUpload(test)}
+                              style={{ marginLeft: '10px' }}
+                            >
+                              {test.title} - {formatRemainingTime(test)}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                     
                     <Table
@@ -599,6 +806,7 @@ const Student = () => {
                         { header: "Description", accessor: "description" },
                         { header: "Start Time", accessor: "start_time" },
                         { header: "Duration (minutes)", accessor: "duration_minutes" },
+                        { header: "Type", accessor: "type" },
                         { header: "Status", accessor: "status" },
                         { header: "Action", accessor: "action" }
                       ]}
@@ -608,11 +816,10 @@ const Student = () => {
                           <Button 
                             variant="viewButton" 
                             onClick={() => {
-                              console.log("Test data:", test);
                               if (test.question_paper?.pdf_file) {
                                 handleViewPaper(test.question_paper.pdf_file, "organization");
                               } else {
-                                console.error("No question paper found for test:", test);
+                                alert("This test has manual questions. You can view them when taking the test.");
                               }
                             }}
                             disabled={!isTestAvailable(test)}
@@ -621,19 +828,92 @@ const Student = () => {
                           </Button>
                         ),
                         start_time: formatLocalTime(test.start_time),
-                        status: isTestAvailable(test) ? "Available" : "Not Available",
+                        type: test.question_paper?.pdf_file ? "PDF Question Paper" : "Manual Questions",
+                        status: testSubmissions[test.id] ? "Submitted" : (isTestAvailable(test) ? "Available" : "Not Available"),
                         action: (
                           <Button
                             variant="success"
                             onClick={() => handleOrganizationTestUpload(test)}
-                            disabled={!isTestAvailable(test)}
+                            disabled={!isTestAvailable(test) || testSubmissions[test.id]}
                           >
-                            Take Test
+                            {test.question_paper?.pdf_file ? "Upload" : "TakeTest"}
                           </Button>
                         )
                       }))}
                       emptyMessage="No Organization Tests Found"
                     />
+
+                    {/* Add a new section for submitted answers */}
+                    {Object.keys(submittedAnswers).length > 0 && (
+                      <>
+                        <div className="sectionSubheader">
+                          <h4>Submitted Organization Tests</h4>
+                        </div>
+                        
+                        <Table
+                          columns={[
+                            { header: "Test Title", accessor: "title" },
+                            { header: "Description", accessor: "description" },
+                            { header: "Submission Time", accessor: "submission_time" },
+                            { header: "Type", accessor: "type" },
+                            { header: "My Answer", accessor: "answer" },
+                            { header: "Grading", accessor: "result" }
+                          ]}
+                          data={organizationTests
+                            .filter(test => testSubmissions[test.id])
+                            .map(test => {
+                              const answerData = submittedAnswers[test.id];
+                              return {
+                                ...test,
+                                title: (
+                                  <Button 
+                                    variant="viewButton" 
+                                    onClick={() => {
+                                      if (test.question_paper?.pdf_file) {
+                                        handleViewPaper(test.question_paper.pdf_file, "organization");
+                                      } else {
+                                        alert("This test has manual questions. You can view them in the grading result.");
+                                      }
+                                    }}
+                                  >
+                                    {test.title}
+                                  </Button>
+                                ),
+                                submission_time: answerData?.submission_time ? formatLocalTime(answerData.submission_time) : "N/A",
+                                type: test.question_paper?.pdf_file ? "PDF Question Paper" : "Manual Questions",
+                                answer: (
+                                  <Button
+                                    variant="primary"
+                                    onClick={() => handleViewAnswer(answerData?.answer_file, answerData?.answer_text, test.title)}
+                                  >
+                                    View Answer
+                                  </Button>
+                                ),
+                                result: (
+                                  <div className="result-buttons">
+                                    {answerData?.grading_complete ? (
+                                      <>
+                                        {answerData?.answer_id && (
+                                          <Button
+                                            variant="success"
+                                            onClick={() => handleViewGradingResult(answerData.answer_id)}
+                                          >
+                                            AI Grading
+                                          </Button>
+                                        )}
+                                        
+                                      </>
+                                    ) : (
+                                      <span className="pendingStatus">Pending</span>
+                                    )}
+                                  </div>
+                                )
+                              };
+                            })}
+                          emptyMessage="No Submitted Tests Found"
+                        />
+                      </>
+                    )}
                   </>
                 ) : (
                   <>
@@ -665,6 +945,13 @@ const Student = () => {
           </section>
         </>
       )}
+
+      {/* Add AnswerModal component */}
+      <AnswerModal 
+        isOpen={showAnswerModal}
+        onClose={() => setShowAnswerModal(false)}
+        answerData={selectedAnswer}
+      />
     </div>
   );
 };

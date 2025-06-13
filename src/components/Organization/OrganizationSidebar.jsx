@@ -59,6 +59,11 @@ const OrganizationSidebar = () => {
     setShowProfileDropdown(false);
   };
 
+  const handleSwitchToNormalLogin = () => {
+    navigate('/');
+    setShowProfileDropdown(false);
+  };
+
   const toggleSidebar = () => {
     const newState = !isCollapsed;
     setIsCollapsed(newState);
@@ -87,6 +92,17 @@ const OrganizationSidebar = () => {
               </div>
             </li>
           ))}
+          <li>
+            <div 
+              onClick={handleSwitchToNormalLogin}
+              className="main-nav-link"
+            >
+              <span className="main-menu-icon">
+                <FontAwesomeIcon icon={faUserCircle} />
+              </span>
+              {!isCollapsed && <span className="main-menu-label">Normal Login</span>}
+            </div>
+          </li>
         </ul>
       </nav>
 

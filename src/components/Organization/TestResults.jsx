@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Table from '../GradeMaster/common/Table';
-import './Organization.css';
+import './TestResults.css';
 
 const TestResults = () => {
   const [tests, setTests] = useState([]);
@@ -36,10 +36,27 @@ const TestResults = () => {
       console.log("[TestResults] Tests fetched successfully:", response.data);
       const testsData = response.data.data || response.data;
       
+      // Group tests by their unique properties
+      const testGroups = testsData.reduce((acc, test) => {
+        const key = `${test.title}-${test.start_time}-${test.duration_minutes}`;
+        if (!acc[key]) {
+          acc[key] = {
+            ...test,
+            duplicateIds: [test.id]
+          };
+        } else {
+          acc[key].duplicateIds.push(test.id);
+        }
+        return acc;
+      }, {});
+      
+      // Convert groups back to array
+      const uniqueTests = Object.values(testGroups);
+      
       const now = new Date();
       
       // Categorize and sort tests
-      const sortedTests = [...testsData].sort((a, b) => {
+      const sortedTests = [...uniqueTests].sort((a, b) => {
         const startTimeA = new Date(a.start_time);
         const endTimeA = new Date(startTimeA.getTime() + (a.duration_minutes * 60000));
         const startTimeB = new Date(b.start_time);
@@ -117,20 +134,73 @@ const TestResults = () => {
       setLoading(true);
       setError(null);
       
-      const response = await axios.get(
-        `http://localhost:8000/api/organization/tests/${testId}/results/`,
-        {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
+      // Get the selected test with its duplicate IDs
+      const selectedTest = tests.find(t => t.id === testId || t.duplicateIds?.includes(testId));
+      if (!selectedTest) {
+        console.error("[TestResults] Selected test not found:", testId);
+        return;
+      }
+
+      console.log("[TestResults] Selected test:", selectedTest);
+
+      // Use the duplicate IDs from the test object
+      const duplicateTestIds = selectedTest.duplicateIds || [testId];
+      console.log("[TestResults] Found duplicate test IDs:", duplicateTestIds);
+      
+      // Fetch results for all duplicate tests
+      const allResults = await Promise.all(
+        duplicateTestIds.map(async (id) => {
+          try {
+            console.log(`[TestResults] Fetching results for test ID ${id}`);
+            const response = await axios.get(
+              `http://localhost:8000/api/organization/tests/${id}/results/`,
+              {
+                headers: {
+                  'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+              }
+            );
+            
+            console.log(`[TestResults] Results for test ID ${id}:`, response.data);
+            const resultsData = response.data.data || [];
+            
+            // Add test ID to each result for tracking
+            return resultsData.map(result => ({
+              ...result,
+              test_id: id
+            }));
+          } catch (err) {
+            console.error(`[TestResults] Error fetching results for test ID ${id}:`, err);
+            return [];
+          }
+        })
+      );
+
+      // Combine all results
+      const combinedResults = allResults.flat();
+      console.log("[TestResults] Combined results:", combinedResults);
+
+      // Remove duplicate student submissions, keeping the most recent one
+      const uniqueResults = combinedResults.reduce((acc, result) => {
+        const existingIndex = acc.findIndex(r => r.student_email === result.student_email);
+        if (existingIndex === -1) {
+          acc.push(result);
+        } else {
+          // If we already have a result for this student, keep the most recent one
+          const existingResult = acc[existingIndex];
+          const existingTime = new Date(existingResult.submission_time);
+          const newTime = new Date(result.submission_time);
+          if (newTime > existingTime) {
+            acc[existingIndex] = result;
           }
         }
-      );
-      
-      console.log("[TestResults] Student results fetched:", response.data);
-      const resultsData = response.data.data || response.data;
-      setStudentResults(resultsData);
+        return acc;
+      }, []);
+
+      console.log("[TestResults] Final unique results:", uniqueResults);
+      setStudentResults(uniqueResults);
     } catch (err) {
-      console.error("[TestResults] Error fetching student results:", err);
+      console.error("[TestResults] Error in fetchStudentResults:", err);
       setError("Failed to fetch student results. Please try again.");
     } finally {
       setLoading(false);
@@ -143,15 +213,25 @@ const TestResults = () => {
     fetchStudentResults(test.id);
   };
 
-  const handleViewAnswer = (answerFile) => {
-    console.log("[TestResults] Viewing answer file:", answerFile);
-    if (!answerFile) {
-      console.error("[TestResults] No answer file URL provided");
-      return;
+  const handleViewAnswer = (answerFile, answerText) => {
+    console.log("[TestResults] Viewing answer:", { answerFile, answerText });
+    
+    if (answerFile) {
+      // Handle PDF-based answer
+      const fileUrl = answerFile.startsWith('http') ? answerFile : `http://localhost:8000${answerFile}`;
+      console.log("[TestResults] Opening file URL:", fileUrl);
+      window.open(fileUrl, '_blank');
+    } else if (answerText) {
+      // Navigate to the manual answer view page
+      navigate('/grade-master/manual-answer', {
+        state: {
+          answerData: answerText,
+          testTitle: selectedTest?.title
+        }
+      });
+    } else {
+      console.error("[TestResults] No answer data provided");
     }
-    const fileUrl = answerFile.startsWith('http') ? answerFile : `http://localhost:8000${answerFile}`;
-    console.log("[TestResults] Opening file URL:", fileUrl);
-    window.open(fileUrl, '_blank');
   };
 
   const handleViewGradingResult = async (answerId) => {
@@ -208,7 +288,7 @@ const TestResults = () => {
       renderCell: (column, row) => (
         row.score !== null ? (
           <span className="score">
-            {row.score} / {row.max_score}
+            {row.max_score}
           </span>
         ) : (
           <span className="text-muted">Not graded</span>
@@ -230,11 +310,11 @@ const TestResults = () => {
       header: 'Actions',
       renderCell: (column, row) => (
         <div className="action-buttons">
-          {row.answer_file && (
+          {(row.answer_file || row.answer_text) && (
             <button
               className="btn btn-sm btn-info me-2"
-              onClick={() => handleViewAnswer(row.answer_file)}
-              title="View Answer Sheet"
+              onClick={() => handleViewAnswer(row.answer_file, row.answer_text)}
+              title="View Answer"
             >
               <i className="fas fa-file-alt"></i> Answer
             </button>
@@ -377,7 +457,6 @@ const TestResults = () => {
           <p className="text-muted">No tests available for your organization.</p>
         </div>
       )}
-
     </div>
   );
 };

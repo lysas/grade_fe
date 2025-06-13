@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Table from '../GradeMaster/common/Table';
+import { useNavigate } from 'react-router-dom';
 
 const TestManagement = () => {
+  const navigate = useNavigate();
   const [tests, setTests] = useState([]);
   const [students, setStudents] = useState([]);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -15,12 +17,24 @@ const TestManagement = () => {
   const [initialized, setInitialized] = useState(false);
   const [assignedStudents, setAssignedStudents] = useState([]);
 
-  const [newTest, setNewTest] = useState({
+  const [currentStep, setCurrentStep] = useState(1);
+  const [testDetails, setTestDetails] = useState({
     title: '',
     description: '',
     duration_minutes: '',
     start_time: '',
+    total_marks: '',
+    passing_marks: '',
+    instructions: '',
+    negative_marking: false,
+    negative_marking_value: 0,
+    shuffle_questions: false,
+    show_results: true,
+    show_answers: false,
+    time_per_question: false,
+    time_per_question_value: 0
   });
+
   const [selectedStudents, setSelectedStudents] = useState([]);
   const [questionPaper, setQuestionPaper] = useState(null);
   const [answerKey, setAnswerKey] = useState(null);
@@ -174,9 +188,23 @@ const TestManagement = () => {
       configureAxios();
       const response = await axios.get('/api/organization/tests/');
       console.log('Tests response:', response.data);
+      
       // Check if data is in response.data or response.data.data
       const testsData = response.data.data || response.data;
-      setTests(Array.isArray(testsData) ? testsData : []);
+      
+      // Remove duplicates based on title and start time
+      const uniqueTests = Array.isArray(testsData) 
+        ? testsData.filter((test, index, self) =>
+            index === self.findIndex((t) => (
+              t.title === test.title && 
+              t.start_time === test.start_time &&
+              t.duration_minutes === test.duration_minutes
+            ))
+          )
+        : [];
+      
+      console.log('Filtered unique tests:', uniqueTests);
+      setTests(uniqueTests);
     } catch (error) {
       console.error('Error fetching tests:', error);
       setError('Failed to fetch tests');
@@ -256,7 +284,7 @@ const TestManagement = () => {
       configureAxios();
       
       // Create test first
-      const response = await axios.post('/api/organization/tests/', newTest);
+      const response = await axios.post('/api/organization/tests/', testDetails);
       console.log('Create test response:', response.data);
       
       // Get the test ID from the response
@@ -388,11 +416,21 @@ const TestManagement = () => {
 
   // Update the resetForm function
   const resetForm = () => {
-    setNewTest({
+    setTestDetails({
       title: '',
       description: '',
       duration_minutes: '',
       start_time: '',
+      total_marks: '',
+      passing_marks: '',
+      instructions: '',
+      negative_marking: false,
+      negative_marking_value: 0,
+      shuffle_questions: false,
+      show_results: true,
+      show_answers: false,
+      time_per_question: false,
+      time_per_question_value: 0
     });
     setQuestionPaper(null);
     setAnswerKey(null);
@@ -483,7 +521,7 @@ const TestManagement = () => {
               <h2>Test Management</h2>
               <button 
                 className="btn btn-primary"
-                onClick={() => setShowCreateModal(true)}
+                onClick={() => navigate('/organization/create-test')}
                 disabled={loading}
               >
                 <i className="fas fa-plus me-2"></i>Create Test
@@ -529,7 +567,7 @@ const TestManagement = () => {
                             <div className="d-flex gap-2 justify-content-center">
                               <button 
                                 className="btn btn-info btn-sm"
-                                onClick={() => handleOpenAssignModal(row)}
+                                onClick={() => navigate(`/organization/test/${row.id}/assign`)}
                               >
                                 <i className="fas fa-users"></i> Add Students
                               </button>
@@ -574,449 +612,635 @@ const TestManagement = () => {
                 ></button>
               </div>
               <div className="modal-body">
-                <div className="row">
-                  {/* Left Column - Basic Test Details */}
-                  <div className="col-md-4 border-end">
-                    <div className="mb-4">
-                      <h6 className="text-primary mb-3">
-                        <i className="fas fa-info-circle me-2"></i>
-                        Basic Information
-                      </h6>
-                      <div className="mb-3">
-                        <label className="form-label">Title</label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={newTest.title}
-                          onChange={(e) => setNewTest({ ...newTest, title: e.target.value })}
-                          placeholder="Enter test title"
-                        />
+                {/* Progress Steps */}
+                <div className="mb-4">
+                  <div className="d-flex justify-content-between align-items-center">
+                    {[
+                      { number: 1, label: 'Basic Details' },
+                      { number: 2, label: 'Test Settings' },
+                      { number: 3, label: 'Questions' },
+                      { number: 4, label: 'Assign Students' }
+                    ].map((step) => (
+                      <div
+                        key={step.number}
+                        className={`d-flex align-items-center ${
+                          currentStep >= step.number ? 'text-primary' : 'text-muted'
+                        }`}
+                      >
+                        <div
+                          className={`rounded-circle d-flex align-items-center justify-content-center ${
+                            currentStep >= step.number ? 'bg-primary text-white' : 'bg-light'
+                          }`}
+                          style={{ width: '35px', height: '35px' }}
+                        >
+                          {step.number}
+                        </div>
+                        <span className="ms-2">{step.label}</span>
+                        {step.number < 4 && (
+                          <div
+                            className={`mx-3 flex-grow-1 ${
+                              currentStep > step.number ? 'border-primary' : 'border-secondary'
+                            }`}
+                            style={{ height: '2px', borderTop: '2px solid' }}
+                          ></div>
+                        )}
                       </div>
-                      <div className="mb-3">
-                        <label className="form-label">Description</label>
-                        <textarea
-                          className="form-control"
-                          value={newTest.description}
-                          onChange={(e) => setNewTest({ ...newTest, description: e.target.value })}
-                          placeholder="Enter test description"
-                          rows="3"
-                        />
-                      </div>
-                      <div className="row">
-                        <div className="col-md-6">
-                          <div className="mb-3">
+                    ))}
+                  </div>
+                </div>
+
+                {/* Step Content */}
+                <div className="step-content">
+                  {/* Step 1: Basic Details */}
+                  {currentStep === 1 && (
+                    <div className="card shadow-sm">
+                      <div className="card-body">
+                        <h6 className="card-title mb-4">
+                          <i className="fas fa-info-circle me-2 text-primary"></i>
+                          Basic Test Information
+                        </h6>
+                        <div className="row">
+                          <div className="col-md-6 mb-3">
+                            <label className="form-label">Test Title</label>
+                            <input
+                              type="text"
+                              className="form-control"
+                              value={testDetails.title}
+                              onChange={(e) => setTestDetails({ ...testDetails, title: e.target.value })}
+                              placeholder="Enter test title"
+                            />
+                          </div>
+                          <div className="col-md-6 mb-3">
                             <label className="form-label">Duration (minutes)</label>
                             <input
                               type="number"
                               className="form-control"
-                              value={newTest.duration_minutes}
-                              onChange={(e) => setNewTest({ ...newTest, duration_minutes: e.target.value })}
+                              value={testDetails.duration_minutes}
+                              onChange={(e) => setTestDetails({ ...testDetails, duration_minutes: e.target.value })}
                               min="1"
                             />
                           </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="mb-3">
+                          <div className="col-md-6 mb-3">
                             <label className="form-label">Start Time</label>
                             <input
                               type="datetime-local"
                               className="form-control"
-                              value={newTest.start_time}
-                              onChange={(e) => setNewTest({ ...newTest, start_time: e.target.value })}
+                              value={testDetails.start_time}
+                              onChange={(e) => setTestDetails({ ...testDetails, start_time: e.target.value })}
+                            />
+                          </div>
+                          <div className="col-md-6 mb-3">
+                            <label className="form-label">Total Marks</label>
+                            <input
+                              type="number"
+                              className="form-control"
+                              value={testDetails.total_marks}
+                              onChange={(e) => setTestDetails({ ...testDetails, total_marks: e.target.value })}
+                              min="1"
+                            />
+                          </div>
+                          <div className="col-md-6 mb-3">
+                            <label className="form-label">Passing Marks</label>
+                            <input
+                              type="number"
+                              className="form-control"
+                              value={testDetails.passing_marks}
+                              onChange={(e) => setTestDetails({ ...testDetails, passing_marks: e.target.value })}
+                              min="1"
+                            />
+                          </div>
+                          <div className="col-12 mb-3">
+                            <label className="form-label">Description</label>
+                            <textarea
+                              className="form-control"
+                              value={testDetails.description}
+                              onChange={(e) => setTestDetails({ ...testDetails, description: e.target.value })}
+                              placeholder="Enter test description"
+                              rows="3"
+                            />
+                          </div>
+                          <div className="col-12 mb-3">
+                            <label className="form-label">Instructions</label>
+                            <textarea
+                              className="form-control"
+                              value={testDetails.instructions}
+                              onChange={(e) => setTestDetails({ ...testDetails, instructions: e.target.value })}
+                              placeholder="Enter test instructions"
+                              rows="3"
                             />
                           </div>
                         </div>
                       </div>
                     </div>
+                  )}
 
-                    <div className="mb-4">
-                      <h6 className="text-primary mb-3">
-                        <i className="fas fa-users me-2"></i>
-                        Assign Students
-                      </h6>
-                      <div className="mb-3">
-                        <div className="input-group">
-                          <span className="input-group-text bg-light">
-                            <i className="fas fa-search"></i>
-                          </span>
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Search students..."
-                            value={studentSearch}
-                            onChange={(e) => setStudentSearch(e.target.value)}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="mb-3 d-flex justify-content-between align-items-center">
-                        <div>
-                          <button
-                            type="button"
-                            className="btn btn-outline-primary btn-sm me-2"
-                            onClick={handleSelectAll}
-                            disabled={filteredStudents.length === 0}
-                          >
-                            <i className="fas fa-check-double me-1"></i>
-                            Select All
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn-outline-secondary btn-sm"
-                            onClick={handleClearAll}
-                            disabled={selectedStudents.length === 0}
-                          >
-                            <i className="fas fa-times me-1"></i>
-                            Clear All
-                          </button>
-                        </div>
-                        <div className="text-muted">
-                          <small>
-                            {selectedStudents.length} student{selectedStudents.length !== 1 ? 's' : ''} selected
-                          </small>
-                        </div>
-                      </div>
-
-                      <div className="border rounded" style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                        {filteredStudents.length === 0 ? (
-                          <div className="text-center p-4 text-muted">
-                            <i className="fas fa-user-slash fa-2x mb-2"></i>
-                            <div>
-                              {studentSearch ? 'No students found matching your search.' : 'No students available.'}
-                            </div>
-                          </div>
-                        ) : (
-                          <div className="list-group list-group-flush">
-                            {filteredStudents.map(student => (
-                              <div
-                                key={student.id}
-                                className={`list-group-item list-group-item-action d-flex align-items-center ${
-                                  selectedStudents.includes(student.id) ? 'list-group-item-primary' : ''
-                                }`}
-                                style={{ cursor: 'pointer' }}
-                                onClick={() => handleStudentToggle(student.id)}
-                              >
-                                <div className="form-check me-3">
-                                  <input
-                                    className="form-check-input"
-                                    type="checkbox"
-                                    checked={selectedStudents.includes(student.id)}
-                                    onChange={() => handleStudentToggle(student.id)}
-                                  />
-                                </div>
-                                <div className="flex-grow-1">
-                                  <div className="d-flex justify-content-between align-items-start">
-                                    <div>
-                                      <h6 className="mb-1">
-                                        <i className="fas fa-user me-2"></i>
-                                        {student.username}
-                                      </h6>
-                                      <p className="mb-0 text-muted small">
-                                        <i className="fas fa-envelope me-1"></i>
-                                        {student.email}
-                                      </p>
-                                    </div>
-                                    {selectedStudents.includes(student.id) && (
-                                      <span className="badge bg-primary">
-                                        <i className="fas fa-check"></i>
-                                      </span>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Column - Questions */}
-                  <div className="col-md-8">
-                    <div className="mb-4">
-                      <div className="d-flex justify-content-between align-items-center mb-3">
-                        <h6 className="text-primary mb-0">
-                          <i className="fas fa-question-circle me-2"></i>
-                          Questions
+                  {/* Step 2: Test Settings */}
+                  {currentStep === 2 && (
+                    <div className="card shadow-sm">
+                      <div className="card-body">
+                        <h6 className="card-title mb-4">
+                          <i className="fas fa-cog me-2 text-primary"></i>
+                          Test Settings
                         </h6>
-                        <div className="form-check form-switch">
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id="questionEntryMode"
-                            checked={questionEntryMode === 'manual'}
-                            onChange={(e) => setQuestionEntryMode(e.target.checked ? 'manual' : 'upload')}
-                          />
-                          <label className="form-check-label" htmlFor="questionEntryMode">
-                            {questionEntryMode === 'manual' ? 'Manual Entry' : 'Upload Question Paper'}
-                          </label>
-                        </div>
-                      </div>
-
-                      {questionEntryMode === 'upload' ? (
-                        <div className="card shadow-sm">
-                          <div className="card-body">
-                            <div className="row">
-                              <div className="col-md-6">
-                                <div className="mb-3">
-                                  <label className="form-label">
-                                    <i className="fas fa-file-pdf me-2 text-danger"></i>
-                                    Question Paper (PDF)
-                                  </label>
-                                  <input
-                                    type="file"
-                                    className="form-control"
-                                    accept=".pdf"
-                                    onChange={(e) => setQuestionPaper(e.target.files[0])}
-                                  />
-                                </div>
+                        <div className="row">
+                          <div className="col-md-6">
+                            <div className="mb-4">
+                              <h6 className="mb-3">Question Settings</h6>
+                              <div className="form-check form-switch mb-3">
+                                <input
+                                  className="form-check-input"
+                                  type="checkbox"
+                                  id="shuffleQuestions"
+                                  checked={testDetails.shuffle_questions}
+                                  onChange={(e) => setTestDetails({ ...testDetails, shuffle_questions: e.target.checked })}
+                                />
+                                <label className="form-check-label" htmlFor="shuffleQuestions">
+                                  Shuffle Questions
+                                </label>
                               </div>
-                              <div className="col-md-6">
-                                <div className="mb-3">
-                                  <label className="form-label">
-                                    <i className="fas fa-key me-2 text-warning"></i>
-                                    Answer Key (PDF)
-                                  </label>
-                                  <input
-                                    type="file"
-                                    className="form-control"
-                                    accept=".pdf"
-                                    onChange={(e) => setAnswerKey(e.target.files[0])}
-                                  />
-                                </div>
+                              <div className="form-check form-switch mb-3">
+                                <input
+                                  className="form-check-input"
+                                  type="checkbox"
+                                  id="timePerQuestion"
+                                  checked={testDetails.time_per_question}
+                                  onChange={(e) => setTestDetails({ ...testDetails, time_per_question: e.target.checked })}
+                                />
+                                <label className="form-check-label" htmlFor="timePerQuestion">
+                                  Time Per Question
+                                </label>
                               </div>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="card shadow-sm mb-3">
-                            <div className="card-body">
-                              <div className="row mb-3">
-                                <div className="col-md-4">
-                                  <label className="form-label">Question Type</label>
-                                  <select
-                                    className="form-select"
-                                    value={currentQuestion.type}
-                                    onChange={(e) => setCurrentQuestion({ ...currentQuestion, type: e.target.value })}
-                                  >
-                                    {questionTypes.map(type => (
-                                      <option key={type.value} value={type.value}>{type.label}</option>
-                                    ))}
-                                  </select>
-                                </div>
-                                <div className="col-md-4">
-                                  <label className="form-label">Marks</label>
+                              {testDetails.time_per_question && (
+                                <div className="mb-3">
+                                  <label className="form-label">Time Per Question (seconds)</label>
                                   <input
                                     type="number"
                                     className="form-control"
-                                    value={currentQuestion.marks}
-                                    onChange={(e) => setCurrentQuestion({ ...currentQuestion, marks: parseInt(e.target.value) || 0 })}
+                                    value={testDetails.time_per_question_value}
+                                    onChange={(e) => setTestDetails({ ...testDetails, time_per_question_value: e.target.value })}
                                     min="1"
                                   />
                                 </div>
-                                <div className="col-md-4">
-                                  <label className="form-label">Question Text</label>
+                              )}
+                            </div>
+                          </div>
+                          <div className="col-md-6">
+                            <div className="mb-4">
+                              <h6 className="mb-3">Result Settings</h6>
+                              <div className="form-check form-switch mb-3">
+                                <input
+                                  className="form-check-input"
+                                  type="checkbox"
+                                  id="showResults"
+                                  checked={testDetails.show_results}
+                                  onChange={(e) => setTestDetails({ ...testDetails, show_results: e.target.checked })}
+                                />
+                                <label className="form-check-label" htmlFor="showResults">
+                                  Show Results After Test
+                                </label>
+                              </div>
+                              <div className="form-check form-switch mb-3">
+                                <input
+                                  className="form-check-input"
+                                  type="checkbox"
+                                  id="showAnswers"
+                                  checked={testDetails.show_answers}
+                                  onChange={(e) => setTestDetails({ ...testDetails, show_answers: e.target.checked })}
+                                />
+                                <label className="form-check-label" htmlFor="showAnswers">
+                                  Show Correct Answers
+                                </label>
+                              </div>
+                            </div>
+                            <div className="mb-4">
+                              <h6 className="mb-3">Marking Settings</h6>
+                              <div className="form-check form-switch mb-3">
+                                <input
+                                  className="form-check-input"
+                                  type="checkbox"
+                                  id="negativeMarking"
+                                  checked={testDetails.negative_marking}
+                                  onChange={(e) => setTestDetails({ ...testDetails, negative_marking: e.target.checked })}
+                                />
+                                <label className="form-check-label" htmlFor="negativeMarking">
+                                  Enable Negative Marking
+                                </label>
+                              </div>
+                              {testDetails.negative_marking && (
+                                <div className="mb-3">
+                                  <label className="form-label">Negative Marking Value</label>
                                   <input
-                                    type="text"
+                                    type="number"
                                     className="form-control"
-                                    value={currentQuestion.text}
-                                    onChange={(e) => setCurrentQuestion({ ...currentQuestion, text: e.target.value })}
-                                    placeholder="Enter question text"
+                                    value={testDetails.negative_marking_value}
+                                    onChange={(e) => setTestDetails({ ...testDetails, negative_marking_value: e.target.value })}
+                                    min="0"
+                                    step="0.25"
                                   />
                                 </div>
-                              </div>
-
-                              {currentQuestion.type === 'mcq' && (
-                                <div className="mb-3">
-                                  <label className="form-label">Options</label>
-                                  {currentQuestion.options.map((option, index) => (
-                                    <div key={index} className="input-group mb-2">
-                                      <span className="input-group-text">{String.fromCharCode(65 + index)}</span>
-                                      <input
-                                        type="text"
-                                        className="form-control"
-                                        value={option}
-                                        onChange={(e) => {
-                                          const newOptions = [...currentQuestion.options];
-                                          newOptions[index] = e.target.value;
-                                          setCurrentQuestion({ ...currentQuestion, options: newOptions });
-                                        }}
-                                        placeholder={`Option ${index + 1}`}
-                                      />
-                                      <button
-                                        className="btn btn-outline-danger"
-                                        onClick={() => {
-                                          const newOptions = currentQuestion.options.filter((_, i) => i !== index);
-                                          setCurrentQuestion({ ...currentQuestion, options: newOptions });
-                                        }}
-                                      >
-                                        <i className="fas fa-times"></i>
-                                      </button>
-                                    </div>
-                                  ))}
-                                  <button
-                                    className="btn btn-outline-primary btn-sm"
-                                    onClick={() => setCurrentQuestion({
-                                      ...currentQuestion,
-                                      options: [...currentQuestion.options, '']
-                                    })}
-                                  >
-                                    <i className="fas fa-plus me-1"></i>
-                                    Add Option
-                                  </button>
-                                </div>
                               )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
-                              {currentQuestion.type === 'programming' && (
-                                <>
-                                  <div className="row mb-3">
-                                    <div className="col-md-4">
-                                      <label className="form-label">Programming Language</label>
-                                      <select
-                                        className="form-select"
-                                        value={currentQuestion.programmingLanguage}
-                                        onChange={(e) => setCurrentQuestion({
-                                          ...currentQuestion,
-                                          programmingLanguage: e.target.value
-                                        })}
-                                      >
-                                        <option value="python">Python</option>
-                                        <option value="java">Java</option>
-                                        <option value="cpp">C++</option>
-                                        <option value="javascript">JavaScript</option>
-                                      </select>
-                                    </div>
-                                    <div className="col-md-4">
-                                      <label className="form-label">Time Limit (seconds)</label>
-                                      <input
-                                        type="number"
-                                        className="form-control"
-                                        value={currentQuestion.timeLimit}
-                                        onChange={(e) => setCurrentQuestion({
-                                          ...currentQuestion,
-                                          timeLimit: parseInt(e.target.value) || 5
-                                        })}
-                                        min="1"
-                                      />
-                                    </div>
-                                    <div className="col-md-4">
-                                      <label className="form-label">Memory Limit (MB)</label>
-                                      <input
-                                        type="number"
-                                        className="form-control"
-                                        value={currentQuestion.memoryLimit}
-                                        onChange={(e) => setCurrentQuestion({
-                                          ...currentQuestion,
-                                          memoryLimit: parseInt(e.target.value) || 512
-                                        })}
-                                        min="128"
-                                      />
-                                    </div>
-                                  </div>
+                  {/* Step 3: Questions */}
+                  {currentStep === 3 && (
+                    <div className="card shadow-sm">
+                      <div className="card-body">
+                        <div className="d-flex justify-content-between align-items-center mb-4">
+                          <h6 className="card-title mb-0">
+                            <i className="fas fa-question-circle me-2 text-primary"></i>
+                            Questions
+                          </h6>
+                          <div className="form-check form-switch">
+                            <input
+                              className="form-check-input"
+                              type="checkbox"
+                              id="questionEntryMode"
+                              checked={questionEntryMode === 'manual'}
+                              onChange={(e) => setQuestionEntryMode(e.target.checked ? 'manual' : 'upload')}
+                            />
+                            <label className="form-check-label" htmlFor="questionEntryMode">
+                              {questionEntryMode === 'manual' ? 'Manual Entry' : 'Upload Question Paper'}
+                            </label>
+                          </div>
+                        </div>
+
+                        {questionEntryMode === 'upload' ? (
+                          <div className="card shadow-sm">
+                            <div className="card-body">
+                              <div className="row">
+                                <div className="col-md-6">
                                   <div className="mb-3">
-                                    <label className="form-label">Test Cases</label>
-                                    {currentQuestion.testCases.map((testCase, index) => (
-                                      <div key={index} className="card mb-2">
-                                        <div className="card-body">
-                                          <div className="row">
-                                            <div className="col-md-6">
-                                              <label className="form-label">Input</label>
-                                              <textarea
-                                                className="form-control"
-                                                value={testCase.input}
-                                                onChange={(e) => {
-                                                  const newTestCases = [...currentQuestion.testCases];
-                                                  newTestCases[index] = { ...testCase, input: e.target.value };
-                                                  setCurrentQuestion({ ...currentQuestion, testCases: newTestCases });
-                                                }}
-                                                rows="2"
-                                              />
-                                            </div>
-                                            <div className="col-md-6">
-                                              <label className="form-label">Expected Output</label>
-                                              <textarea
-                                                className="form-control"
-                                                value={testCase.output}
-                                                onChange={(e) => {
-                                                  const newTestCases = [...currentQuestion.testCases];
-                                                  newTestCases[index] = { ...testCase, output: e.target.value };
-                                                  setCurrentQuestion({ ...currentQuestion, testCases: newTestCases });
-                                                }}
-                                                rows="2"
-                                              />
-                                            </div>
-                                          </div>
-                                          <button
-                                            className="btn btn-outline-danger btn-sm mt-2"
-                                            onClick={() => {
-                                              const newTestCases = currentQuestion.testCases.filter((_, i) => i !== index);
-                                              setCurrentQuestion({ ...currentQuestion, testCases: newTestCases });
-                                            }}
-                                          >
-                                            <i className="fas fa-trash-alt me-1"></i>
-                                            Remove Test Case
-                                          </button>
-                                        </div>
+                                    <label className="form-label">
+                                      <i className="fas fa-file-pdf me-2 text-danger"></i>
+                                      Question Paper (PDF)
+                                    </label>
+                                    <input
+                                      type="file"
+                                      className="form-control"
+                                      accept=".pdf"
+                                      onChange={(e) => setQuestionPaper(e.target.files[0])}
+                                    />
+                                  </div>
+                                </div>
+                                <div className="col-md-6">
+                                  <div className="mb-3">
+                                    <label className="form-label">
+                                      <i className="fas fa-key me-2 text-warning"></i>
+                                      Answer Key (PDF)
+                                    </label>
+                                    <input
+                                      type="file"
+                                      className="form-control"
+                                      accept=".pdf"
+                                      onChange={(e) => setAnswerKey(e.target.files[0])}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="card shadow-sm mb-3">
+                              <div className="card-body">
+                                <div className="row mb-3">
+                                  <div className="col-md-4">
+                                    <label className="form-label">Question Type</label>
+                                    <select
+                                      className="form-select"
+                                      value={currentQuestion.type}
+                                      onChange={(e) => setCurrentQuestion({ ...currentQuestion, type: e.target.value })}
+                                    >
+                                      {questionTypes.map(type => (
+                                        <option key={type.value} value={type.value}>{type.label}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                  <div className="col-md-4">
+                                    <label className="form-label">Marks</label>
+                                    <input
+                                      type="number"
+                                      className="form-control"
+                                      value={currentQuestion.marks}
+                                      onChange={(e) => setCurrentQuestion({ ...currentQuestion, marks: parseInt(e.target.value) || 0 })}
+                                      min="1"
+                                    />
+                                  </div>
+                                  <div className="col-md-4">
+                                    <label className="form-label">Question Text</label>
+                                    <input
+                                      type="text"
+                                      className="form-control"
+                                      value={currentQuestion.text}
+                                      onChange={(e) => setCurrentQuestion({ ...currentQuestion, text: e.target.value })}
+                                      placeholder="Enter question text"
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* Question Type Specific Fields */}
+                                {currentQuestion.type === 'mcq' && (
+                                  <div className="mb-3">
+                                    <label className="form-label">Options</label>
+                                    {currentQuestion.options.map((option, index) => (
+                                      <div key={index} className="input-group mb-2">
+                                        <span className="input-group-text">{String.fromCharCode(65 + index)}</span>
+                                        <input
+                                          type="text"
+                                          className="form-control"
+                                          value={option}
+                                          onChange={(e) => {
+                                            const newOptions = [...currentQuestion.options];
+                                            newOptions[index] = e.target.value;
+                                            setCurrentQuestion({ ...currentQuestion, options: newOptions });
+                                          }}
+                                          placeholder={`Option ${index + 1}`}
+                                        />
+                                        <button
+                                          className="btn btn-outline-danger"
+                                          onClick={() => {
+                                            const newOptions = currentQuestion.options.filter((_, i) => i !== index);
+                                            setCurrentQuestion({ ...currentQuestion, options: newOptions });
+                                          }}
+                                        >
+                                          <i className="fas fa-times"></i>
+                                        </button>
                                       </div>
                                     ))}
                                     <button
                                       className="btn btn-outline-primary btn-sm"
                                       onClick={() => setCurrentQuestion({
                                         ...currentQuestion,
-                                        testCases: [...currentQuestion.testCases, { input: '', output: '' }]
+                                        options: [...currentQuestion.options, '']
                                       })}
                                     >
                                       <i className="fas fa-plus me-1"></i>
-                                      Add Test Case
+                                      Add Option
                                     </button>
                                   </div>
-                                </>
-                              )}
+                                )}
 
-                              <div className="text-end">
-                                <button
-                                  className="btn btn-primary"
-                                  onClick={handleAddQuestion}
-                                  disabled={!currentQuestion.text || !currentQuestion.marks}
-                                >
-                                  <i className="fas fa-plus me-1"></i>
-                                  Add Question
-                                </button>
+                                {currentQuestion.type === 'programming' && (
+                                  <>
+                                    <div className="row mb-3">
+                                      <div className="col-md-4">
+                                        <label className="form-label">Programming Language</label>
+                                        <select
+                                          className="form-select"
+                                          value={currentQuestion.programmingLanguage}
+                                          onChange={(e) => setCurrentQuestion({
+                                            ...currentQuestion,
+                                            programmingLanguage: e.target.value
+                                          })}
+                                        >
+                                          <option value="python">Python</option>
+                                          <option value="java">Java</option>
+                                          <option value="cpp">C++</option>
+                                          <option value="javascript">JavaScript</option>
+                                        </select>
+                                      </div>
+                                      <div className="col-md-4">
+                                        <label className="form-label">Time Limit (seconds)</label>
+                                        <input
+                                          type="number"
+                                          className="form-control"
+                                          value={currentQuestion.timeLimit}
+                                          onChange={(e) => setCurrentQuestion({
+                                            ...currentQuestion,
+                                            timeLimit: parseInt(e.target.value) || 5
+                                          })}
+                                          min="1"
+                                        />
+                                      </div>
+                                      <div className="col-md-4">
+                                        <label className="form-label">Memory Limit (MB)</label>
+                                        <input
+                                          type="number"
+                                          className="form-control"
+                                          value={currentQuestion.memoryLimit}
+                                          onChange={(e) => setCurrentQuestion({
+                                            ...currentQuestion,
+                                            memoryLimit: parseInt(e.target.value) || 512
+                                          })}
+                                          min="128"
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="mb-3">
+                                      <label className="form-label">Test Cases</label>
+                                      {currentQuestion.testCases.map((testCase, index) => (
+                                        <div key={index} className="card mb-2">
+                                          <div className="card-body">
+                                            <div className="row">
+                                              <div className="col-md-6">
+                                                <label className="form-label">Input</label>
+                                                <textarea
+                                                  className="form-control"
+                                                  value={testCase.input}
+                                                  onChange={(e) => {
+                                                    const newTestCases = [...currentQuestion.testCases];
+                                                    newTestCases[index] = { ...testCase, input: e.target.value };
+                                                    setCurrentQuestion({ ...currentQuestion, testCases: newTestCases });
+                                                  }}
+                                                  rows="2"
+                                                />
+                                              </div>
+                                              <div className="col-md-6">
+                                                <label className="form-label">Expected Output</label>
+                                                <textarea
+                                                  className="form-control"
+                                                  value={testCase.output}
+                                                  onChange={(e) => {
+                                                    const newTestCases = [...currentQuestion.testCases];
+                                                    newTestCases[index] = { ...testCase, output: e.target.value };
+                                                    setCurrentQuestion({ ...currentQuestion, testCases: newTestCases });
+                                                  }}
+                                                  rows="2"
+                                                />
+                                              </div>
+                                            </div>
+                                            <button
+                                              className="btn btn-outline-danger btn-sm mt-2"
+                                              onClick={() => {
+                                                const newTestCases = currentQuestion.testCases.filter((_, i) => i !== index);
+                                                setCurrentQuestion({ ...currentQuestion, testCases: newTestCases });
+                                              }}
+                                            >
+                                              <i className="fas fa-trash-alt me-1"></i>
+                                              Remove Test Case
+                                            </button>
+                                          </div>
+                                        </div>
+                                      ))}
+                                      <button
+                                        className="btn btn-outline-primary btn-sm"
+                                        onClick={() => setCurrentQuestion({
+                                          ...currentQuestion,
+                                          testCases: [...currentQuestion.testCases, { input: '', output: '' }]
+                                        })}
+                                      >
+                                        <i className="fas fa-plus me-1"></i>
+                                        Add Test Case
+                                      </button>
+                                    </div>
+                                  </>
+                                )}
+
+                                <div className="text-end">
+                                  <button
+                                    className="btn btn-primary"
+                                    onClick={handleAddQuestion}
+                                    disabled={!currentQuestion.text || !currentQuestion.marks}
+                                  >
+                                    <i className="fas fa-plus me-1"></i>
+                                    Add Question
+                                  </button>
+                                </div>
                               </div>
                             </div>
-                          </div>
 
-                          {/* List of added questions */}
-                          {questions.length > 0 && (
-                            <div className="card shadow-sm">
-                              <div className="card-body">
-                                <h6 className="card-title mb-3">
-                                  <i className="fas fa-list me-2"></i>
-                                  Added Questions
-                                </h6>
-                                {questions.map((question, index) => (
-                                  <div key={question.id} className="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
-                                    <div>
-                                      <strong>Q{index + 1}:</strong> {question.text}
-                                      <span className="ms-2 badge bg-primary">{question.type}</span>
-                                      <span className="ms-2 badge bg-secondary">{question.marks} marks</span>
+                            {/* List of added questions */}
+                            {questions.length > 0 && (
+                              <div className="card shadow-sm">
+                                <div className="card-body">
+                                  <h6 className="card-title mb-3">
+                                    <i className="fas fa-list me-2"></i>
+                                    Added Questions ({questions.length})
+                                  </h6>
+                                  {questions.map((question, index) => (
+                                    <div key={question.id} className="d-flex justify-content-between align-items-center mb-2 p-2 border rounded">
+                                      <div>
+                                        <strong>Q{index + 1}:</strong> {question.text}
+                                        <span className="ms-2 badge bg-primary">{question.type}</span>
+                                        <span className="ms-2 badge bg-secondary">{question.marks} marks</span>
+                                      </div>
+                                      <button
+                                        className="btn btn-outline-danger btn-sm"
+                                        onClick={() => handleRemoveQuestion(question.id)}
+                                      >
+                                        <i className="fas fa-trash-alt"></i>
+                                      </button>
                                     </div>
-                                    <button
-                                      className="btn btn-outline-danger btn-sm"
-                                      onClick={() => handleRemoveQuestion(question.id)}
-                                    >
-                                      <i className="fas fa-trash-alt"></i>
-                                    </button>
-                                  </div>
-                                ))}
+                                  ))}
+                                </div>
                               </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Step 4: Assign Students */}
+                  {currentStep === 4 && (
+                    <div className="card shadow-sm">
+                      <div className="card-body">
+                        <h6 className="card-title mb-4">
+                          <i className="fas fa-users me-2 text-primary"></i>
+                          Assign Students
+                        </h6>
+                        <div className="mb-3">
+                          <div className="input-group">
+                            <span className="input-group-text bg-light">
+                              <i className="fas fa-search"></i>
+                            </span>
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Search students..."
+                              value={studentSearch}
+                              onChange={(e) => setStudentSearch(e.target.value)}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="mb-3 d-flex justify-content-between align-items-center">
+                          <div>
+                            <button
+                              type="button"
+                              className="btn btn-outline-primary btn-sm me-2"
+                              onClick={handleSelectAll}
+                              disabled={filteredStudents.length === 0}
+                            >
+                              <i className="fas fa-check-double me-1"></i>
+                              Select All
+                            </button>
+                            <button
+                              type="button"
+                              className="btn btn-outline-secondary btn-sm"
+                              onClick={handleClearAll}
+                              disabled={selectedStudents.length === 0}
+                            >
+                              <i className="fas fa-times me-1"></i>
+                              Clear All
+                            </button>
+                          </div>
+                          <div className="text-muted">
+                            <small>
+                              {selectedStudents.length} student{selectedStudents.length !== 1 ? 's' : ''} selected
+                            </small>
+                          </div>
+                        </div>
+
+                        <div className="border rounded" style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                          {filteredStudents.length === 0 ? (
+                            <div className="text-center p-4 text-muted">
+                              <i className="fas fa-user-slash fa-2x mb-2"></i>
+                              <div>
+                                {studentSearch ? 'No students found matching your search.' : 'No students available.'}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="list-group list-group-flush">
+                              {filteredStudents.map(student => (
+                                <div
+                                  key={student.id}
+                                  className={`list-group-item list-group-item-action d-flex align-items-center ${
+                                    selectedStudents.includes(student.id) ? 'list-group-item-primary' : ''
+                                  }`}
+                                  style={{ cursor: 'pointer' }}
+                                  onClick={() => handleStudentToggle(student.id)}
+                                >
+                                  <div className="form-check me-3">
+                                    <input
+                                      className="form-check-input"
+                                      type="checkbox"
+                                      checked={selectedStudents.includes(student.id)}
+                                      onChange={() => handleStudentToggle(student.id)}
+                                    />
+                                  </div>
+                                  <div className="flex-grow-1">
+                                    <div className="d-flex justify-content-between align-items-start">
+                                      <div>
+                                        <h6 className="mb-1">
+                                          <i className="fas fa-user me-2"></i>
+                                          {student.username}
+                                        </h6>
+                                        <p className="mb-0 text-muted small">
+                                          <i className="fas fa-envelope me-1"></i>
+                                          {student.email}
+                                        </p>
+                                      </div>
+                                      {selectedStudents.includes(student.id) && (
+                                        <span className="badge bg-primary">
+                                          <i className="fas fa-check"></i>
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
                             </div>
                           )}
-                        </>
-                      )}
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
               <div className="modal-footer">
@@ -1031,24 +1255,45 @@ const TestManagement = () => {
                   <i className="fas fa-times me-1"></i>
                   Cancel
                 </button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={handleCreateTest}
-                  disabled={loading}
-                >
-                  {loading ? (
-                    <>
-                      <span className="spinner-border spinner-border-sm me-2" role="status"></span>
-                      Creating...
-                    </>
-                  ) : (
-                    <>
-                      <i className="fas fa-save me-1"></i>
-                      Create Test
-                    </>
-                  )}
-                </button>
+                {currentStep > 1 && (
+                  <button
+                    type="button"
+                    className="btn btn-outline-primary"
+                    onClick={() => setCurrentStep(currentStep - 1)}
+                  >
+                    <i className="fas fa-arrow-left me-1"></i>
+                    Previous
+                  </button>
+                )}
+                {currentStep < 4 ? (
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => setCurrentStep(currentStep + 1)}
+                  >
+                    Next
+                    <i className="fas fa-arrow-right ms-1"></i>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn btn-success"
+                    onClick={handleCreateTest}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <span className="spinner-border spinner-border-sm me-2" role="status"></span>
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <i className="fas fa-save me-1"></i>
+                        Create Test
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </div>
