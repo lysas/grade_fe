@@ -24,6 +24,8 @@ import OrganizationProfile from "./components/Organization/OrganizationProfile";
 import AcceptInvitation from './components/Auth/AcceptInvitation';
 import TestResults from "./components/Organization/TestResults";
 import CreateTest from "./components/Organization/CreateTest";
+import HierarchyManagement from "./components/Organization/HierarchyManagement";
+import BulkHierarchyAssignmentPage from './components/Organization/BulkHierarchyAssignmentPage';
 
 // Bootstrap imports
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -184,7 +186,9 @@ const App = () => {
                     <Route path="test-results" element={<TestResults />} />
                     <Route path="progress" element={<ProgressTracking />} />
                     <Route path="profile" element={<OrganizationProfile />} />
+                    <Route path="hierarchy" element={<HierarchyManagement />} />
                   </Route>
+                  <Route path="/organization/bulk-hierarchy-assignment" element={<BulkHierarchyAssignmentPage />} />
                   {/* Organization authentication routes */}
                   <Route path="/organization-register" element={<OrganizationSignup />} />
                   {/* Student invitation route */}

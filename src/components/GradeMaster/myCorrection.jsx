@@ -37,6 +37,38 @@ const MyCorrection = () => {
     window.open(`${basePath}/${fileName}`, "_blank");
   };
 
+  const handleViewQuestionPaper = (file, questionPaperType = 'sample') => {
+    if (!file) {
+      console.error("No file provided");
+      return;
+    }
+
+    const basePath = "http://127.0.0.1:8000/media/question_papers/";
+    let folder;
+    
+    switch (questionPaperType) {
+      case "sample":
+        folder = "sample";
+        break;
+      case "previous_year":
+        folder = "previous_year";
+        break;
+      case "generated":
+        folder = "generated";
+        break;
+      case "organization":
+        folder = "organization";
+        break;
+      default:
+        folder = "sample";
+    }
+    
+    const fileName = file.split("/").pop();
+    const url = `${basePath}${folder}/${fileName}`;
+    console.log("Opening question paper URL:", url);
+    window.open(url, "_blank");
+  };
+
   return (
     <div className="my-correction-page">
       <header className="correction-header">
@@ -70,7 +102,7 @@ const MyCorrection = () => {
                       className="view-button"
                       onClick={() =>
                         window.open(
-                          `http://127.0.0.1:8000/media/question_papers/${correction.question_file.split('/').pop()}`,
+                          `http://127.0.0.1:8000/media/question_papers/${correction.paper_type}/${correction.question_file.split('/').pop()}`,
                           '_blank'
                         )
                       }

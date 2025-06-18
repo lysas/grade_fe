@@ -738,7 +738,7 @@ const Student = () => {
             isPremium={isPremium}
           />
       
-          {error && <p className="error">{error}</p>}
+          {error && <p className="errore">{error}</p>}
       
           <section className="paperSection">
             <div className="sectionHeader">

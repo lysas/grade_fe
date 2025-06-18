@@ -215,7 +215,7 @@ const Admin = () => {
         </div>
       </div>
 
-      {error && <p className="error">{error}</p>}
+      {error && <p className="errors">{error}</p>}
 
       <div className="uploadTypeTabs">
         <button 

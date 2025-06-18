@@ -342,7 +342,7 @@
     text-align: center;
 }
 
-.error {
+.errors {
     color: #d32f2f; /* More standard error red */
     background: #ffcdd2; /* Light red background */
     padding: 15px;

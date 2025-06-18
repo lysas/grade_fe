@@ -16,11 +16,16 @@ import {
     faPaperPlane,
     faUser,
     faCheckCircle,
-    faExclamationCircle
+    faExclamationCircle,
+    faLayerGroup,
+    faArrowRight,
+    faCheck,
+    faEdit
 } from '@fortawesome/free-solid-svg-icons';
 import Table from '../GradeMaster/common/Table';
 import { Button } from '../common';
 import './StudentManagement.css';
+import { useNavigate } from 'react-router-dom';
 
 // Configure axios defaults
 axios.defaults.baseURL = 'http://localhost:8000';  // Update this with your backend URL
@@ -58,11 +63,70 @@ const StudentManagement = () => {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [inviting, setInviting] = useState(false);
+  const [showHierarchyModal, setShowHierarchyModal] = useState(false);
+  const [selectedStudent, setSelectedStudent] = useState(null);
+  const [hierarchyLevels, setHierarchyLevels] = useState([]);
+  const [hierarchyValues, setHierarchyValues] = useState({});
+  const [selectedValues, setSelectedValues] = useState({});
+  const [assigningHierarchy, setAssigningHierarchy] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [studentHierarchies, setStudentHierarchies] = useState({});
+  const [showBulkAssignmentModal, setShowBulkAssignmentModal] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchStudents();
     fetchPendingInvitations();
+    fetchHierarchyLevels();
   }, []);
+
+  // Fetch values for all levels when levels change
+  useEffect(() => {
+    if (hierarchyLevels.length > 0) {
+      const fetchAllValues = async () => {
+        const allValues = {};
+        for (const level of hierarchyLevels) {
+          try {
+            const response = await axios.get(
+              `/api/organization/hierarchy-levels/${level.id}/values/`,
+              {
+                headers: {
+                  'Authorization': `Bearer ${localStorage.getItem('token')}`
+                }
+              }
+            );
+            console.log(`Values for level ${level.id}:`, response.data); // Debug log
+            if (response.data && response.data.data) {
+              allValues[level.id] = response.data.data;
+            }
+          } catch (err) {
+            console.error(`Error fetching values for level ${level.id}:`, err);
+          }
+        }
+        console.log('All hierarchy values:', allValues); // Debug log
+        setHierarchyValues(allValues);
+      };
+      fetchAllValues();
+    }
+  }, [hierarchyLevels]);
+
+  const fetchStudentHierarchies = async (studentId) => {
+    try {
+      const response = await axios.get(`/api/organization/student-hierarchies/student_hierarchies/?student_id=${studentId}`, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (response.data.status === 'success') {
+        setStudentHierarchies(prev => ({
+          ...prev,
+          [studentId]: response.data.data
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching student hierarchies:', error);
+    }
+  };
 
   const fetchStudents = async () => {
     try {
@@ -74,6 +138,10 @@ const StudentManagement = () => {
       });
       if (response.data.status === 'success') {
         setStudents(response.data.data);
+        // Fetch hierarchies for each student
+        response.data.data.forEach(student => {
+          fetchStudentHierarchies(student.id);
+        });
         setError(null);
       } else {
         setError(response.data.message || 'Failed to fetch students');
@@ -95,10 +163,63 @@ const StudentManagement = () => {
       });
       if (response.data.status === 'success') {
         console.log('Pending invitations:', response.data.data); // Debug log
-        setPendingInvitations(response.data.data);
+        // Check for expired invitations
+        const currentTime = new Date();
+        const expiredInvitations = response.data.data.filter(invitation => 
+          new Date(invitation.expires_at) < currentTime
+        );
+        
+        // Cancel expired invitations
+        for (const invitation of expiredInvitations) {
+          try {
+            await handleCancelInvitation(invitation.id, 'pending');
+          } catch (error) {
+            console.error('Error canceling expired invitation:', error);
+          }
+        }
+        
+        // Update the pending invitations list
+        setPendingInvitations(response.data.data.filter(invitation => 
+          new Date(invitation.expires_at) >= currentTime
+        ));
       }
     } catch (error) {
       console.error('Error fetching pending invitations:', error);
+    }
+  };
+
+  // Add useEffect to periodically check for expired invitations
+  useEffect(() => {
+    const checkExpiredInvitations = () => {
+      const currentTime = new Date();
+      const expiredInvitations = pendingInvitations.filter(invitation => 
+        new Date(invitation.expires_at) < currentTime
+      );
+      
+      if (expiredInvitations.length > 0) {
+        fetchPendingInvitations(); // Refresh the list
+      }
+    };
+
+    // Check every minute
+    const intervalId = setInterval(checkExpiredInvitations, 60000);
+    
+    return () => clearInterval(intervalId);
+  }, [pendingInvitations]);
+
+  const fetchHierarchyLevels = async () => {
+    try {
+      const response = await axios.get('/api/organization/hierarchy-levels/', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      console.log('Hierarchy levels response:', response.data); // Debug log
+      if (response.data) {
+        setHierarchyLevels(response.data);
+      }
+    } catch (error) {
+      console.error('Error fetching hierarchy levels:', error);
     }
   };
 
@@ -342,6 +463,193 @@ const StudentManagement = () => {
     }
   };
 
+  const handleHierarchyValueSelect = (levelId, valueId) => {
+    setSelectedValues(prev => ({
+      ...prev,
+      [levelId]: valueId
+    }));
+  };
+
+  const handleAssignHierarchy = async () => {
+    if (!selectedStudent) return;
+
+    // Validate that all hierarchy levels have a selected value
+    if (Object.keys(selectedValues).length !== hierarchyLevels.length) {
+      toast.error('Please select a value for each hierarchy level');
+      return;
+    }
+
+    try {
+      setAssigningHierarchy(true);
+      const response = await axios.post(
+        '/api/organization/student-hierarchies/bulk_assign/',
+        {
+          student_id: selectedStudent.id,
+          hierarchy_values: Object.values(selectedValues)  // Send just the array of value IDs
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+
+      if (response.data.status === 'success') {
+        toast.success('Hierarchy values assigned successfully!');
+        setShowHierarchyModal(false);
+        setSelectedStudent(null);
+        setSelectedValues({});
+        fetchStudents(); // Refresh student list to show updated hierarchies
+      } else {
+        toast.error(response.data.message || 'Failed to assign hierarchy values');
+      }
+    } catch (error) {
+      console.error('Error assigning hierarchy values:', error);
+      toast.error(error.response?.data?.message || 'Failed to assign hierarchy values');
+    } finally {
+      setAssigningHierarchy(false);
+    }
+  };
+
+  const openHierarchyModal = (student) => {
+    setSelectedStudent(student);
+    setSelectedValues({});
+    setCurrentStep(0);
+    setShowHierarchyModal(true);
+  };
+
+  const handleNextStep = () => {
+    if (currentStep < totalSteps() - 1) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
+  const totalSteps = () => hierarchyLevels.length + 2; // +2 for student selection and confirmation
+
+  const renderStepIndicator = () => {
+    const steps = [
+      { title: 'Select Student' },
+      ...hierarchyLevels.map(level => ({ title: level.name })),
+      { title: 'Confirm' }
+    ];
+
+    return (
+      <div className="step-indicator mb-4">
+        <div className="d-flex justify-content-between align-items-center">
+          {steps.map((step, index) => (
+            <div key={index} className="d-flex flex-column align-items-center">
+              <div className={`step-circle ${currentStep >= index ? 'active' : ''}`}>
+                {currentStep > index ? (
+                  <FontAwesomeIcon icon={faCheck} />
+                ) : (
+                  index + 1
+                )}
+              </div>
+              <div className="step-label mt-2 text-center" style={{ fontSize: '0.8rem', maxWidth: '80px' }}>
+                {step.title}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="progress mt-2" style={{ height: '2px' }}>
+          <div 
+            className="progress-bar" 
+            role="progressbar" 
+            style={{ width: `${(currentStep / (totalSteps() - 1)) * 100}%` }}
+          ></div>
+        </div>
+      </div>
+    );
+  };
+
+  const renderStepContent = () => {
+    if (currentStep === 0) {
+      // Student Selection Step
+      return (
+        <div className="text-center p-4">
+          <h5 className="mb-4">Confirm Student Selection</h5>
+          <div className="student-info p-4 bg-light rounded">
+            <FontAwesomeIcon icon={faUser} size="2x" className="text-primary mb-3" />
+            <h6>{selectedStudent.username}</h6>
+            <p className="text-muted mb-0">{selectedStudent.email}</p>
+          </div>
+        </div>
+      );
+    } else if (currentStep === totalSteps() - 1) {
+      // Final Confirmation Step
+      return (
+        <div>
+          <h5 className="mb-4">Review Assignment</h5>
+          <div className="review-section">
+            <div className="student-info mb-4 p-3 bg-light rounded">
+              <h6 className="mb-2">Student</h6>
+              <p className="mb-0">{selectedStudent.username} ({selectedStudent.email})</p>
+            </div>
+            <div className="selected-values">
+              <h6 className="mb-3">Selected Hierarchy Values</h6>
+              {hierarchyLevels.map(level => {
+                const selectedValue = hierarchyValues[level.id]?.find(
+                  v => v.id === selectedValues[level.id]
+                );
+                return (
+                  <div key={level.id} className="mb-3">
+                    <div className="d-flex justify-content-between align-items-center p-2 bg-light rounded">
+                      <span className="text-muted">{level.name}:</span>
+                      <span className="fw-bold">{selectedValue?.value || 'Not selected'}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      );
+    } else {
+      // Hierarchy Level Selection Steps
+      const currentLevel = hierarchyLevels[currentStep - 1];
+      const levelValues = hierarchyValues[currentLevel?.id] || [];
+
+      return (
+        <div>
+          <h5 className="mb-4">Select {currentLevel?.name}</h5>
+          {levelValues.length === 0 ? (
+            <div className="text-center p-4">
+              <FontAwesomeIcon icon={faSpinner} spin className="me-2" />
+              Loading values...
+            </div>
+          ) : (
+            <div className="row">
+              {levelValues.map(value => (
+                <div key={value.id} className="col-md-4 mb-3">
+                  <div className="form-check">
+                    <input
+                      type="radio"
+                      className="form-check-input"
+                      id={`value-${value.id}`}
+                      name={`level-${currentLevel.id}`}
+                      checked={selectedValues[currentLevel.id] === value.id}
+                      onChange={() => handleHierarchyValueSelect(currentLevel.id, value.id)}
+                      disabled={assigningHierarchy}
+                    />
+                    <label className="form-check-label" htmlFor={`value-${value.id}`}>
+                      {value.value}
+                    </label>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+  };
+
   const studentColumns = [
     { 
       header: <div className="text-center">Name</div>,
@@ -365,6 +673,16 @@ const StudentManagement = () => {
       accessor: 'actions',
       renderCell: (column, row) => (
         <div className="d-flex gap-2 justify-content-center">
+          <button
+            className={`btn ${studentHierarchies[row.id]?.length > 0 ? 'btn-outline-warning' : 'btn-outline-primary'} btn-sm`}
+            onClick={(e) => {
+              e.stopPropagation();
+              openHierarchyModal(row);
+            }}
+            title={studentHierarchies[row.id]?.length > 0 ? "Edit Hierarchy" : "Assign Hierarchy"}
+          >
+            <FontAwesomeIcon icon={studentHierarchies[row.id]?.length > 0 ? faEdit : faLayerGroup} />
+          </button>
           <button
             className="btn btn-outline-danger btn-sm"
             onClick={(e) => {
@@ -450,14 +768,24 @@ const StudentManagement = () => {
             <FontAwesomeIcon icon={faUser} className="me-2 text-primary" />
             Student Management
           </h2>
-          <Button
-            variant="primary"
-            onClick={() => setShowAddModal(true)}
-            disabled={loading}
-            icon={<FontAwesomeIcon icon={faPlus} />}
-          >
-            Invite Student
-          </Button>
+          <div className="d-flex gap-2">
+
+            <button
+              className="btn btn-outline-secondary me-3"
+              onClick={() => navigate('/organization/bulk-hierarchy-assignment')}
+              disabled={loading || students.length === 0}
+            ><FontAwesomeIcon icon={faLayerGroup} className="me-2" />
+              Bulk Assign Hierarchy
+            </button>
+            <Button
+              variant="primary"
+              onClick={() => setShowAddModal(true)}
+              disabled={loading}
+              icon={<FontAwesomeIcon icon={faPlus} />}
+            >
+              Invite Student
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -701,6 +1029,83 @@ const StudentManagement = () => {
           </div>
         </div>
       )}
+
+      {/* Hierarchy Assignment Modal */}
+      {showHierarchyModal && selectedStudent && (
+        <div className="modal show d-block" tabIndex="-1">
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header border-bottom-0">
+                <h5 className="modal-title fw-bold">
+                  Assign Hierarchy
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => {
+                    setShowHierarchyModal(false);
+                    setSelectedStudent(null);
+                    setSelectedValues({});
+                    setCurrentStep(0);
+                  }}
+                  disabled={assigningHierarchy}
+                ></button>
+              </div>
+              <div className="modal-body">
+                {renderStepIndicator()}
+                {renderStepContent()}
+              </div>
+              <div className="modal-footer border-top-0">
+                {currentStep > 0 && (
+                  <button
+                    type="button"
+                    className="btn btn-light"
+                    onClick={handlePrevStep}
+                    disabled={assigningHierarchy}
+                  >
+                    Back
+                  </button>
+                )}
+                {currentStep < totalSteps() - 1 ? (
+                  <button
+                    type="button"
+                    className="btn btn-primary px-4"
+                    onClick={handleNextStep}
+                    disabled={
+                      (currentStep > 0 && currentStep < totalSteps() - 1 && !selectedValues[hierarchyLevels[currentStep - 1]?.id]) ||
+                      assigningHierarchy
+                    }
+                  >
+                    Next
+                    <FontAwesomeIcon icon={faArrowRight} className="ms-2" />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="btn btn-success px-4"
+                    onClick={handleAssignHierarchy}
+                    disabled={assigningHierarchy}
+                  >
+                    {assigningHierarchy ? (
+                      <>
+                        <FontAwesomeIcon icon={faSpinner} spin className="me-2" />
+                        Assigning...
+                      </>
+                    ) : (
+                      <>
+                        <FontAwesomeIcon icon={faCheck} className="me-2" />
+                        Confirm Assignment
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+
     </div>
   );
 };

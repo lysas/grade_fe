@@ -18,7 +18,7 @@ const OutputSection = ({
   FeedbackPopup
 }) => {
   return (
-    <div className="output-section">
+    <div className="output-sectione">
       <div className="button-container">
         <Button
           variant="primary"

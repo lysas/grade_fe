@@ -128,6 +128,36 @@ const handleRequest = async (url, method, body = null, headers = {}) => {
   }
 };
 
+// Add this function to check and refresh token before it expires
+const checkAndRefreshToken = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+    
+    // Decode JWT without external libraries
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    
+    const payload = JSON.parse(jsonPayload);
+    const expirationTime = payload.exp * 1000; // Convert to milliseconds
+    const currentTime = Date.now();
+    
+    // If token expires in less than 5 minutes, refresh it
+    if (expirationTime - currentTime < 300000) {
+      console.log('Token expiring soon, refreshing...');
+      await authService.refreshToken();
+    }
+    
+    return true;
+  } catch (error) {
+    console.error('Error checking token:', error);
+    return false;
+  }
+};
+
 export const authService = {
   // register: async (email, username, password, password2, roles) => {
   //   try {

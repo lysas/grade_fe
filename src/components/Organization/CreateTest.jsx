@@ -18,6 +18,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { PageHeader, ProgressSteps } from '../GradeMaster/common/SharedTestComponents';
 
 const SortableQuestionItem = ({ question, index, onRemove }) => {
   const {
@@ -84,7 +85,8 @@ const CreateTest = () => {
     testCases: [],
     timeLimit: 5,
     memoryLimit: 512,
-    matchingPairs: []
+    matchingPairs: [],
+    blanks: []
   });
 
   const [testDetails, setTestDetails] = useState({
@@ -95,14 +97,14 @@ const CreateTest = () => {
   });
 
   const questionTypes = [
-    { value: 'mcq', label: 'Multiple Choice' },
-    { value: 'descriptive', label: 'Descriptive' },
+    { value: 'mcq', label: 'MCQ' },
+    { value: 'fill_blank', label: 'Fill in the blanks' },
+    { value: 'matching', label: 'Match the following' },
     { value: 'true_false', label: 'True/False' },
-    { value: 'programming', label: 'Programming' },
-    { value: 'fill_blank', label: 'Fill in the Blank' },
-    { value: 'matching', label: 'Matching' },
-    { value: 'short_answer', label: 'Short Answer' },
-    { value: 'long_answer', label: 'Long Answer' }
+    { value: 'divider1', label: '-----' },
+    { value: 'short_answer', label: 'Short-answer Questions' },
+    { value: 'long_answer', label: 'Long Answer' },
+    { value: 'programming', label: 'Programming Exercise' },
   ];
 
   // Get auth token from localStorage
@@ -183,6 +185,10 @@ const CreateTest = () => {
       toast.error('MCQ questions must have at least two options');
       return;
     }
+    // For MCQ, if correctAnswer is not set, set it to the first option
+    if (currentQuestion.type === 'mcq' && !currentQuestion.correctAnswer && currentQuestion.options.length > 0) {
+      setCurrentQuestion(prev => ({ ...prev, correctAnswer: prev.options[0] }));
+    }
 
     // Validate matching questions have at least two pairs
     if (currentQuestion.type === 'matching' && currentQuestion.matchingPairs.length < 2) {
@@ -199,6 +205,15 @@ const CreateTest = () => {
       }
     }
 
+    // For fill-in-the-blank questions, validate that there's at least one blank
+    if (currentQuestion.type === 'fill_blank') {
+      const blankCount = (currentQuestion.text.match(/\\[BLANK\\]/g) || []).length;
+      if (blankCount === 0) {
+        toast.error('Fill in the blank questions must have at least one [BLANK] placeholder');
+        return;
+      }
+    }
+
     setQuestions([...questions, { ...currentQuestion, id: Date.now() }]);
     setCurrentQuestion({
       type: 'mcq',
@@ -210,7 +225,8 @@ const CreateTest = () => {
       testCases: [],
       timeLimit: 5,
       memoryLimit: 512,
-      matchingPairs: []
+      matchingPairs: [],
+      blanks: []
     });
   };
 
@@ -255,6 +271,10 @@ const CreateTest = () => {
                 left: pair.left?.trim() || '',
                 right: pair.right?.trim() || ''
               }));
+            }
+            // For MCQ, ensure correct answer is part of options if "Other" was added
+            if (question.type === 'mcq' && question.correctAnswer === 'Other' && !question.options.includes('Other')) {
+              question.options.push('Other'); // Add "Other" if it was chosen as correct but not explicitly added
             }
             
             return question;
@@ -332,58 +352,20 @@ const CreateTest = () => {
     }
   };
 
+  const steps = [
+    { number: 1, label: 'Basic Details' },
+    { number: 2, label: 'Questions' },
+    { number: 3, label: 'Assign Students' }
+  ];
+
   return (
     <div className="container-fluid py-4">
-      <div className="row mb-4">
-        <div className="col-12">
-          <div className="d-flex justify-content-between align-items-center">
-            <h2>Create New Test</h2>
-            <button
-              className="btn btn-outline-secondary"
-              onClick={() => navigate('/organization/tests')}
-            >
-              <i className="fas fa-arrow-left me-2"></i>
-              Back to Tests
-            </button>
-          </div>
-        </div>
-      </div>
+      <PageHeader 
+        title="Create New Test" 
+        onBack={() => navigate('/organization/tests')} 
+      />
 
-      {/* Progress Steps */}
-      <div className="progress-steps mb-4">
-        <div className="d-flex justify-content-between">
-          {[
-            { number: 1, label: 'Basic Details' },
-            { number: 2, label: 'Questions' },
-            { number: 3, label: 'Assign Students' }
-          ].map((step) => (
-            <div
-              key={step.number}
-              className={`d-flex align-items-center ${
-                currentStep >= step.number ? 'text-primary' : 'text-muted'
-              }`}
-            >
-              <div
-                className={`rounded-circle d-flex align-items-center justify-content-center ${
-                  currentStep >= step.number ? 'bg-primary text-white' : 'bg-light'
-                }`}
-                style={{ width: '35px', height: '35px' }}
-              >
-                {step.number}
-              </div>
-              <span className="ms-2">{step.label}</span>
-              {step.number < 3 && (
-                <div
-                  className={`mx-3 flex-grow-1 ${
-                    currentStep > step.number ? 'border-primary' : 'border-secondary'
-                  }`}
-                  style={{ height: '2px', borderTop: '2px solid' }}
-                ></div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
+      <ProgressSteps currentStep={currentStep} steps={steps} />
 
       {/* Step Content */}
       <div className="row">
@@ -447,380 +429,476 @@ const CreateTest = () => {
 
           {/* Step 2: Questions */}
           {currentStep === 2 && (
-            <div className="card shadow-sm">
-              <div className="card-body">
-                <div className="d-flex justify-content-between align-items-center mb-4">
-                  <h6 className="card-title mb-0">
-                    <i className="fas fa-question-circle me-2 text-primary"></i>
-                    Questions
-                  </h6>
-                  <div className="btn-group" role="group">
-                    <button
-                      type="button"
-                      className={`btn ${questionEntryMode === 'manual' ? 'btn-primary' : 'btn-outline-primary'}`}
-                      onClick={() => setQuestionEntryMode('manual')}
-                    >
-                      <i className="fas fa-keyboard me-2"></i>
-                      Manual Entry
-                    </button>
-                    <button
-                      type="button"
-                      className={`btn ${questionEntryMode === 'upload' ? 'btn-primary' : 'btn-outline-primary'}`}
-                      onClick={() => setQuestionEntryMode('upload')}
-                    >
-                      <i className="fas fa-file-upload me-2"></i>
-                      Upload Questions
-                    </button>
-                  </div>
-                </div>
-
-                {questionEntryMode === 'upload' ? (
-                  <div className="card shadow-sm">
-                    <div className="card-body">
-                      <div className="row">
-                        <div className="col-md-6">
-                          <div className="mb-3">
-                            <label className="form-label">
-                              <i className="fas fa-file-pdf me-2 text-danger"></i>
-                              Question Paper (PDF)
-                            </label>
-                            <input
-                              type="file"
-                              className="form-control"
-                              accept=".pdf"
-                              onChange={(e) => setQuestionPaper(e.target.files[0])}
-                            />
-                          </div>
-                        </div>
-                        <div className="col-md-6">
-                          <div className="mb-3">
-                            <label className="form-label">
-                              <i className="fas fa-key me-2 text-warning"></i>
-                              Answer Key (PDF)
-                            </label>
-                            <input
-                              type="file"
-                              className="form-control"
-                              accept=".pdf"
-                              onChange={(e) => setAnswerKey(e.target.files[0])}
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="card shadow-sm mb-3">
-                      <div className="card-body">
-                        <div className="row mb-3">
-                          <div className="col-md-4">
-                            <label className="form-label">Question Type</label>
-                            <select
-                              className="form-select"
-                              value={currentQuestion.type}
-                              onChange={(e) => setCurrentQuestion({ ...currentQuestion, type: e.target.value })}
-                            >
-                              {questionTypes.map(type => (
-                                <option key={type.value} value={type.value}>{type.label}</option>
-                              ))}
-                            </select>
-                          </div>
-                          <div className="col-md-4">
-                            <label className="form-label">Marks</label>
-                            <input
-                              type="number"
-                              className="form-control"
-                              value={currentQuestion.marks}
-                              onChange={(e) => setCurrentQuestion({ ...currentQuestion, marks: parseInt(e.target.value) || 0 })}
-                              min="1"
-                            />
-                          </div>
-                          <div className="col-md-4">
-                            <label className="form-label">Question Text</label>
-                            <input
-                              type="text"
-                              className="form-control"
-                              value={currentQuestion.text}
-                              onChange={(e) => setCurrentQuestion({ ...currentQuestion, text: e.target.value })}
-                              placeholder="Enter question text"
-                            />
-                          </div>
-                        </div>
-
-                        {currentQuestion.type === 'mcq' && (
-                          <div className="mb-3">
-                            <label className="form-label">Options</label>
-                            {currentQuestion.options.map((option, index) => (
-                              <div key={index} className="input-group mb-2">
-                                <span className="input-group-text">{String.fromCharCode(65 + index)}</span>
-                                <input
-                                  type="text"
-                                  className="form-control"
-                                  value={option}
-                                  onChange={(e) => {
-                                    const newOptions = [...currentQuestion.options];
-                                    newOptions[index] = e.target.value;
-                                    setCurrentQuestion({ ...currentQuestion, options: newOptions });
-                                  }}
-                                  placeholder={`Option ${index + 1}`}
-                                />
-                                <button
-                                  className="btn btn-outline-danger"
-                                  onClick={() => {
-                                    if (currentQuestion.options.length <= 2) {
-                                      toast.error('MCQ questions must have at least two options');
-                                      return;
-                                    }
-                                    const newOptions = currentQuestion.options.filter((_, i) => i !== index);
-                                    setCurrentQuestion({ ...currentQuestion, options: newOptions });
-                                  }}
-                                >
-                                  <i className="fas fa-times"></i>
-                                </button>
-                              </div>
-                            ))}
-                            <button
-                              className="btn btn-outline-primary btn-sm"
-                              onClick={() => setCurrentQuestion({
-                                ...currentQuestion,
-                                options: [...currentQuestion.options, '']
-                              })}
-                            >
-                              <i className="fas fa-plus"></i>
-                            </button>
-                            {currentQuestion.options.length < 2 && (
-                              <div className="text-danger mt-2">
-                                <small><i className="fas fa-exclamation-circle me-1"></i>MCQ questions must have at least two options</small>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {currentQuestion.type === 'matching' && (
-                          <div className="mb-3">
-                            <label className="form-label">Matching Pairs</label>
-                            {currentQuestion.matchingPairs.map((pair, index) => (
-                              <div key={index} className="row mb-2">
-                                <div className="col-md-5">
-                                  <div className="input-group">
-                                    <span className="input-group-text">Left {index + 1}</span>
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                      placeholder="Enter left item"
-                                      value={pair.left || ''}
-                                      onChange={(e) => {
-                                        const newPairs = [...currentQuestion.matchingPairs];
-                                        newPairs[index] = { ...newPairs[index], left: e.target.value };
-                                        setCurrentQuestion({ ...currentQuestion, matchingPairs: newPairs });
-                                      }}
-                                    />
-                                  </div>
-                                </div>
-                                <div className="col-md-5">
-                                  <div className="input-group">
-                                    <span className="input-group-text">Right {index + 1}</span>
-                                    <input
-                                      type="text"
-                                      className="form-control"
-                                      placeholder="Enter right item"
-                                      value={pair.right || ''}
-                                      onChange={(e) => {
-                                        const newPairs = [...currentQuestion.matchingPairs];
-                                        newPairs[index] = { ...newPairs[index], right: e.target.value };
-                                        setCurrentQuestion({ ...currentQuestion, matchingPairs: newPairs });
-                                      }}
-                                    />
-                                  </div>
-                                </div>
-                                <div className="col-md-2">
-                                  <button
-                                    className="btn btn-outline-danger btn-sm"
-                                    onClick={() => {
-                                      const newPairs = currentQuestion.matchingPairs.filter((_, i) => i !== index);
-                                      setCurrentQuestion({ ...currentQuestion, matchingPairs: newPairs });
-                                    }}
-                                  >
-                                    <i className="fas fa-trash"></i>
-                                  </button>
-                                </div>
-                              </div>
-                            ))}
-                            <button
-                              className="btn btn-outline-primary btn-sm"
-                              onClick={() => setCurrentQuestion({
-                                ...currentQuestion,
-                                matchingPairs: [...currentQuestion.matchingPairs, { left: '', right: '' }]
-                              })}
-                            >
-                              <i className="fas fa-plus"></i>
-                            </button>
-                            {currentQuestion.matchingPairs.length < 2 && (
-                              <div className="text-danger mt-2">
-                                <small><i className="fas fa-exclamation-circle me-1"></i>Matching questions must have at least two pairs</small>
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {currentQuestion.type === 'programming' && (
-                          <>
-                            <div className="row mb-3">
-                              <div className="col-md-4">
-                                <label className="form-label">Programming Language</label>
-                                <select
-                                  className="form-select"
-                                  value={currentQuestion.programmingLanguage}
-                                  onChange={(e) => setCurrentQuestion({
-                                    ...currentQuestion,
-                                    programmingLanguage: e.target.value
-                                  })}
-                                >
-                                  <option value="python">Python</option>
-                                  <option value="java">Java</option>
-                                  <option value="cpp">C++</option>
-                                  <option value="javascript">JavaScript</option>
-                                </select>
-                              </div>
-                              <div className="col-md-4">
-                                <label className="form-label">Time Limit (seconds)</label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  value={currentQuestion.timeLimit}
-                                  onChange={(e) => setCurrentQuestion({
-                                    ...currentQuestion,
-                                    timeLimit: parseInt(e.target.value) || 5
-                                  })}
-                                  min="1"
-                                />
-                              </div>
-                              <div className="col-md-4">
-                                <label className="form-label">Memory Limit (MB)</label>
-                                <input
-                                  type="number"
-                                  className="form-control"
-                                  value={currentQuestion.memoryLimit}
-                                  onChange={(e) => setCurrentQuestion({
-                                    ...currentQuestion,
-                                    memoryLimit: parseInt(e.target.value) || 512
-                                  })}
-                                  min="128"
-                                />
-                              </div>
-                            </div>
-                            <div className="mb-3">
-                              <label className="form-label">Test Cases</label>
-                              {currentQuestion.testCases.map((testCase, index) => (
-                                <div key={index} className="card mb-2">
-                                  <div className="card-body">
-                                    <div className="row">
-                                      <div className="col-md-6">
-                                        <label className="form-label">Input</label>
-                                        <textarea
-                                          className="form-control"
-                                          value={testCase.input}
-                                          onChange={(e) => {
-                                            const newTestCases = [...currentQuestion.testCases];
-                                            newTestCases[index] = { ...testCase, input: e.target.value };
-                                            setCurrentQuestion({ ...currentQuestion, testCases: newTestCases });
-                                          }}
-                                          rows="2"
-                                        />
-                                      </div>
-                                      <div className="col-md-6">
-                                        <label className="form-label">Expected Output</label>
-                                        <textarea
-                                          className="form-control"
-                                          value={testCase.output}
-                                          onChange={(e) => {
-                                            const newTestCases = [...currentQuestion.testCases];
-                                            newTestCases[index] = { ...testCase, output: e.target.value };
-                                            setCurrentQuestion({ ...currentQuestion, testCases: newTestCases });
-                                          }}
-                                          rows="2"
-                                        />
-                                      </div>
-                                    </div>
-                                    <button
-                                      className="btn btn-outline-danger btn-sm mt-2"
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        const newTestCases = currentQuestion.testCases.filter((_, i) => i !== index);
-                                        setCurrentQuestion({ ...currentQuestion, testCases: newTestCases });
-                                      }}
-                                    >
-                                      <i className="fas fa-trash-alt me-1"></i>
-                                      Remove Test Case
-                                    </button>
-                                  </div>
-                                </div>
-                              ))}
-                              <button
-                                className="btn btn-outline-primary btn-sm"
-                                onClick={(e) => {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  setCurrentQuestion({
-                                    ...currentQuestion,
-                                    testCases: [...currentQuestion.testCases, { input: '', output: '' }]
-                                  });
-                                }}
-                              >
-                                <i className="fas fa-plus me-1"></i>
-                                Add Test Case
-                              </button>
-                            </div>
-                          </>
-                        )}
-
-                        <div className="text-end">
-                          <button
-                            className="btn btn-primary"
-                            onClick={handleAddQuestion}
-                            disabled={!currentQuestion.text || !currentQuestion.marks}
-                          >
-                            <i className="fas fa-plus me-1"></i>
-                            Add Question
-                          </button>
-                        </div>
+            <div className="row">
+              <div className="col-lg-12">
+                <div className="card shadow-sm">
+                  <div className="card-body p-4">
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                      <h6 className="card-title mb-0">
+                        <i className="fas fa-question-circle me-2 text-primary"></i>
+                        Questions
+                      </h6>
+                      <div className="btn-group" role="group">
+                        <button
+                          type="button"
+                          className={`btn ${questionEntryMode === 'manual' ? 'btn-primary' : 'btn-outline-primary'}`}
+                          onClick={() => setQuestionEntryMode('manual')}
+                        >
+                          <i className="fas fa-keyboard me-2"></i>
+                          Manual Entry
+                        </button>
+                        <button
+                          type="button"
+                          className={`btn ${questionEntryMode === 'upload' ? 'btn-primary' : 'btn-outline-primary'}`}
+                          onClick={() => setQuestionEntryMode('upload')}
+                        >
+                          <i className="fas fa-file-upload me-2"></i>
+                          Upload Questions
+                        </button>
                       </div>
                     </div>
 
-                    {/* List of added questions */}
-                    {questions.length > 0 && (
+                    {questionEntryMode === 'upload' ? (
                       <div className="card shadow-sm">
                         <div className="card-body">
-                          <h6 className="card-title mb-3">
-                            <i className="fas fa-list me-2"></i>
-                            Added Questions ({questions.length})
-                          </h6>
-                          <DndContext
-                            sensors={sensors}
-                            collisionDetection={closestCenter}
-                            onDragEnd={handleDragEnd}
-                          >
-                            <SortableContext
-                              items={questions.map(q => q.id)}
-                              strategy={verticalListSortingStrategy}
-                            >
-                              {questions.map((question, index) => (
-                                <SortableQuestionItem
-                                  key={question.id}
-                                  question={question}
-                                  index={index}
-                                  onRemove={handleRemoveQuestion}
+                          <div className="row">
+                            <div className="col-md-6">
+                              <div className="mb-3">
+                                <label className="form-label">
+                                  <i className="fas fa-file-pdf me-2 text-danger"></i>
+                                  Question Paper (PDF)
+                                </label>
+                                <input
+                                  type="file"
+                                  className="form-control"
+                                  accept=".pdf"
+                                  onChange={(e) => setQuestionPaper(e.target.files[0])}
                                 />
-                              ))}
-                            </SortableContext>
-                          </DndContext>
+                              </div>
+                            </div>
+                            <div className="col-md-6">
+                              <div className="mb-3">
+                                <label className="form-label">
+                                  <i className="fas fa-key me-2 text-warning"></i>
+                                  Answer Key (PDF)
+                                </label>
+                                <input
+                                  type="file"
+                                  className="form-control"
+                                  accept=".pdf"
+                                  onChange={(e) => setAnswerKey(e.target.files[0])}
+                                />
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
+                    ) : (
+                      <>
+                        <div className="card shadow-sm mb-4">
+                          <div className="card-body p-4">
+                            <div className="d-flex align-items-center mb-4">
+                              {(currentQuestion.type === 'mcq' || currentQuestion.type === 'true_false' || currentQuestion.type === 'short_answer' || currentQuestion.type === 'long_answer' || currentQuestion.type === 'programming' || currentQuestion.type === 'matching') && (
+                                <div className="flex-grow-1 me-3">
+                                  <label className="form-label visually-hidden">Question Text</label>
+                                  <input
+                                    type="text"
+                                    className="form-control form-control-lg"
+                                    value={currentQuestion.text}
+                                    onChange={(e) => setCurrentQuestion({ ...currentQuestion, text: e.target.value })}
+                                    placeholder="Question"
+                                  />
+                                </div>
+                              )}
+                              <div className="me-3">
+                                <label className="form-label visually-hidden">Question Type</label>
+                                <select
+                                  className="select-common"
+                                  value={currentQuestion.type}
+                                  onChange={(e) => setCurrentQuestion({ ...currentQuestion, type: e.target.value })}
+                                  style={{
+                                    width: '200px',
+                                    padding: '10px 12px',
+                                    border: '1px solid #ddd',
+                                    borderRadius: '6px',
+                                    fontSize: '14px',
+                                    backgroundColor: 'white',
+                                    transition: 'all 0.3s ease',
+                                    cursor: 'pointer',
+                                    appearance: 'menulist'
+                                  }}
+                                >
+                                  {questionTypes.map(type => (
+                                    type.value.startsWith('divider') ? (
+                                      <option key={type.value} disabled>-----</option>
+                                    ) : (
+                                      <option 
+                                        key={type.value} 
+                                        value={type.value}
+                                        style={{
+                                          backgroundColor: 'white',
+                                          color: '#333'
+                                        }}
+                                      >
+                                        {type.label}
+                                      </option>
+                                    )
+                                  ))}
+                                </select>
+                                <style>
+                                  {`
+                                    select option:checked {
+                                      background-color: white !important;
+                                      color: #333 !important;
+                                    }
+                                    select option:hover {
+                                      background-color: #f8f9fa !important;
+                                    }
+                                    select option {
+                                      background-color: white;
+                                      color: #333;
+                                    }
+                                  `}
+                                </style>
+                              </div>
+                              <div>
+                                <button
+                                  className="btn btn-light shadow-sm"
+                                  style={{ width: '48px', height: '48px', borderRadius: '50%' }}
+                                  onClick={handleAddQuestion}
+                                  disabled={!currentQuestion.text || !currentQuestion.marks || (currentQuestion.type === 'mcq' && currentQuestion.options.length < 2) || (currentQuestion.type === 'matching' && currentQuestion.matchingPairs.length < 2) || (currentQuestion.type === 'fill_blank' && (currentQuestion.text.match(/\\[BLANK\\]/g) || []).length === 0)}
+                                >
+                                  <i className="fas fa-plus fa-lg"></i>
+                                </button>
+                              </div>
+                            </div>
+
+                            {currentQuestion.type === 'mcq' && (
+                              <div className="mb-4">
+                                {currentQuestion.options.map((option, index) => (
+                                  <div key={index} className="d-flex align-items-center mb-2">
+                                    <div className="me-2">
+                                      <input
+                                        type="radio"
+                                        className="form-check-input"
+                                        style={{ width: '18px', height: '18px' }}
+                                        name="correctAnswerMcq"
+                                        value={option}
+                                        checked={currentQuestion.correctAnswer === option}
+                                        onChange={() => setCurrentQuestion({ ...currentQuestion, correctAnswer: option })}
+                                      />
+                                    </div>
+                                    <div className="input-group">
+                                      <input
+                                        type="text"
+                                        className="form-control"
+                                        value={option}
+                                        onChange={(e) => {
+                                          const newOptions = [...currentQuestion.options];
+                                          newOptions[index] = e.target.value;
+                                          setCurrentQuestion({ ...currentQuestion, options: newOptions });
+                                        }}
+                                        placeholder={`Option ${index + 1}`}
+                                      />
+                                      <button
+                                        className="btn btn-outline-danger"
+                                        style={{ padding: '0.375rem 0.75rem' }}
+                                        onClick={() => {
+                                          if (currentQuestion.options.length <= 2) {
+                                            toast.error('MCQ questions must have at least two options');
+                                            return;
+                                          }
+                                          const newOptions = currentQuestion.options.filter((_, i) => i !== index);
+                                          setCurrentQuestion({ ...currentQuestion, options: newOptions });
+                                        }}
+                                      >
+                                        <i className="fas fa-times"></i>
+                                      </button>
+                                    </div>
+                                  </div>
+                                ))}
+                                <div className="mt-3">
+                                  <button
+                                    className="btn btn-link text-decoration-none p-0"
+                                    onClick={() => setCurrentQuestion({
+                                      ...currentQuestion,
+                                      options: [...currentQuestion.options, '']
+                                    })}
+                                  >
+                                    <i className="fas fa-plus me-1"></i> Add option
+                                  </button>
+                                  <span className="mx-2">or</span>
+                                  <button
+                                    className="btn btn-link text-decoration-none p-0"
+                                    onClick={() => setCurrentQuestion({
+                                      ...currentQuestion,
+                                      options: [...currentQuestion.options, 'Other'],
+                                      correctAnswer: currentQuestion.correctAnswer === '' ? 'Other' : currentQuestion.correctAnswer
+                                    })}
+                                  >
+                                    Add "Other"
+                                  </button>
+                                </div>
+                                {currentQuestion.options.length < 2 && (
+                                  <div className="text-danger mt-3">
+                                    <small><i className="fas fa-exclamation-circle me-2"></i>MCQ questions must have at least two options</small>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {currentQuestion.type === 'matching' && (
+                              <div className="mb-4">
+                                <div className="row">
+                                  <div className="col-md-6">
+                                    <div className="card">
+                                      <div className="card-header bg-light">
+                                        <h6 className="mb-0">Column A</h6>
+                                      </div>
+                                      <div className="card-body">
+                                        {currentQuestion.matchingPairs.map((pair, index) => (
+                                          <div key={`left-${index}`} className="mb-2">
+                                            <div className="input-group">
+                                              <span className="input-group-text">{index + 1}</span>
+                                              <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder={`Item ${index + 1}`}
+                                                value={pair.left || ''}
+                                                onChange={(e) => {
+                                                  const newPairs = [...currentQuestion.matchingPairs];
+                                                  newPairs[index] = { ...newPairs[index], left: e.target.value };
+                                                  setCurrentQuestion({ ...currentQuestion, matchingPairs: newPairs });
+                                                }}
+                                              />
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="col-md-6">
+                                    <div className="card">
+                                      <div className="card-header bg-light">
+                                        <h6 className="mb-0">Column B</h6>
+                                      </div>
+                                      <div className="card-body">
+                                        {currentQuestion.matchingPairs.map((pair, index) => (
+                                          <div key={`right-${index}`} className="mb-2">
+                                            <div className="input-group">
+                                              <span className="input-group-text">{index + 1}</span>
+                                              <input
+                                                type="text"
+                                                className="form-control"
+                                                placeholder={`Match for Item ${index + 1}`}
+                                                value={pair.right || ''}
+                                                onChange={(e) => {
+                                                  const newPairs = [...currentQuestion.matchingPairs];
+                                                  newPairs[index] = { ...newPairs[index], right: e.target.value };
+                                                  setCurrentQuestion({ ...currentQuestion, matchingPairs: newPairs });
+                                                }}
+                                              />
+                                              <button
+                                                className="btn btn-outline-danger"
+                                                onClick={() => {
+                                                  const newPairs = currentQuestion.matchingPairs.filter((_, i) => i !== index);
+                                                  setCurrentQuestion({ ...currentQuestion, matchingPairs: newPairs });
+                                                }}
+                                              >
+                                                <i className="fas fa-times"></i>
+                                              </button>
+                                            </div>
+                                          </div>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                                <div className="mt-3">
+                                  <button
+                                    className="btn btn-link text-decoration-none p-0"
+                                    onClick={() => setCurrentQuestion({
+                                      ...currentQuestion,
+                                      matchingPairs: [...currentQuestion.matchingPairs, { left: '', right: '' }]
+                                    })}
+                                  >
+                                    <i className="fas fa-plus me-1"></i> Add pair
+                                  </button>
+                                </div>
+                                {currentQuestion.matchingPairs.length < 2 && (
+                                  <div className="text-danger mt-3">
+                                    <small><i className="fas fa-exclamation-circle me-2"></i>Matching questions must have at least two pairs</small>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {currentQuestion.type === 'fill_blank' && (
+                              <div className="mb-3">
+                                <label className="form-label">Question Text with Blanks</label>
+                                <textarea
+                                  className="form-control"
+                                  value={currentQuestion.text}
+                                  onChange={(e) => {
+                                    const text = e.target.value;
+                                    // Extract all [BLANK] occurrences and their positions
+                                    const blanks = [];
+                                    let match;
+                                    const regex = /\\[BLANK\\]/g;
+                                    while ((match = regex.exec(text)) !== null) {
+                                      blanks.push({
+                                        position: match.index,
+                                        correctAnswer: ''
+                                      });
+                                    }
+                                    setCurrentQuestion({
+                                      ...currentQuestion,
+                                      text,
+                                      blanks
+                                    });
+                                  }}
+                                  placeholder="Enter your question text. Use [BLANK] to indicate where the answer should be filled in."
+                                  rows="4"
+                                />
+                              </div>
+                            )}
+
+                            {currentQuestion.type === 'programming' && (
+                              <>
+                                <div className="row mb-3">
+                                  <div className="col-md-4">
+                                    <label className="form-label">Programming Language</label>
+                                    <select
+                                      className="form-select"
+                                      value={currentQuestion.programmingLanguage}
+                                      onChange={(e) => setCurrentQuestion({
+                                        ...currentQuestion,
+                                        programmingLanguage: e.target.value
+                                      })}
+                                    >
+                                      <option value="python">Python</option>
+                                      <option value="java">Java</option>
+                                      <option value="cpp">C++</option>
+                                      <option value="javascript">JavaScript</option>
+                                    </select>
+                                  </div>
+                                </div>
+                                <div className="mb-3">
+                                  <label className="form-label">Test Cases</label>
+                                  {currentQuestion.testCases.map((testCase, index) => (
+                                    <div key={index} className="card mb-2">
+                                      <div className="card-body">
+                                        <div className="row">
+                                          <div className="col-md-6">
+                                            <label className="form-label">Input</label>
+                                            <textarea
+                                              className="form-control"
+                                              value={testCase.input}
+                                              onChange={(e) => {
+                                                const newTestCases = [...currentQuestion.testCases];
+                                                newTestCases[index] = { ...testCase, input: e.target.value };
+                                                setCurrentQuestion({ ...currentQuestion, testCases: newTestCases });
+                                              }}
+                                              rows="2"
+                                            />
+                                          </div>
+                                          <div className="col-md-6">
+                                            <label className="form-label">Expected Output</label>
+                                            <textarea
+                                              className="form-control"
+                                              value={testCase.output}
+                                              onChange={(e) => {
+                                                const newTestCases = [...currentQuestion.testCases];
+                                                newTestCases[index] = { ...testCase, output: e.target.value };
+                                                setCurrentQuestion({ ...currentQuestion, testCases: newTestCases });
+                                              }}
+                                              rows="2"
+                                            />
+                                          </div>
+                                        </div>
+                                        <button
+                                          className="btn btn-outline-danger btn-sm mt-2"
+                                          onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            const newTestCases = currentQuestion.testCases.filter((_, i) => i !== index);
+                                            setCurrentQuestion({ ...currentQuestion, testCases: newTestCases });
+                                          }}
+                                        >
+                                          <i className="fas fa-trash-alt me-1"></i>
+                                          Remove Test Case
+                                        </button>
+                                      </div>
+                                    </div>
+                                  ))}
+                                  <button
+                                    className="btn btn-outline-primary btn-sm"
+                                    onClick={(e) => {
+                                      e.preventDefault();
+                                      e.stopPropagation();
+                                      setCurrentQuestion({
+                                        ...currentQuestion,
+                                        testCases: [...currentQuestion.testCases, { input: '', output: '' }]
+                                      });
+                                    }}
+                                  >
+                                    <i className="fas fa-plus me-1"></i>
+                                    Add Test Case
+                                  </button>
+                                </div>
+                              </>
+                            )}
+
+                            <div className="d-flex justify-content-between align-items-center border-top pt-3 mt-3">
+                              <div className="d-flex align-items-center">
+                                <i className="fas fa-check-square me-2 text-primary"></i>
+                                <span>Marks:</span>
+                                <input
+                                  type="number"
+                                  className="form-control ms-2"
+                                  style={{ width: '80px' }}
+                                  value={currentQuestion.marks}
+                                  onChange={(e) => setCurrentQuestion({ ...currentQuestion, marks: parseInt(e.target.value) || 0 })}
+                                  min="0"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {questions.length > 0 && (
+                          <div className="card shadow-sm mt-3">
+                            <div className="card-body">
+                              <h6 className="card-title mb-3">
+                                <i className="fas fa-list me-2"></i>
+                                Added Questions ({questions.length})
+                              </h6>
+                              <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
+                              >
+                                <SortableContext
+                                  items={questions.map(q => q.id)}
+                                  strategy={verticalListSortingStrategy}
+                                >
+                                  {questions.map((question, index) => (
+                                    <SortableQuestionItem
+                                      key={question.id}
+                                      question={question}
+                                      index={index}
+                                      onRemove={handleRemoveQuestion}
+                                    />
+                                  ))}
+                                </SortableContext>
+                              </DndContext>
+                            </div>
+                          </div>
+                        )}
+                      </>
                     )}
-                  </>
-                )}
+                  </div>
+                </div>
               </div>
             </div>
           )}

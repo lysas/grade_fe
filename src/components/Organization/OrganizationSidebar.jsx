@@ -11,7 +11,8 @@ import {
   faChartBar,
   faFileAlt,
   faUserCircle,
-  faClipboardList
+  faClipboardList,
+  faLayerGroup
 } from '@fortawesome/free-solid-svg-icons';
 
 const OrganizationSidebar = () => {
@@ -46,6 +47,7 @@ const OrganizationSidebar = () => {
     { path: "/organization/tests", label: "Test Management", icon: faFileAlt },
     { path: "/organization/test-results", label: "Test Results", icon: faClipboardList },
     { path: "/organization/progress", label: "Progress Tracking", icon: faChartBar },
+    { path: "/organization/hierarchy", label: "Hierarchy Management", icon: faLayerGroup },
   ];
 
   const handleNavigation = (path) => {
@@ -100,7 +102,7 @@ const OrganizationSidebar = () => {
               <span className="main-menu-icon">
                 <FontAwesomeIcon icon={faUserCircle} />
               </span>
-              {!isCollapsed && <span className="main-menu-label">Normal Login</span>}
+              {!isCollapsed && <span className="main-menu-label">Individual Login</span>}
             </div>
           </li>
         </ul>

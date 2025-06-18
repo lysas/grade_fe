@@ -81,6 +81,10 @@ const TestTaking = () => {
                 language: question.programmingLanguage || 'python'
               };
               break;
+            case 'fill_blank':
+              const blankCount = (question.text.match(/\[BLANK\]/g) || []).length;
+              initialAnswers[question.id] = Array(blankCount).fill('');
+              break;
             case 'descriptive':
             case 'short_answer':
             case 'long_answer':
@@ -284,11 +288,19 @@ const TestTaking = () => {
             {question.options.map((option, index) => {
               const optionLabel = String.fromCharCode(65 + index); // A, B, C, D...
               return (
-                <div key={index} className="form-check">
-                  <label className="form-check-label">
-                    <span className="option-letter">{optionLabel}</span>
-                    <span className="option-text">{option}</span>
-                  </label>
+                <div 
+                  key={index} 
+                  className="mcq-option" 
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    padding: '12px 16px',
+                    marginBottom: '10px',
+                    border: '1px solid #e0e0e0',
+                    borderRadius: '8px',
+                    backgroundColor: answers[question.id] === option ? '#f0f7ff' : '#fff'
+                  }}
+                >
                   <input
                     type="radio"
                     className="form-check-input"
@@ -296,7 +308,16 @@ const TestTaking = () => {
                     value={option}
                     checked={answers[question.id] === option}
                     onChange={(e) => handleMCQOptionSelect(question.id, e.target.value)}
+                    id={`mcq-${question.id}-${index}`}
+                    style={{ marginRight: '12px' }}
                   />
+                  <label 
+                    className="form-check-label" 
+                    htmlFor={`mcq-${question.id}-${index}`}
+                    style={{ display: 'flex', alignItems: 'center', margin: 0 }}
+                  >
+                    <span style={{ color: '#2c3e50' }}>{option}</span>
+                  </label>
                 </div>
               );
             })}
@@ -367,6 +388,42 @@ const TestTaking = () => {
           </div>
         );
 
+      case 'fill_blank':
+        const blankCount = (question.text.match(/\[BLANK\]/g) || []).length;
+        return (
+          <div className="fill-blank-question">
+            <div className="question-text mb-4" style={{ lineHeight: '2.5' }}>
+              {question.text.split('[BLANK]').map((part, index, array) => (
+                <React.Fragment key={index}>
+                  {part}
+                  {index < array.length - 1 && (
+                    <input
+                      type="text"
+                      className="form-control d-inline-block mx-2"
+                      style={{
+                        width: '150px',
+                        height: '38px',
+                        verticalAlign: 'middle',
+                        border: '1px solid #ced4da',
+                        borderRadius: '4px',
+                        padding: '0.375rem 0.75rem',
+                        backgroundColor: '#f8f9fa'
+                      }}
+                      value={answers[question.id]?.[index] || ''}
+                      onChange={(e) => {
+                        const newAnswers = [...(answers[question.id] || Array(blankCount).fill(''))];
+                        newAnswers[index] = e.target.value;
+                        handleAnswerChange(question.id, newAnswers);
+                      }}
+                      placeholder={`Answer ${index + 1}`}
+                    />
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        );
+
       case 'descriptive':
       case 'short_answer':
       case 'long_answer':
@@ -383,93 +440,121 @@ const TestTaking = () => {
       case 'true_false':
         return (
           <div className="mcq-options">
-            <div className="form-check">
-              <input
-                type="radio"
-                className="form-check-input"
-                name={`question-${question.id}`}
-                value="true"
-                checked={answers[question.id] === 'true'}
-                onChange={(e) => handleMCQOptionSelect(question.id, e.target.value)}
-              />
-              <label className="form-check-label">True</label>
-            </div>
-            <div className="form-check">
-              <input
-                type="radio"
-                className="form-check-input"
-                name={`question-${question.id}`}
-                value="false"
-                checked={answers[question.id] === 'false'}
-                onChange={(e) => handleMCQOptionSelect(question.id, e.target.value)}
-              />
-              <label className="form-check-label">False</label>
-            </div>
+            {['true', 'false'].map((option, index) => (
+              <div 
+                key={index} 
+                className="mcq-option" 
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: '12px 16px',
+                  marginBottom: '10px',
+                  border: '1px solid #e0e0e0',
+                  borderRadius: '8px',
+                  backgroundColor: answers[question.id] === option ? '#f0f7ff' : '#fff'
+                }}
+              >
+                <input
+                  type="radio"
+                  className="form-check-input"
+                  name={`question-${question.id}`}
+                  value={option}
+                  checked={answers[question.id] === option}
+                  onChange={(e) => handleMCQOptionSelect(question.id, e.target.value)}
+                  id={`true-false-${question.id}-${index}`}
+                  style={{ marginRight: '12px' }}
+                />
+                <label 
+                  className="form-check-label" 
+                  htmlFor={`true-false-${question.id}-${index}`}
+                  style={{ display: 'flex', alignItems: 'center', margin: 0 }}
+                >
+                  <span style={{ textTransform: 'capitalize' }}>{option}</span>
+                </label>
+              </div>
+            ))}
           </div>
         );
 
       case 'matching':
         return (
           <div className="matching-question">
-            <div className="matching-pairs">
-              {question.matchingPairs.map((pair, index) => (
-                <div key={index} className="matching-pair mb-3">
-                  <div className="row">
-                    <div className="col-md-5">
-                      <div className="input-group">
-                        <span className="input-group-text bg-light">Left {index + 1}</span>
-                        <input
-                          type="text"
-                          className="form-control"
-                          value={pair.left}
-                          readOnly
-                        />
+            <div className="row">
+              <div className="col-md-6">
+                <div className="card">
+                  <div className="card-header bg-light">
+                    <h6 className="mb-0">Column A</h6>
+                  </div>
+                  <div className="card-body">
+                    {question.matchingPairs.map((pair, index) => (
+                      <div key={`left-${index}`} className="mb-2">
+                        <div className="input-group">
+                          <span className="input-group-text" style={{ width: '40px', justifyContent: 'center' }}>{index + 1}</span>
+                          <input
+                            type="text"
+                            className="form-control"
+                            value={pair.left}
+                            readOnly
+                          />
+                        </div>
                       </div>
-                    </div>
-                    <div className="col-md-5">
-                      <div className="input-group">
-                        <span className="input-group-text bg-light">Right {index + 1}</span>
-                        <select
-                          className="form-select"
-                          value={answers[question.id]?.[index]?.right || ''}
-                          onChange={(e) => {
-                            const newAnswers = { ...answers };
-                            if (!newAnswers[question.id]) {
-                              newAnswers[question.id] = [];
-                            }
-
-                            // If selecting a new value that's already selected elsewhere
-                            if (e.target.value) {
-                              // Find and remove the previous selection of this value
-                              newAnswers[question.id] = newAnswers[question.id].map((ans, i) => {
-                                if (i !== index && ans?.right === e.target.value) {
-                                  return { left: ans.left, right: '' };
-                                }
-                                return ans;
-                              });
-                            }
-
-                            // Set the new selection
-                            newAnswers[question.id][index] = {
-                              left: pair.left,
-                              right: e.target.value
-                            };
-
-                            handleAnswerChange(question.id, newAnswers[question.id]);
-                          }}
-                        >
-                          <option value="">Select matching item</option>
-                          {question.matchingPairs.map((p, i) => (
-                            <option key={i} value={p.right}>
-                              {p.right}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
-              ))}
+              </div>
+              <div className="col-md-6">
+                <div className="card">
+                  <div className="card-header bg-light">
+                    <h6 className="mb-0">Column B</h6>
+                  </div>
+                  <div className="card-body">
+                    {question.matchingPairs.map((pair, index) => (
+                      <div key={`right-${index}`} className="mb-2">
+                        <div className="input-group">
+                          <span className="input-group-text" style={{ width: '40px', justifyContent: 'center' }}>{index + 1}</span>
+                          <select
+                            className="form-select"
+                            value={answers[question.id]?.[index]?.right || ''}
+                            onChange={(e) => {
+                              const newAnswers = { ...answers };
+                              if (!newAnswers[question.id]) {
+                                newAnswers[question.id] = [];
+                              }
+
+                              // If selecting a new value that's already selected elsewhere
+                              if (e.target.value) {
+                                // Find and remove the previous selection of this value
+                                newAnswers[question.id] = newAnswers[question.id].map((ans, i) => {
+                                  if (i !== index && ans?.right === e.target.value) {
+                                    return { left: ans.left, right: '' };
+                                  }
+                                  return ans;
+                                });
+                              }
+
+                              // Set the new selection
+                              newAnswers[question.id][index] = {
+                                left: pair.left,
+                                right: e.target.value
+                              };
+
+                              handleAnswerChange(question.id, newAnswers[question.id]);
+                            }}
+                            style={{ height: '38px' }}
+                          >
+                            <option value="">Select matching item</option>
+                            {question.matchingPairs.map((p, i) => (
+                              <option key={i} value={p.right}>
+                                {p.right}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         );
@@ -534,11 +619,18 @@ const TestTaking = () => {
     }, 0);
   };
 
+  function formatQuestionType(type) {
+    if (!type) return '';
+    return type
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, l => l.toUpperCase());
+  }
+
   return (
     <div className="test-taking-container">
       <div className="test-content">
-        {/* Left Sidebar */}
-        <div className="test-sidebar">
+        {/* Left Sidebar - Modern Light Mode UI */}
+        <aside className="test-sidebar modern-light-sidebar">
           <div className="sidebar-header">
             <h3>Question Navigator</h3>
             <div className="question-nav-summary">
@@ -552,25 +644,75 @@ const TestTaking = () => {
               </div>
             </div>
           </div>
-          <div className="question-grid">
-            {questionOrder.map(type => (
-              <div key={type} className="question-type-group">
-                {groupedQuestions[type].map((question, index) => {
-                  const globalIndex = questionOrder.slice(0, questionOrder.indexOf(type))
-                    .reduce((sum, t) => sum + (groupedQuestions[t]?.length || 0), 0) + index + 1;
-                  return (
-                    <button
-                      key={question.id}
-                      className={`question-nav-btn ${activeQuestionType === type && currentQuestionIndex === index ? 'current' : ''} ${isQuestionAnswered(question.id) ? 'answered' : 'not-answered'}`}
-                      style={activeQuestionType === type && currentQuestionIndex === index ? { background: '#3973e7', color: '#fff', borderColor: '#3973e7', fontWeight: 700 } : {}}
-                      onClick={() => navigateToQuestion(type, index)}
-                    >
-                      {globalIndex}
-                    </button>
-                  );
-                })}
-              </div>
-            ))}
+          <div className="question-card-list">
+            {questions.map((question, idx) => {
+              // Type label and badge class
+              let typeLabel = "";
+              let typeClass = "";
+              if (["descriptive", "short_answer", "long_answer"].includes(question.type)) {
+                typeLabel = "Written";
+                typeClass = "badge-written";
+              } else if (question.type === "programming") {
+                typeLabel = "Code";
+                typeClass = "badge-code";
+              } else if (question.type === "mcq") {
+                typeLabel = "MCQ";
+                typeClass = "badge-mcq";
+              } else if (question.type === "true_false") {
+                typeLabel = "True/False";
+                typeClass = "badge-tf";
+              } else if (question.type === "matching") {
+                typeLabel = "Match";
+                typeClass = "badge-match";
+              } else if (question.type === "fill_blank") {
+                typeLabel = "Blank";
+                typeClass = "badge-blank";
+              }
+
+              // Find if this is the current question
+              let isCurrent = false;
+              for (let t = 0; t < questionOrder.length; t++) {
+                const type = questionOrder[t];
+                const group = groupedQuestions[type];
+                for (let i = 0; i < group.length; i++) {
+                  if (group[i].id === question.id) {
+                    isCurrent = activeQuestionType === type && currentQuestionIndex === i;
+                  }
+                }
+              }
+
+              return (
+                <div
+                  key={question.id}
+                  className={
+                    "question-card-item" +
+                    (isCurrent ? " current" : "") +
+                    (isQuestionAnswered(question.id) ? " answered" : " not-answered")
+                  }
+                  onClick={() => {
+                    for (let t = 0; t < questionOrder.length; t++) {
+                      const type = questionOrder[t];
+                      const group = groupedQuestions[type];
+                      for (let i = 0; i < group.length; i++) {
+                        if (group[i].id === question.id) {
+                          setActiveQuestionType(type);
+                          setCurrentQuestionIndex(i);
+                          return;
+                        }
+                      }
+                    }
+                  }}
+                >
+                  <div className="question-card-top">
+                    <span className="question-card-number">Q{idx + 1}</span>
+                    <span className={`question-type-badge ${typeClass}`}>{typeLabel}</span>
+                  </div>
+                  <div className="question-card-preview">
+                    {question.text ? question.text.slice(0, 50) + (question.text.length > 50 ? "..." : "") : ""}
+                  </div>
+                </div>
+              );
+            })}
           </div>
           <div className="question-nav-section">
             <div className="nav-status">
@@ -587,12 +729,8 @@ const TestTaking = () => {
                 <span>Current</span>
               </div>
             </div>
-
-            
           </div>
-
-        </div>
-
+        </aside>
         {/* Main Content */}
         <div className="test-main-content">
           <div className="question-section">
@@ -609,41 +747,110 @@ const TestTaking = () => {
                 </div>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '7px', background: '#fff', border: '2px solid #cfe2ff', borderRadius: '22px', padding: '7px 18px', fontWeight: 600, color: '#3973e7', fontSize: '1.13em', minWidth: '90px', justifyContent: 'center' }}>
-                <i className="fas fa-clock" style={{ fontSize: '1.1em' }}></i>
+                <i className="fa-regular fa-clock" style={{ fontSize: '1.1em' }}></i>
                 <span style={{ fontFamily: 'monospace', fontWeight: 600 }}>{Math.floor(timeLeft / 60000).toString().padStart(2, '0')}:{Math.floor((timeLeft % 60000) / 1000).toString().padStart(2, '0')}</span>
               </div>
             </div>
 
-            <div className="question-content">
-              <div className="question-text">
-                {getCurrentQuestionNumber()}. {groupedQuestions[activeQuestionType]?.[currentQuestionIndex]?.text}
-              </div>
+            <div className="question-content" style={{ position: 'relative', padding: '0 40px' }}>
+              <button
+                className="btn btn-outline-secondary rounded-circle question-nav-side-btn"
+                onClick={handlePreviousQuestion}
+                disabled={currentQuestionIndex === 0 && questionOrder.indexOf(activeQuestionType) === 0}
+                style={{ 
+                  position: 'absolute',
+                  left: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '40px',
+                  height: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0,
+                  zIndex: 10,
+                  backgroundColor: 'white',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  border: '1px solid #dee2e6',
+                  opacity: 0.85
+                }}
+              >
+                <i className="fas fa-chevron-left"></i>
+              </button>
 
-              <div className="answer-section">
-                {activeQuestionType && groupedQuestions[activeQuestionType]?.[currentQuestionIndex] &&
-                 renderQuestion(groupedQuestions[activeQuestionType][currentQuestionIndex])}
-              </div>
+              {groupedQuestions[activeQuestionType]?.[currentQuestionIndex]?.type === 'fill_blank' ? (
+                <div className="question-text mb-4" style={{ lineHeight: '2.5' }}>
+                  {getCurrentQuestionNumber()}. {groupedQuestions[activeQuestionType]?.[currentQuestionIndex]?.text.split('[BLANK]').map((part, index, array) => (
+                    <React.Fragment key={index}>
+                      {part}
+                      {index < array.length - 1 && (
+                        <input
+                          type="text"
+                          className="form-control d-inline-block mx-2"
+                          style={{
+                            width: '150px',
+                            height: '38px',
+                            verticalAlign: 'middle',
+                            border: '1px solid #ced4da',
+                            borderRadius: '4px',
+                            padding: '0.375rem 0.75rem',
+                            backgroundColor: '#f8f9fa'
+                          }}
+                          value={answers[groupedQuestions[activeQuestionType][currentQuestionIndex].id]?.[index] || ''}
+                          onChange={(e) => {
+                            const blankCount = (groupedQuestions[activeQuestionType][currentQuestionIndex].text.match(/\[BLANK\]/g) || []).length;
+                            const newAnswers = [...(answers[groupedQuestions[activeQuestionType][currentQuestionIndex].id] || Array(blankCount).fill(''))];
+                            newAnswers[index] = e.target.value;
+                            handleAnswerChange(groupedQuestions[activeQuestionType][currentQuestionIndex].id, newAnswers);
+                          }}
+                          placeholder={`Answer ${index + 1}`}
+                        />
+                      )}
+                    </React.Fragment>
+                  ))}
+                </div>
+              ) : (
+                <div className="question-text">
+                  {getCurrentQuestionNumber()}. {groupedQuestions[activeQuestionType]?.[currentQuestionIndex]?.text}
+                </div>
+              )}
+
+              {/* Only render answer-section for non-fill_blank questions */}
+              {groupedQuestions[activeQuestionType]?.[currentQuestionIndex]?.type !== 'fill_blank' && (
+                <div className="answer-section">
+                  {activeQuestionType && groupedQuestions[activeQuestionType]?.[currentQuestionIndex] &&
+                   renderQuestion(groupedQuestions[activeQuestionType][currentQuestionIndex])}
+                </div>
+              )}
+
+              <button
+                className="btn btn-outline-secondary rounded-circle question-nav-side-btn"
+                onClick={handleNextQuestion}
+                disabled={currentQuestionIndex === (groupedQuestions[activeQuestionType]?.length || 0) - 1 &&
+                         questionOrder.indexOf(activeQuestionType) === questionOrder.length - 1}
+                style={{ 
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  width: '40px',
+                  height: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 0,
+                  zIndex: 10,
+                  backgroundColor: 'white',
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  border: '1px solid #dee2e6',
+                  opacity: 0.85
+                }}
+              >
+                <i className="fas fa-chevron-right"></i>
+              </button>
             </div>
 
-            <div className="question-actions">
-              <div className="navigation-buttons">
-                <button
-                  className="btn btn-outline-secondary"
-                  onClick={handlePreviousQuestion}
-                  disabled={currentQuestionIndex === 0 && questionOrder.indexOf(activeQuestionType) === 0}
-                >
-                  Previous
-                </button>
-                <button
-                  className="btn btn-outline-secondary"
-                  onClick={handleNextQuestion}
-                  disabled={currentQuestionIndex === (groupedQuestions[activeQuestionType]?.length || 0) - 1 &&
-                           questionOrder.indexOf(activeQuestionType) === questionOrder.length - 1}
-                >
-                  Next
-                </button>
-              </div>
-
+            <div className="question-actions" style={{ display: 'flex', justifyContent: 'flex-end' }}>
               <button
                 className="btn btn-success submit-btn"
                 onClick={handleSubmit}
@@ -656,7 +863,7 @@ const TestTaking = () => {
                   </>
                 ) : (
                   <>
-                    Submit & View Results
+                    Submit
                     <i className="fas fa-arrow-right"></i>
                   </>
                 )}

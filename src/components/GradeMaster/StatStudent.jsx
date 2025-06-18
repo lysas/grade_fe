@@ -58,6 +58,22 @@ const StatStudent = () => {
     ],
   });
 
+  const chartOptions = {
+    plugins: {
+      legend: {
+        position: 'right',
+        align: 'center',
+        labels: {
+          padding: 20,
+          boxWidth: 15,
+          font: {
+            size: 12
+          }
+        }
+      }
+    }
+  };
+
   const availableQPData = chartData(
     ['Available QP', 'Answered QP'],
     [availablePapers.length, answeredPapers.length]
@@ -91,21 +107,21 @@ const StatStudent = () => {
         {hasQPData && (
         <div className="chart-box">
           <h2>Available vs Answered Question Papers</h2>
-            <Pie data={availableQPData} />
+            <Pie data={availableQPData} options={chartOptions} />
           </div>
           )}
          
         {hasAvailableSubjectData && (
         <div className="chart-box">
           <h2>Subject-Wise Available Question Papers</h2>
-            <Pie data={availableSubjectChartData} options={{ plugins: { legend: { display: true } } }} />
+            <Pie data={availableSubjectChartData} options={chartOptions} />
           </div>
           )}
 
         {hasAnsweredSubjectData && (
         <div className="chart-box">
           <h2>Subject-Wise Answered Question Papers</h2>
-            <Pie data={answeredSubjectChartData} options={{ plugins: { legend: { display: true } } }} />
+            <Pie data={answeredSubjectChartData} options={chartOptions} />
           </div>
           )}
       </div>
