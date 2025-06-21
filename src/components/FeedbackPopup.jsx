@@ -6,6 +6,7 @@ import './Feebpop.css'
 const FeedbackPopup = ({ onClose }) => {
   const [selectedEmoji, setSelectedEmoji] = useState(null);
   const [comment, setComment] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const popupRef = useRef(null);
  
   useEffect(() => {
@@ -29,15 +30,76 @@ const FeedbackPopup = ({ onClose }) => {
     setComment(event.target.value);
   };
  
-  const handleSubmit = () => {
-    // Handle submission logic here
-    console.log('Selected Emoji:', selectedEmoji);
-    console.log('Comment:', comment);
-    // Reset state
-    setSelectedEmoji(null);
-    setComment('');
-    // Close the popup
-    onClose();
+  const handleSubmit = async () => {
+    if (!selectedEmoji && !comment.trim()) {
+      // Don't submit if neither emoji nor comment is provided
+      onClose();
+      return;
+    }
+
+    setIsSubmitting(true);
+    
+    try {
+      const feedbackData = {
+        emoji_rating: selectedEmoji,
+        comment: comment.trim()
+      };
+
+      console.log('Submitting feedback:', feedbackData);
+
+      // Get the base URL - use window.location for development
+      const baseURL = window.location.hostname === 'localhost' 
+        ? 'http://localhost:8000' 
+        : window.location.origin;
+      const apiUrl = `${baseURL}/api/feedback/`;
+      
+      console.log('API URL:', apiUrl);
+      
+      // Get authentication token
+      const token = localStorage.getItem('token');
+      console.log('Token available:', !!token);
+      
+      const headers = {
+        'Content-Type': 'application/json',
+      };
+
+      // Add authorization header if token is available
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: headers,
+        body: JSON.stringify(feedbackData),
+        credentials: 'include', // Include cookies for authentication
+      });
+
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Feedback submitted successfully:', result);
+        // You could show a success message here
+      } else {
+        const errorText = await response.text();
+        console.error('Failed to submit feedback:', response.status, response.statusText);
+        console.error('Error response:', errorText);
+        // You could show an error message here
+      }
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+      console.error('Error details:', error.message);
+      // You could show an error message here
+    } finally {
+      setIsSubmitting(false);
+      // Reset state
+      setSelectedEmoji(null);
+      setComment('');
+      // Close the popup
+      onClose();
+    }
   };
  
   return (
@@ -68,8 +130,12 @@ const FeedbackPopup = ({ onClose }) => {
           value={comment}
           onChange={handleCommentChange}
         />
-        <button className="submit-buttonf" onClick={handleSubmit}>
-          Submit Feedback
+        <button 
+          className="submit-buttonf" 
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Submitting...' : 'Submit Feedback'}
         </button>
       </div>
     </div>

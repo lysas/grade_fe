@@ -74,6 +74,8 @@ import './components/Organization/Organization.css';
 import OrganizationSignup from "./components/Authentication/OrganizationSignup";
 import TestTaking from './components/GradeMaster/TestTaking';
 import ManualAnswerView from './components/GradeMaster/ManualAnswerView';
+import AdminDashboard from './components/AdminDashboard';
+import { authService } from "./components/Authentication/authService";
 
 const App = () => {
   const location = useLocation();
@@ -99,11 +101,16 @@ const App = () => {
     { path: "/transliteration", label: "Transliteration", icon: "📝" }
   ];
 
-  // Check if we should show the sidebar
+  // Add a check for admin dashboard route
+  const isAdminDashboardRoute = location.pathname === "/admin-dashboard";
+  // Update shouldShowSidebar to exclude admin dashboard
   const shouldShowSidebar = !isSpecialRoute && !isquestionGeneratorRoute && 
                           !isGradeMasterRoute && !isProfilePage && !isProgrammingRoute &&
                           location.pathname !== "/easywithai"&& location.pathname !== "/"
-                          &&!isOrganization && location.pathname !== "/accept-invitation";
+                          &&!isOrganization && location.pathname !== "/accept-invitation" && !isAdminDashboardRoute;
+
+  // Get current user for admin check
+  const user = authService.getCurrentUser();
 
   // Add event listener for sidebar state changes
   useEffect(() => {
@@ -122,12 +129,12 @@ const App = () => {
           <ToastContainer position="top-right" autoClose={3000} />
         
           <div className="main-content">
-            {/* Main Sidebar - show on all pages except special routes, programming routes, and grade-master routes */}
-            {!isSpecialRoute && !isProgrammingRoute && !isOrganization && !isTestTake && <MainSidebar />}
+            {/* Main Sidebar - show on all pages except special routes, programming routes, grade-master routes, and admin dashboard */}
+            {!isSpecialRoute && !isProgrammingRoute && !isOrganization && !isTestTake && location.pathname !== "/grade-master/main" && !isAdminDashboardRoute && <MainSidebar />}
             
             {/* Content Wrapper */}
             <div className={`content-wrapper ${isSidebarCollapsed ? 'collapsed' : ''}`} style={{ 
-              marginLeft: (isSpecialRoute || isProgrammingRoute || isOrganization || isTestTake) ? "0" : (isSidebarCollapsed ? "60px" : "250px"),
+              marginLeft: (isSpecialRoute || isProgrammingRoute || isOrganization || isTestTake || isAdminDashboardRoute) ? "0" : (isSidebarCollapsed ? "60px" : "250px"),
               transition: "margin-left 0.3s ease"
             }}>
               {/* Main Content */}
@@ -195,6 +202,10 @@ const App = () => {
                   <Route path="/accept-invitation/:token" element={<AcceptInvitation />} />
                   <Route path="/grade-master/take-test/:testId" element={<TestTaking />} />
                   <Route path="/grade-master/manual-answer" element={<ManualAnswerView />} />
+                  {/* Admin Dashboard route - only for true admins */}
+                  {(user?.is_admin || (user?.roles && user.roles.includes('admin'))) && (
+                    <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                  )}
                 </Routes>
               </div>
 

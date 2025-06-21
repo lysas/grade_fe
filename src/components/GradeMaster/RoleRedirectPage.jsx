@@ -177,7 +177,44 @@ const RoleRedirectPage = () => {
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: files ? files[0] : value }));
+    
+    // Debug logging
+    console.log("File input change:", { name, value, files });
+    
+    if (name === "resume" && files && files[0]) {
+      console.log("Selected file:", {
+        name: files[0].name,
+        size: files[0].size,
+        type: files[0].type,
+        lastModified: files[0].lastModified
+      });
+      
+      // Validate file type
+      const allowedTypes = [
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ];
+      
+      if (!allowedTypes.includes(files[0].type)) {
+        alert("Please upload a PDF, DOC, or DOCX file.");
+        e.target.value = ""; // Clear the input
+        return;
+      }
+      
+      // Validate file size (e.g., max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+      if (files[0].size > maxSize) {
+        alert("File size must be less than 5MB.");
+        e.target.value = ""; // Clear the input
+        return;
+      }
+    }
+    
+    setFormData((prev) => ({ 
+      ...prev, 
+      [name]: files ? files[0] : value 
+    }));
   };
 
   const handleProfileCompletion = () => {
@@ -186,27 +223,92 @@ const RoleRedirectPage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Detailed validation
     if (!formData.resume) {
       alert("Please upload a resume.");
       return;
     }
 
+    if (selectedSubjects.length === 0) {
+      alert("Please select at least one subject.");
+      return;
+    }
+
+    if (selectedBoards.length === 0) {
+      alert("Please select at least one board.");
+      return;
+    }
+
+    if (selectedLanguages.length === 0) {
+      alert("Please select at least one language.");
+      return;
+    }
+
+    // Debug logging
+    console.log("Form submission data:", {
+      resume: formData.resume,
+      resumeInfo: {
+        name: formData.resume?.name,
+        size: formData.resume?.size,
+        type: formData.resume?.type
+      },
+      email: userData.email,
+      role: userData.role,
+      subjects: selectedSubjects,
+      boards: selectedBoards,
+      languages: selectedLanguages
+    });
+
+    // Create FormData object
     const formDataObj = new FormData();
+    
+    // Append file first
     formDataObj.append("resume", formData.resume);
+    
+    // Append other data
     formDataObj.append("email", userData.email);
     formDataObj.append("role", userData.role);
+    formDataObj.append("subjects", JSON.stringify(selectedSubjects));
+    formDataObj.append("boards", JSON.stringify(selectedBoards));
+    formDataObj.append("languages", JSON.stringify(selectedLanguages));
 
-    formDataObj.append("subjects", JSON.stringify(selectedSubjects || []));
-    formDataObj.append("boards", JSON.stringify(selectedBoards || []));
-    formDataObj.append("languages", JSON.stringify(selectedLanguages || []));
+    // Debug: Log FormData contents
+    console.log("FormData entries:");
+    for (let [key, value] of formDataObj.entries()) {
+      console.log(key, value);
+    }
 
     try {
-      await axios.post("http://localhost:8000/api/grade/mainrequest/", formDataObj);
+      // Make sure to set the correct headers
+      const response = await axios.post("http://localhost:8000/api/grade/mainrequest/", formDataObj, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        timeout: 30000, // 30 seconds timeout
+      });
+      
+      console.log("Response:", response.data);
       alert("Profile details submitted successfully!");
       setFormSubmitted(true);
     } catch (error) {
-      console.error("Error submitting form:", error.response?.data || error.message);
-      alert("Error submitting form. Please try again.");
+      console.error("Error submitting form:", error);
+      
+      if (error.response) {
+        // Server responded with error status
+        console.error("Response data:", error.response.data);
+        console.error("Response status:", error.response.status);
+        console.error("Response headers:", error.response.headers);
+        alert(`Error: ${error.response.data.message || error.response.data || 'Server error'}`);
+      } else if (error.request) {
+        // Request was made but no response received
+        console.error("No response received:", error.request);
+        alert("No response from server. Please check your connection.");
+      } else {
+        // Something else happened
+        console.error("Error:", error.message);
+        alert("Error submitting form. Please try again.");
+      }
     }
   };
 
@@ -230,30 +332,55 @@ const RoleRedirectPage = () => {
       <h2>Complete Your Profile</h2>
       <form onSubmit={handleSubmit} className="role-redirect-form">
         <div className="role-redirect-form-group">
-          <label htmlFor="resume">Upload Resume:</label>
-          <input type="file" id="resume" name="resume" onChange={handleChange} required />
+          <label htmlFor="resume">Upload Resume (PDF, DOC, DOCX only):</label>
+          <input 
+            type="file" 
+            id="resume" 
+            name="resume" 
+            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            onChange={handleChange} 
+            required 
+          />
+          {formData.resume && (
+            <div style={{ marginTop: '5px', fontSize: '12px', color: '#666' }}>
+              Selected: {formData.resume.name} ({Math.round(formData.resume.size / 1024)} KB)
+            </div>
+          )}
         </div>
-        <MultiSelectDropdown 
-          className="role-redirect-multi-select-dropdown" 
-          label="Subjects" 
-          options={["All Subjects", "Maths", "Computer Science", "Biology", "Chemistry", "Physics", "English"]} 
-          selectedValues={selectedSubjects} 
-          onChange={setSelectedSubjects} 
-        />
-        <MultiSelectDropdown 
-          className="role-redirect-multi-select-dropdown" 
-          label="Boards" 
-          options={["CBSE", "ICSE", "State Board"]} 
-          selectedValues={selectedBoards} 
-          onChange={setSelectedBoards} 
-        />
-        <MultiSelectDropdown 
-          className="role-redirect-multi-select-dropdown" 
-          label="Languages" 
-          options={["English", "Hindi", "Tamil", "Malayalam", "Telugu"]} 
-          selectedValues={selectedLanguages} 
-          onChange={setSelectedLanguages} 
-        />
+        
+        <div className="role-redirect-form-group">
+          <label>Subjects:</label>
+          <MultiSelectDropdown 
+            className="role-redirect-multi-select-dropdown" 
+            label="Subjects" 
+            options={["All Subjects", "Maths", "Computer Science", "Biology", "Chemistry", "Physics", "English"]} 
+            selectedValues={selectedSubjects} 
+            onChange={setSelectedSubjects} 
+          />
+        </div>
+        
+        <div className="role-redirect-form-group">
+          <label>Boards:</label>
+          <MultiSelectDropdown 
+            className="role-redirect-multi-select-dropdown" 
+            label="Boards" 
+            options={["CBSE", "ICSE", "State Board"]} 
+            selectedValues={selectedBoards} 
+            onChange={setSelectedBoards} 
+          />
+        </div>
+        
+        <div className="role-redirect-form-group">
+          <label>Languages:</label>
+          <MultiSelectDropdown 
+            className="role-redirect-multi-select-dropdown" 
+            label="Languages" 
+            options={["English", "Hindi", "Tamil", "Malayalam", "Telugu"]} 
+            selectedValues={selectedLanguages} 
+            onChange={setSelectedLanguages} 
+          />
+        </div>
+        
         <button type="submit" className="role-redirect-submit-btn">Submit</button>
       </form>
     </div>

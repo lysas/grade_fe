@@ -23,6 +23,7 @@ const BulkHierarchyAssignmentPage = () => {
   const [bulkHierarchyValues, setBulkHierarchyValues] = useState({});
   const [assigning, setAssigning] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Group hierarchy levels by order
   const groupedLevels = hierarchyLevels.reduce((groups, level) => {
@@ -418,6 +419,17 @@ const BulkHierarchyAssignmentPage = () => {
               </div>
             </div>
             <div className="card-body" style={{ maxHeight: '500px', overflowY: 'auto' }}>
+              {/* Search box */}
+              <div className="mb-3">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search students by name or email..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  disabled={assigning}
+                />
+              </div>
               {students.length === 0 ? (
                 <div className="text-center text-muted py-4">
                   <FontAwesomeIcon icon={faUser} size="2x" className="mb-2" />
@@ -425,30 +437,39 @@ const BulkHierarchyAssignmentPage = () => {
                 </div>
               ) : (
                 <div className="student-list">
-                  {students.map(student => (
-                    <div key={student.id} className="form-check mb-3 p-3 border rounded">
-                      <input
-                        type="checkbox"
-                        className="form-check-input"
-                        id={`student-${student.id}`}
-                        checked={selectedStudents.includes(student.id)}
-                        onChange={(e) => handleStudentSelection(student.id, e.target.checked)}
-                        disabled={assigning}
-                      />
-                      <label className="form-check-label w-100" htmlFor={`student-${student.id}`}>
-                        <div className="d-flex justify-content-between align-items-center">
-                          <div>
-                            <strong>{student.username}</strong>
-                            <br />
-                            <small className="text-muted">{student.email}</small>
+                  {students
+                    .filter(student => {
+                      const q = searchQuery.trim().toLowerCase();
+                      if (!q) return true;
+                      return (
+                        student.username.toLowerCase().includes(q) ||
+                        student.email.toLowerCase().includes(q)
+                      );
+                    })
+                    .map(student => (
+                      <div key={student.id} className="form-check mb-3 p-3 border rounded">
+                        <input
+                          type="checkbox"
+                          className="form-check-input"
+                          id={`student-${student.id}`}
+                          checked={selectedStudents.includes(student.id)}
+                          onChange={(e) => handleStudentSelection(student.id, e.target.checked)}
+                          disabled={assigning}
+                        />
+                        <label className="form-check-label w-100" htmlFor={`student-${student.id}`}>
+                          <div className="d-flex justify-content-between align-items-center">
+                            <div>
+                              <strong>{student.username}</strong>
+                              <br />
+                              <small className="text-muted">{student.email}</small>
+                            </div>
+                            <span className={`badge ${student.is_active ? 'bg-success' : 'bg-danger'}`}>
+                              {student.is_active ? 'Active' : 'Inactive'}
+                            </span>
                           </div>
-                          <span className={`badge ${student.is_active ? 'bg-success' : 'bg-danger'}`}>
-                            {student.is_active ? 'Active' : 'Inactive'}
-                          </span>
-                        </div>
-                      </label>
-                    </div>
-                  ))}
+                        </label>
+                      </div>
+                    ))}
                 </div>
               )}
             </div>

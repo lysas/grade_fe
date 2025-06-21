@@ -5,34 +5,153 @@
     margin: 0 auto;
     background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
     min-height: 100vh;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-/* Header Styles */
-.hierarchy-header {
-    margin-bottom: 40px;
-}
-
-.header-top {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    padding: 25px;
+/* Empty State */
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
     background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    border-radius: 20px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    margin: 40px 0;
+}
+
+.empty-state-icon {
+    margin-bottom: 24px;
+    color: #3b82f6;
+    opacity: 0.7;
+}
+
+.empty-state h3 {
+    color: #1e293b;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.empty-state p {
+    color: #64748b;
+    font-size: 1.1rem;
+    margin-bottom: 32px;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Loading Container */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 20px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
     border: 1px solid #e2e8f0;
 }
 
-.header-top h1 {
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e2e8f0;
+    border-top: 4px solid #3b82f6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-container p {
+    color: #64748b;
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* Error Container */
+.error-container {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e2e8f0;
+    margin: 40px 0;
+}
+
+.error-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+}
+
+.error-container h3 {
+    color: #dc2626;
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+
+.error-container p {
+    color: #64748b;
+    font-size: 1.1rem;
+    margin-bottom: 24px;
+}
+
+/* Hierarchy Tree Container */
+.hierarchy-tree-container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    margin-bottom: 30px;
+}
+
+/* Tree Header */
+.tree-header {
+    padding: 24px 30px;
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-title {
+        display: flex;
+        align-items: center;
+    gap: 16px;
+    }
+
+.header-icon {
+    color: #3b82f6;
+    font-size: 1.5rem;
+}
+
+.header-title h3 {
     margin: 0;
     color: #1e293b;
-    font-size: 2.2rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+}
+
+.level-count {
+    background: #3b82f6;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
 }
 
 .header-actions .btn {
@@ -44,17 +163,17 @@
     border: 2px solid;
 }
 
-.header-actions .btn-outline-secondary {
+.header-actions .btn-outline-primary {
     background: white;
-    color: #64748b;
-    border-color: #e2e8f0;
+    color: #3b82f6;
+    border-color: #3b82f6;
 }
 
-.header-actions .btn-outline-secondary:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
+.header-actions .btn-outline-primary:hover {
+    background: #3b82f6;
+    color: white;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
 }
 
 .header-actions .btn-warning {
@@ -67,1259 +186,237 @@
     background: #d97706;
     border-color: #d97706;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
 }
 
-/* Action Buttons */
-.action-buttons {
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
+/* Hierarchy Tree */
+.hierarchy-tree {
+    padding: 20px 30px;
 }
 
-.action-buttons .btn {
-    padding: 14px 28px;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    border: none;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.action-buttons .btn-primary {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-    color: white;
-}
-
-.action-buttons .btn-primary:hover {
-    background: linear-gradient(135deg, #2563eb, #1e40af);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
-}
-
-.action-buttons .btn-secondary {
-    background: linear-gradient(135deg, #64748b, #475569);
-    color: white;
-}
-
-.action-buttons .btn-secondary:hover {
-    background: linear-gradient(135deg, #475569, #334155);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(100, 116, 139, 0.3);
-}
-
-/* Hierarchy Levels Container */
-.hierarchy-levels-container {
-    margin-bottom: 40px;
-}
-
-.hierarchy-levels-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 25px;
-    margin-bottom: 30px;
-}
-
-/* No Hierarchies State */
-.no-hierarchies {
-    text-align: center;
-    padding: 60px 20px;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    border: 2px dashed #e2e8f0;
-}
-
-.no-hierarchies p {
-    color: #64748b;
-    font-size: 1.1rem;
-    margin: 0;
-}
-
-/* Hierarchy Column */
-.hierarchy-column {
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border: 1px solid #e2e8f0;
-    overflow: hidden;
-    transition: all 0.3s ease;
-}
-
-.hierarchy-column:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-}
-
-/* Level Header Card */
-.level-header-card {
-    padding: 25px;
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    border-bottom: 1px solid #e2e8f0;
-}
-
-.level-header-content {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.level-title {
-        display: flex;
-        align-items: center;
-    gap: 12px;
-    }
-
-.level-title h3 {
-        margin: 0;
-    color: #3b82f6;
-    font-size: 1.1rem;
-    font-weight: 700;
-    background: white;
-    padding: 6px 12px;
-    border-radius: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.level-name {
-    color: #1e293b;
-    font-size: 1.3rem;
-    font-weight: 600;
-    flex: 1;
-}
-
-.level-description {
-    color: #64748b;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    margin: 0;
-    padding: 12px;
-    background: white;
-    border-radius: 8px;
-    border-left: 4px solid #3b82f6;
-}
-
-.level-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
-}
-
-.level-actions .btn {
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.level-actions .btn-outline-primary {
-    background: white;
-    color: #3b82f6;
-    border: 1px solid #3b82f6;
-}
-
-.level-actions .btn-outline-primary:hover {
-    background: #3b82f6;
-    color: white;
-    transform: translateY(-1px);
-}
-
-.level-actions .btn-outline-danger {
-    background: white;
-    color: #ef4444;
-    border: 1px solid #ef4444;
-}
-
-.level-actions .btn-outline-danger:hover {
-    background: #ef4444;
-    color: white;
-    transform: translateY(-1px);
-}
-
-/* Level Values */
-.level-values {
-    padding: 20px;
-    max-height: 400px;
-    overflow-y: auto;
-}
-
-.level-values::-webkit-scrollbar {
-    width: 6px;
-}
-
-.level-values::-webkit-scrollbar-track {
-    background: #f1f5f9;
-    border-radius: 3px;
-}
-
-.level-values::-webkit-scrollbar-thumb {
-    background: #cbd5e1;
-    border-radius: 3px;
-}
-
-.level-values::-webkit-scrollbar-thumb:hover {
-    background: #94a3b8;
-}
-
-/* Value Items */
-.value-item {
-    background: #f8fafc;
-    border-radius: 10px;
-    padding: 15px;
-    margin-bottom: 10px;
-    border: 1px solid #e2e8f0;
-    transition: all 0.2s ease;
-}
-
-.value-item:hover {
-    background: #f1f5f9;
-    border-color: #cbd5e1;
-    transform: translateX(2px);
-}
-
-.value-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.value-name {
-    color: #1e293b;
-    font-weight: 500;
-    font-size: 0.95rem;
-    flex: 1;
-}
-
-.value-actions {
-    display: flex;
-    gap: 6px;
-}
-
-.value-actions .btn {
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    transition: all 0.2s ease;
-}
-
-.value-actions .btn-outline-primary {
-    background: white;
-    color: #3b82f6;
-    border: 1px solid #3b82f6;
-}
-
-.value-actions .btn-outline-primary:hover {
-    background: #3b82f6;
-    color: white;
-}
-
-.value-actions .btn-outline-danger {
-    background: white;
-    color: #ef4444;
-    border: 1px solid #ef4444;
-}
-
-.value-actions .btn-outline-danger:hover {
-    background: #ef4444;
-    color: white;
-}
-
-/* No Values State */
-.no-values {
-    text-align: center;
-    padding: 30px 20px;
-    color: #94a3b8;
-    font-style: italic;
-    background: #f8fafc;
-    border-radius: 10px;
-    border: 2px dashed #e2e8f0;
-}
-
-/* More Values Indicator */
-.more-values-indicator {
-    text-align: center;
-    padding: 12px;
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-    color: white;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    margin-top: 10px;
-}
-
-/* Edit Forms */
-.edit-level-form {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.edit-level-form input {
-    padding: 12px;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 0.95rem;
-    transition: all 0.2s ease;
-    background: white;
-}
-
-.edit-level-form input:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.edit-value-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.edit-value-form input {
-    padding: 10px;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-    background: white;
-}
-
-.edit-value-form input:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.edit-actions {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-}
-
-.edit-actions .btn {
-    padding: 8px 12px;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-.edit-actions .btn-success {
-    background: #10b981;
-    color: white;
-    border: 1px solid #10b981;
-}
-
-.edit-actions .btn-success:hover {
-    background: #059669;
-    border-color: #059669;
-}
-
-.edit-actions .btn-secondary {
-    background: #6b7280;
-    color: white;
-    border: 1px solid #6b7280;
-}
-
-.edit-actions .btn-secondary:hover {
-    background: #4b5563;
-    border-color: #4b5563;
-}
-
-/* Form Container */
-.form-container {
-    background: white;
-    border-radius: 16px;
-    padding: 30px;
-    margin-top: 30px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border: 1px solid #e2e8f0;
-}
-
-.form-container h3 {
-    color: #1e293b;
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 25px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #e2e8f0;
-}
-
-.form-group {
+.level-group {
     margin-bottom: 20px;
 }
 
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    color: #374151;
-    font-weight: 600;
-    font-size: 0.95rem;
-}
-
-.form-group input,
-.form-group select {
-    width: 100%;
-    padding: 14px;
-    border: 2px solid #e2e8f0;
-    border-radius: 10px;
-    font-size: 1rem;
-    transition: all 0.2s ease;
-    background: white;
-    color: #1e293b;
-}
-
-.form-group input:focus,
-.form-group select:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.form-group input::placeholder {
-    color: #9ca3af;
-}
-
-.form-actions {
-    display: flex;
-    gap: 15px;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #e2e8f0;
-}
-
-.form-actions .btn {
-    padding: 14px 28px;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 1rem;
-    transition: all 0.3s ease;
-    border: none;
-    flex: 1;
-}
-
-.form-actions .btn-primary {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-    color: white;
-}
-
-.form-actions .btn-primary:hover {
-    background: linear-gradient(135deg, #2563eb, #1e40af);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
-}
-
-.form-actions .btn-secondary {
-    background: linear-gradient(135deg, #6b7280, #4b5563);
-    color: white;
-}
-
-.form-actions .btn-secondary:hover {
-    background: linear-gradient(135deg, #4b5563, #374151);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(107, 114, 128, 0.3);
-}
-
-/* Loading and Error States */
-.loading {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 60px;
-    font-size: 1.1rem;
-    color: #64748b;
-}
-
-.error {
-    background: #fef2f2;
-    color: #dc2626;
-    padding: 20px;
-    border-radius: 10px;
-    border: 1px solid #fecaca;
-    text-align: center;
-    font-weight: 500;
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-    .hierarchy-levels-grid {
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 20px;
-    }
-}
-
-@media (max-width: 768px) {
-    .hierarchy-management {
-        padding: 20px;
-    }
-    
-    .header-top {
-    flex-direction: column;
-        gap: 20px;
-        text-align: center;
-    }
-    
-    .header-top h1 {
-        font-size: 1.8rem;
-    }
-    
-    .action-buttons {
-        justify-content: center;
-    }
-    
-    .action-buttons .btn {
-        flex: 1;
-        min-width: 150px;
-    }
-    
-    .hierarchy-levels-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
-    .level-header-card {
-        padding: 20px;
-    }
-    
-    .level-title {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-    }
-    
-    .level-actions {
-        justify-content: center;
-    }
-    
-    .form-actions {
-        flex-direction: column;
-    }
-    
-    .form-actions .btn {
-        width: 100%;
-    }
-    
-    .hierarchy-tree-container {
-        padding: 20px;
-    }
-    
-    .tree-header h3 {
-        font-size: 1.5rem;
-    }
-    
-    .level-content {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 15px;
-    }
-    
-    .level-info {
-        width: 100%;
-    }
-    
-    .level-header-content {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-    
-    .level-stats {
-        width: 100%;
-    justify-content: space-between;
-    }
-    
-    .level-controls {
-        width: 100%;
-        justify-content: flex-end;
-    }
-    
-    .tree-children {
-        margin-left: 30px;
-    }
-    
-    .tree-children::before {
-        left: 15px;
-    }
-}
-
-@media (max-width: 480px) {
-    .hierarchy-management {
-        padding: 15px;
-    }
-    
-    .header-top {
-        padding: 20px;
-    }
-    
-    .header-top h1 {
-        font-size: 1.5rem;
-    }
-    
-    .action-buttons .btn {
-        padding: 12px 20px;
-        font-size: 0.9rem;
-    }
-    
-    .level-header-card {
-        padding: 15px;
-    }
-    
-    .level-values {
-        padding: 15px;
-    }
-    
-    .form-container {
-        padding: 20px;
-    }
-    
-    .hierarchy-tree-container {
-        padding: 15px;
-    }
-    
-    .tree-header h3 {
-        font-size: 1.3rem;
-    }
-    
-    .level-content {
-    padding: 15px;
-    }
-    
-    .level-indicator {
-        width: 40px;
-        height: 40px;
-    }
-    
-    .level-number {
-        font-size: 1rem;
-    }
-    
-    .tree-children {
-        margin-left: 20px;
-    }
-    
-    .tree-children::before {
-        left: 10px;
-    }
-    
-    .child-content {
-    padding: 12px;
-    }
-}
-
-/* Tree-like Hierarchy Styles */
-.hierarchy-tree-container {
-    background: white;
-    border-radius: 16px;
-    padding: 30px;
-    margin-bottom: 30px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border: 1px solid #e2e8f0;
-}
-
-.tree-header {
-    text-align: center;
-    margin-bottom: 30px;
-    padding-bottom: 20px;
-    border-bottom: 2px solid #f1f5f9;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.tree-header h3 {
-    color: #1e293b;
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin: 0;
-    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.tree-header .btn {
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 0.95rem;
-    transition: all 0.3s ease;
-    border: 2px solid;
-}
-
-.tree-header .btn-outline-secondary {
-    background: white;
-    color: #64748b;
-    border-color: #e2e8f0;
-}
-
-.tree-header .btn-outline-secondary:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.tree-header .btn-warning {
-    background: #f59e0b;
-    color: white;
-    border-color: #f59e0b;
-}
-
-.tree-header .btn-warning:hover {
-    background: #d97706;
-    border-color: #d97706;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-}
-
-.tree-header p {
-    color: #64748b;
-    font-size: 1rem;
-    margin: 0;
-}
-
-.hierarchy-tree {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-/* Tree Level */
-.tree-level {
+.level-item {
     position: relative;
-    min-width: 0;
+    margin-bottom: 16px;
 }
 
-.level-node {
-    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-    border-radius: 12px;
-    border: 2px solid #e2e8f0;
+.level-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    /* background: #f8fafc; */
+    /* border-radius: 12px; */
+    /* border: 1px solid #e2e8f0; */
     transition: all 0.3s ease;
-    overflow: hidden;
 }
 
-.level-node:hover {
-    border-color: #3b82f6;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-    transform: translateY(-2px);
+.level-row:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .level-content {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    padding: 20px;
-    gap: 20px;
-}
-
-.level-info {
-    display: flex;
-    align-items: center;
-    gap: 15px;
+    gap: 16px;
+    cursor: pointer;
     flex: 1;
 }
 
-.level-indicator {
+.level-toggle {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 50px;
-    height: 50px;
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-    border-radius: 50%;
-    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
-    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    transition: all 0.3s ease;
 }
 
-.level-number {
-    color: white;
-    font-weight: 700;
-    font-size: 1.2rem;
+.toggle-icon {
+    color: #3b82f6;
+    font-size: 0.875rem;
+    transition: transform 0.3s ease;
 }
 
-.level-details {
+.level-info {
     flex: 1;
-    min-width: 0;
 }
 
-.level-header-content {
+.level-name {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: 15px;
-    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 8px;
 }
 
-.level-title h4 {
-    color: #1e293b;
-    font-size: 1.3rem;
+.level-icon {
+    color: #3b82f6;
+    font-size: 1rem;
+}
+
+.name-text {
     font-weight: 600;
-    margin: 0 0 5px 0;
+    color: #1e293b;
+    font-size: 1.1rem;
+}
+
+.order-badge {
+    background: #3b82f6;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
 }
 
 .level-description {
     color: #64748b;
     font-size: 0.9rem;
-    margin: 0;
-    line-height: 1.4;
+    margin-bottom: 8px;
 }
 
 .level-stats {
     display: flex;
     align-items: center;
-    gap: 15px;
-    flex-shrink: 0;
+    gap: 8px;
 }
 
 .value-count {
-    background: #3b82f6;
-    color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #64748b;
+    font-size: 0.875rem;
     font-weight: 500;
 }
 
+.stat-icon {
+    color: #3b82f6;
+    font-size: 0.875rem;
+}
+
+/* Level Actions */
 .level-actions {
     display: flex;
-    gap: 8px;
-}
-
-.level-actions .btn {
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    transition: all 0.2s ease;
-}
-
-.level-controls {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.expand-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 2px solid #e2e8f0;
-    background: white;
-    color: #64748b;
+        gap: 8px;
+    }
+    
+.action-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
-    justify-content: center;
-    cursor: pointer;
+        justify-content: center;
+    border: 1px solid;
     transition: all 0.3s ease;
-    flex-shrink: 0;
+    font-size: 0.875rem;
 }
 
-.expand-btn:hover {
-    border-color: #3b82f6;
+.action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.action-btn.btn-outline-primary {
     color: #3b82f6;
-    transform: scale(1.1);
+    border-color: #3b82f6;
+    background: white;
 }
 
-.expand-btn.expanded {
+.action-btn.btn-outline-primary:hover {
     background: #3b82f6;
-    border-color: #3b82f6;
     color: white;
 }
 
-.expand-icon {
-    font-size: 1rem;
-    transition: transform 0.3s ease;
-}
-
-.expand-btn.expanded .expand-icon {
-    transform: rotate(45deg);
-}
-
-.add-value-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 2px solid #10b981;
-    background: white;
+.action-btn.btn-outline-success {
     color: #10b981;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    flex-shrink: 0;
+    border-color: #10b981;
+    background: white;
 }
 
-.add-value-btn:hover {
+.action-btn.btn-outline-success:hover {
     background: #10b981;
     color: white;
-    transform: scale(1.1);
 }
 
-/* Tree Children */
-.tree-children {
-    margin-left: 50px;
-    margin-top: 15px;
-    position: relative;
-}
-
-.tree-children::before {
-    content: '';
-    position: absolute;
-    left: 25px;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: #e2e8f0;
-}
-
-.children-container {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-/* Tree Child */
-.tree-child {
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
-    position: relative;
-}
-
-.child-connector {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
-    flex-shrink: 0;
-}
-
-.connector-line {
-    width: 2px;
-    height: 20px;
-    background: #e2e8f0;
-    margin-bottom: 5px;
-}
-
-.child-dot {
-    width: 12px;
-    height: 12px;
-    background: #3b82f6;
-    border-radius: 50%;
-    border: 2px solid white;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.child-content {
-    flex: 1;
-    background: white;
-    border-radius: 8px;
-    padding: 15px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: all 0.2s ease;
-}
-
-.child-content:hover {
-    border-color: #cbd5e1;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transform: translateX(2px);
-}
-
-.value-content {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-}
-
-.value-name {
-    color: #1e293b;
-    font-weight: 500;
-    font-size: 0.95rem;
-    flex: 1;
-}
-
-.value-description {
-    color: #64748b;
-    font-size: 0.85rem;
-    display: block;
-    margin-top: 4px;
-}
-
-.value-actions {
-    display: flex;
-    gap: 6px;
-}
-
-.value-actions .btn {
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 0.75rem;
-    transition: all 0.2s ease;
-}
-
-/* No Values State */
-.no-values {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    color: #94a3b8;
-    font-style: italic;
-}
-
-.no-values .child-content {
-    background: #f8fafc;
-    border: 2px dashed #e2e8f0;
-}
-
-/* Edit Forms */
-.edit-level-form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    width: 100%;
-}
-
-.edit-level-form input {
-    padding: 10px;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
+.action-btn.btn-outline-danger {
+    color: #ef4444;
+    border-color: #ef4444;
     background: white;
 }
 
-.edit-level-form input:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.edit-value-form {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.edit-value-form input {
-    padding: 8px;
-    border: 2px solid #e2e8f0;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    transition: all 0.2s ease;
-    background: white;
-}
-
-.edit-value-form input:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.edit-actions {
-    display: flex;
-    gap: 6px;
-    justify-content: flex-end;
-}
-
-.edit-actions .btn {
-    padding: 6px 10px;
-    border-radius: 6px;
-    font-size: 0.8rem;
-    font-weight: 500;
-    transition: all 0.2s ease;
-}
-
-/* Tree Level Groups */
-.tree-level-group {
-    margin-bottom: 30px;
-    position: relative;
-}
-
-.level-group-header {
-    margin-bottom: 15px;
-    padding: 10px 20px;
-    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
-    border-radius: 10px;
-    border-left: 4px solid #3b82f6;
-}
-
-.group-order {
-    color: #1e293b;
-    font-size: 1.1rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.level-group-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
-    align-items: start;
-}
-
-/* Responsive adjustments for group layout */
-@media (max-width: 1024px) {
-    .level-group-content {
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 15px;
-    }
-}
-
-@media (max-width: 768px) {
-    .level-group-content {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-    
-    .level-group-header {
-        padding: 8px 15px;
-    }
-    
-    .group-order {
-        font-size: 1rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .tree-level-group {
-        margin-bottom: 20px;
-    }
-    
-    .level-group-header {
-        padding: 6px 12px;
-    }
-    
-    .group-order {
-        font-size: 0.9rem;
-    }
-}
-
-/* Add Level Section */
-.add-level-section {
-    text-align: center;
-    margin-top: 40px;
-    padding: 30px;
-    background: white;
-    border-radius: 16px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    border: 2px dashed #e2e8f0;
-    transition: all 0.3s ease;
-}
-
-.add-level-section:hover {
-    border-color: #3b82f6;
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.15);
-}
-
-.add-level-btn {
-    padding: 16px 32px;
-    border-radius: 12px;
-    font-weight: 600;
-    font-size: 1.1rem;
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+.action-btn.btn-outline-danger:hover {
+    background: #ef4444;
     color: white;
-    border: none;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
-}
-
-.add-level-btn:hover {
-    background: linear-gradient(135deg, #2563eb, #1e40af);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
-}
-
-.add-level-btn:active {
-    transform: translateY(0);
-}
-
-/* Responsive adjustments for add level section */
-@media (max-width: 768px) {
-    .add-level-section {
-        margin-top: 30px;
-        padding: 25px 20px;
-    }
-    
-    .add-level-btn {
-        padding: 14px 28px;
-        font-size: 1rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .add-level-section {
-    margin-top: 20px;
-        padding: 20px 15px;
-    }
-    
-    .add-level-btn {
-        padding: 12px 24px;
-        font-size: 0.95rem;
-    }
 }
 
 /* Inline Add Value Form */
 .inline-add-value-form {
-    margin-top: 15px;
-    margin-left: 50px;
+    margin: 16px 0 16px 48px;
     position: relative;
 }
 
 .inline-add-value-form::before {
     content: '';
     position: absolute;
-    left: 25px;
+    left: -24px;
     top: 0;
     bottom: 0;
     width: 2px;
-    background: #e2e8f0;
+    background: linear-gradient(to bottom, #3b82f6, transparent);
 }
 
 .form-card {
     background: white;
     border-radius: 12px;
     padding: 20px;
-    border: 2px solid #3b82f6;
-    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
-    position: relative;
-    margin-left: 30px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.form-card::before {
-    content: '';
-    position: absolute;
-    left: -8px;
-    top: 20px;
-    width: 0;
-    height: 0;
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
-    border-right: 8px solid #3b82f6;
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
 }
 
-.form-card h5 {
+.form-header h5 {
+    margin: 0;
     color: #1e293b;
-    font-size: 1.1rem;
     font-weight: 600;
-    margin: 0 0 15px 0;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e2e8f0;
 }
 
-.form-card .form-group {
-    margin-bottom: 15px;
+.btn-close {
+    background: none;
+    border: none;
+    color: #64748b;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
 }
 
-.form-card .form-group label {
+.btn-close:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.add-value-form .form-group {
+    margin-bottom: 16px;
+}
+
+.add-value-form .form-group label {
     display: block;
     margin-bottom: 6px;
     color: #374151;
@@ -1327,133 +424,426 @@
     font-size: 0.9rem;
 }
 
-.form-card .form-group input {
+.add-value-form .form-group input {
     width: 100%;
-    padding: 10px;
-    border: 2px solid #e2e8f0;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
     border-radius: 8px;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
     background: white;
+    color: #1f2937;
 }
 
-.form-card .form-group input:focus {
+.add-value-form .form-group input:focus {
     outline: none;
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    background: white;
+    color: #1f2937;
 }
 
-.form-card .form-actions {
+.add-value-form .form-group input::placeholder {
+    color: #9ca3af;
+}
+
+.add-value-form .form-actions {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid #e2e8f0;
 }
 
-.form-card .form-actions .btn {
-    padding: 8px 16px;
+.add-value-form .form-actions .btn {
+    padding: 10px 20px;
     border-radius: 8px;
     font-weight: 500;
     font-size: 0.9rem;
-    transition: all 0.2s ease;
-    border: none;
+    transition: all 0.3s ease;
+    border: 1px solid;
+}
+
+.add-value-form .form-actions .btn-primary {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.add-value-form .form-actions .btn-primary:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+    transform: translateY(-1px);
+}
+
+.add-value-form .form-actions .btn-secondary {
+    background: white;
+    color: #64748b;
+    border-color: #d1d5db;
+}
+
+.add-value-form .form-actions .btn-secondary:hover {
+    background: #f8fafc;
+    border-color: #9ca3af;
+}
+
+/* Values Container */
+.values-container {
+    margin: 16px 0 16px 48px;
+    position: relative;
+}
+
+.values-container::before {
+    content: '';
+    position: absolute;
+    left: -24px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, #e5e7eb, transparent);
+}
+
+.value-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+}
+
+.value-item:hover {
+    border-color: #d1d5db;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.value-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     flex: 1;
 }
 
-.form-card .form-actions .btn-primary {
+.value-icon {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.value-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.value-name {
+    font-weight: 500;
+    color: #1f2937;
+    font-size: 0.95rem;
+}
+
+.value-description {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.value-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.empty-values {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    color: #9ca3af;
+    font-size: 0.9rem;
+    font-style: italic;
+}
+
+.empty-icon {
+    color: #d1d5db;
+    font-size: 0.875rem;
+}
+
+/* Add Level Section */
+.add-level-section {
+    text-align: center;
+    padding: 30px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    border: 2px dashed #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.add-level-section:hover {
+    border-color: #3b82f6;
+    background: #f8fafc;
+}
+
+.add-level-btn {
+    padding: 16px 32px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1rem;
     background: linear-gradient(135deg, #3b82f6, #1d4ed8);
     color: white;
+    border: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
-.form-card .form-actions .btn-primary:hover {
+.add-level-btn:hover {
     background: linear-gradient(135deg, #2563eb, #1e40af);
-    transform: translateY(-1px);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
 }
 
-.form-card .form-actions .btn-secondary {
-    background: linear-gradient(135deg, #6b7280, #4b5563);
+.add-level-btn:active {
+    transform: translateY(0);
+}
+
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px 30px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.modal-header h3 {
+    margin: 0;
+    color: #1e293b;
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+/* Create Level Form */
+.create-level-form {
+    padding: 30px;
+}
+
+.create-level-form .form-group {
+    margin-bottom: 20px;
+}
+
+.create-level-form .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #374151;
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+.create-level-form .form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    background: white;
+    color: #1f2937;
+}
+
+.create-level-form .form-group input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    background: white;
+    color: #1f2937;
+}
+
+.create-level-form .form-group input::placeholder {
+    color: #9ca3af;
+}
+
+.create-level-form .form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 30px;
+}
+
+.create-level-form .form-actions .btn {
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    border: 1px solid;
+    flex: 1;
+}
+
+.create-level-form .form-actions .btn-primary {
+    background: #3b82f6;
     color: white;
+    border-color: #3b82f6;
 }
 
-.form-card .form-actions .btn-secondary:hover {
-    background: linear-gradient(135deg, #4b5563, #374151);
+.create-level-form .form-actions .btn-primary:hover {
+    background: #2563eb;
+    border-color: #2563eb;
     transform: translateY(-1px);
 }
 
-/* Responsive adjustments for inline form */
+.create-level-form .form-actions .btn-secondary {
+    background: white;
+    color: #64748b;
+    border-color: #d1d5db;
+}
+
+.create-level-form .form-actions .btn-secondary:hover {
+    background: #f8fafc;
+    border-color: #9ca3af;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .hierarchy-management {
+        padding: 20px;
+    }
+    
+    .hierarchy-tree {
+        padding: 15px 20px;
+    }
+    
+    .tree-header {
+        padding: 20px;
+    }
+}
+
 @media (max-width: 768px) {
-    .inline-add-value-form {
-        margin-left: 30px;
-    }
-    
-    .inline-add-value-form::before {
-        left: 15px;
-    }
-    
-    .form-card {
-        margin-left: 20px;
+    .hierarchy-management {
         padding: 15px;
     }
     
-    .form-card h5 {
-        font-size: 1rem;
+    .header-content {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
     }
     
-    .form-card .form-actions {
+    .header-title {
     flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
     }
-}
-
-@media (max-width: 480px) {
+    
+    .level-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    
+    .level-content {
+        width: 100%;
+    }
+    
+    .level-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+    
     .inline-add-value-form {
         margin-left: 20px;
     }
     
-    .inline-add-value-form::before {
-        left: 10px;
+    .values-container {
+        margin-left: 20px;
     }
     
-    .form-card {
-        margin-left: 15px;
-        padding: 12px;
+    .modal-container {
+        margin: 20px;
+        max-width: none;
     }
     
-    .form-card .form-group input {
-        padding: 8px;
-        font-size: 0.85rem;
+    .create-level-form {
+        padding: 20px;
     }
-}
-
-/* Responsive adjustments for tree header */
-@media (max-width: 768px) {
-    .tree-header {
+    
+    .create-level-form .form-actions {
         flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
-    
-    .tree-header h3 {
-        font-size: 1.5rem;
-    }
-    
-    .tree-header .btn {
-        padding: 8px 16px;
-        font-size: 0.9rem;
     }
 }
 
 @media (max-width: 480px) {
+    .hierarchy-management {
+        padding: 10px;
+    }
+    
     .tree-header {
-        gap: 12px;
+        padding: 15px;
     }
     
-    .tree-header h3 {
-        font-size: 1.3rem;
+    .hierarchy-tree {
+        padding: 10px 15px;
     }
     
-    .tree-header .btn {
-        padding: 6px 12px;
-        font-size: 0.85rem;
+    .level-row {
+        padding: 12px 15px;
     }
-} 
+    
+    .level-name {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .inline-add-value-form {
+        margin-left: 10px;
+    }
+    
+    .values-container {
+        margin-left: 10px;
+    }
+    
+    .modal-overlay {
+        padding: 10px;
+    }
+    
+    .modal-container {
+        margin: 10px;
+    }
+    
+    .create-level-form {
+        padding: 15px;
+    }
+}
+
+.vertical-line {
+    position: absolute;
+    left:   -10px; /* Adjust based on marginLeft in JSX */
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #d1d5db; /* light gray, adjust as needed */
+    z-index: 0;
+    border-radius: 1px;
+}

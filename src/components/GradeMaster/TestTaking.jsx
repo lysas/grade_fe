@@ -4,6 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import Editor from '@monaco-editor/react';
 import './TestTaking.css';
+import QuestionNavigator from './QuestionNavigator';
 
 const TestTaking = () => {
   const { testId } = useParams();
@@ -572,6 +573,55 @@ const TestTaking = () => {
     }
   };
 
+  // Helper: get flat question index for current question
+  const getFlatCurrentQuestionIndex = () => {
+    let idx = 0;
+    for (let t = 0; t < questionOrder.length; t++) {
+      const type = questionOrder[t];
+      const group = groupedQuestions[type];
+      for (let i = 0; i < group.length; i++) {
+        if (type === activeQuestionType && i === currentQuestionIndex) {
+          return idx;
+        }
+        idx++;
+      }
+    }
+    return 0;
+  };
+
+  // Helper: go to flat question index
+  const goToFlatQuestionIndex = (flatIdx) => {
+    let idx = 0;
+    for (let t = 0; t < questionOrder.length; t++) {
+      const type = questionOrder[t];
+      const group = groupedQuestions[type];
+      for (let i = 0; i < group.length; i++) {
+        if (idx === flatIdx) {
+          setActiveQuestionType(type);
+          setCurrentQuestionIndex(i);
+          return;
+        }
+        idx++;
+      }
+    }
+  };
+
+  // Build completionStatus: {index: true/false}
+  const completionStatus = {};
+  questions.forEach((q, idx) => {
+    const answer = answers[q.id];
+    if (!answer) return;
+    if (typeof answer === 'object') {
+      if (Array.isArray(answer)) {
+        completionStatus[idx] = answer.every(a => a && a.toString().trim() !== '');
+      } else {
+        completionStatus[idx] = answer.code && answer.code.trim() !== '';
+      }
+    } else {
+      completionStatus[idx] = answer.toString().trim() !== '';
+    }
+  });
+
   if (loading) {
     return (
       <div className="loading-spinner">
@@ -631,105 +681,13 @@ const TestTaking = () => {
       <div className="test-content">
         {/* Left Sidebar - Modern Light Mode UI */}
         <aside className="test-sidebar modern-light-sidebar">
-          <div className="sidebar-header">
-            <h3>Question Navigator</h3>
-            <div className="question-nav-summary">
-              <div className="summary-item">
-                <span className="badge badge-answered">{Object.values(answers).filter(a => a && (typeof a !== 'object' || a.code?.trim())).length}</span>
-                <span className="summary-text">Answered</span>
-              </div>
-              <div className="summary-item">
-                <span className="badge badge-remaining">{questions.length - Object.values(answers).filter(a => a && (typeof a !== 'object' || a.code?.trim())).length}</span>
-                <span className="summary-text">Remaining</span>
-              </div>
-            </div>
-          </div>
-          <div className="question-card-list">
-            {questions.map((question, idx) => {
-              // Type label and badge class
-              let typeLabel = "";
-              let typeClass = "";
-              if (["descriptive", "short_answer", "long_answer"].includes(question.type)) {
-                typeLabel = "Written";
-                typeClass = "badge-written";
-              } else if (question.type === "programming") {
-                typeLabel = "Code";
-                typeClass = "badge-code";
-              } else if (question.type === "mcq") {
-                typeLabel = "MCQ";
-                typeClass = "badge-mcq";
-              } else if (question.type === "true_false") {
-                typeLabel = "True/False";
-                typeClass = "badge-tf";
-              } else if (question.type === "matching") {
-                typeLabel = "Match";
-                typeClass = "badge-match";
-              } else if (question.type === "fill_blank") {
-                typeLabel = "Blank";
-                typeClass = "badge-blank";
-              }
-
-              // Find if this is the current question
-              let isCurrent = false;
-              for (let t = 0; t < questionOrder.length; t++) {
-                const type = questionOrder[t];
-                const group = groupedQuestions[type];
-                for (let i = 0; i < group.length; i++) {
-                  if (group[i].id === question.id) {
-                    isCurrent = activeQuestionType === type && currentQuestionIndex === i;
-                  }
-                }
-              }
-
-              return (
-                <div
-                  key={question.id}
-                  className={
-                    "question-card-item" +
-                    (isCurrent ? " current" : "") +
-                    (isQuestionAnswered(question.id) ? " answered" : " not-answered")
-                  }
-                  onClick={() => {
-                    for (let t = 0; t < questionOrder.length; t++) {
-                      const type = questionOrder[t];
-                      const group = groupedQuestions[type];
-                      for (let i = 0; i < group.length; i++) {
-                        if (group[i].id === question.id) {
-                          setActiveQuestionType(type);
-                          setCurrentQuestionIndex(i);
-                          return;
-                        }
-                      }
-                    }
-                  }}
-                >
-                  <div className="question-card-top">
-                    <span className="question-card-number">Q{idx + 1}</span>
-                    <span className={`question-type-badge ${typeClass}`}>{typeLabel}</span>
-                  </div>
-                  <div className="question-card-preview">
-                    {question.text ? question.text.slice(0, 50) + (question.text.length > 50 ? "..." : "") : ""}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <div className="question-nav-section">
-            <div className="nav-status">
-              <div className="status-item">
-                <span className="status-dot answered"></span>
-                <span>Answered</span>
-              </div>
-              <div className="status-item">
-                <span className="status-dot not-answered"></span>
-                <span>Not answered</span>
-              </div>
-              <div className="status-item">
-                <span className="status-dot current"></span>
-                <span>Current</span>
-              </div>
-            </div>
-          </div>
+          <QuestionNavigator
+            questions={questions}
+            currentQuestionIndex={getFlatCurrentQuestionIndex()}
+            completionStatus={completionStatus}
+            onQuestionSelect={goToFlatQuestionIndex}
+            onSubmitExam={handleSubmit}
+          />
         </aside>
         {/* Main Content */}
         <div className="test-main-content">

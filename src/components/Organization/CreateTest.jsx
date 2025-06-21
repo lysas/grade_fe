@@ -107,6 +107,12 @@ const CreateTest = () => {
     { value: 'programming', label: 'Programming Exercise' },
   ];
 
+  // Hierarchy filter state
+  const [hierarchyLevels, setHierarchyLevels] = useState([]);
+  const [hierarchyValues, setHierarchyValues] = useState({});
+  const [selectedHierarchyFilters, setSelectedHierarchyFilters] = useState({});
+  const [studentHierarchies, setStudentHierarchies] = useState({});
+
   // Get auth token from localStorage
   const getAuthToken = () => {
     try {
@@ -316,14 +322,69 @@ const CreateTest = () => {
     }
   };
 
+  // Fetch hierarchy levels and values on mount (Step 3 only)
+  useEffect(() => {
+    if (currentStep !== 3) return;
+    const fetchHierarchyData = async () => {
+      try {
+        configureAxios();
+        const levelsRes = await axios.get('/api/organization/hierarchy-levels/');
+        setHierarchyLevels(levelsRes.data || []);
+        // Fetch values for each level
+        const allValues = {};
+        for (const level of levelsRes.data || []) {
+          const valuesRes = await axios.get(`/api/organization/hierarchy-levels/${level.id}/values/`);
+          allValues[level.id] = valuesRes.data.data || [];
+        }
+        setHierarchyValues(allValues);
+      } catch (err) {
+        console.error('Error fetching hierarchy data:', err);
+      }
+    };
+    fetchHierarchyData();
+  }, [currentStep]);
+
+  // Fetch student hierarchies when students change (Step 3 only)
+  useEffect(() => {
+    if (currentStep !== 3 || students.length === 0) return;
+    const fetchAllStudentHierarchies = async () => {
+      const all = {};
+      for (const student of students) {
+        try {
+          const res = await axios.get(`/api/organization/student-hierarchies/student_hierarchies/?student_id=${student.id}`);
+          all[student.id] = res.data.data || [];
+        } catch (err) {
+          all[student.id] = [];
+        }
+      }
+      setStudentHierarchies(all);
+    };
+    fetchAllStudentHierarchies();
+  }, [currentStep, students]);
+
+  // Handler for filter change
+  const handleHierarchyFilterChange = (levelId, valueId) => {
+    setSelectedHierarchyFilters(prev => ({ ...prev, [levelId]: valueId }));
+  };
+  const handleClearHierarchyFilters = () => setSelectedHierarchyFilters({});
+
+  // Filter students by selected hierarchy filters
   const filteredStudents = students.filter(student => {
     if (!student) return false;
+    // Text search
     const displayName = student.username || '';
     const email = student.email || '';
     const searchTerm = studentSearch.toLowerCase();
-    
-    return displayName.toLowerCase().includes(searchTerm) || 
-           email.toLowerCase().includes(searchTerm);
+    const matchesText = displayName.toLowerCase().includes(searchTerm) || email.toLowerCase().includes(searchTerm);
+    // Hierarchy filter
+    const filters = Object.entries(selectedHierarchyFilters).filter(([_, v]) => v);
+    if (filters.length === 0) return matchesText;
+    const studentH = studentHierarchies[student.id] || [];
+    // All selected filters must match
+    const matchesHierarchy = filters.every(([levelId, valueId]) =>
+      studentH.some(h => String(h.hierarchy_level.id) === String(levelId) && String(h.value) === String(hierarchyValues[levelId]?.find(v => String(v.id) === String(valueId))?.value))
+    );
+    return matchesText && matchesHierarchy;
   });
 
   // Add sensors for drag and drop
@@ -911,6 +972,14 @@ const CreateTest = () => {
                   <i className="fas fa-users me-2 text-primary"></i>
                   Assign Students
                 </h6>
+                {/* Hierarchy Filters */}
+                <HierarchyFilters
+                  hierarchyLevels={hierarchyLevels}
+                  hierarchyValues={hierarchyValues}
+                  selectedFilters={selectedHierarchyFilters}
+                  onChange={handleHierarchyFilterChange}
+                  onClear={handleClearHierarchyFilters}
+                />
                 <div className="mb-3">
                   <div className="input-group">
                     <span className="input-group-text bg-light">
@@ -964,47 +1033,111 @@ const CreateTest = () => {
                     </div>
                   ) : (
                     <div className="list-group list-group-flush">
-                      {filteredStudents.map(student => (
-                        <div
-                          key={student.id}
-                          className={`list-group-item list-group-item-action d-flex align-items-center ${
-                            selectedStudents.includes(student.id) ? 'list-group-item-primary' : ''
-                          }`}
-                          style={{ cursor: 'pointer' }}
-                          onClick={() => handleStudentToggle(student.id)}
-                        >
-                          <div className="form-check me-3">
-                            <input
-                              className="form-check-input"
-                              type="checkbox"
-                              checked={selectedStudents.includes(student.id)}
-                              onChange={() => handleStudentToggle(student.id)}
-                            />
-                          </div>
-                          <div className="flex-grow-1">
-                            <div className="d-flex justify-content-between align-items-start">
-                              <div>
-                                <h6 className="mb-1">
-                                  <i className="fas fa-user me-2"></i>
-                                  {student.username}
-                                </h6>
-                                <p className="mb-0 text-muted small">
-                                  <i className="fas fa-envelope me-1"></i>
-                                  {student.email}
-                                </p>
-                              </div>
-                              {selectedStudents.includes(student.id) && (
-                                <span className="badge bg-primary">
-                                  <i className="fas fa-check"></i>
-                                </span>
-                              )}
+                      {filteredStudents.map(student => {
+                        const isSelected = selectedStudents.includes(student.id);
+                        // Get initials for avatar
+                        const initials = (student.username || student.email || '?')
+                          .split(' ')
+                          .map(w => w[0])
+                          .join('')
+                          .slice(0, 2)
+                          .toUpperCase();
+                        return (
+                          <div
+                            key={student.id}
+                            className={`custom-student-card d-flex align-items-center position-relative ${isSelected ? 'selected' : ''}`}
+                            style={{ cursor: 'pointer', transition: 'box-shadow 0.2s, background 0.2s', marginBottom: 12 }}
+                            onClick={() => handleStudentToggle(student.id)}
+                          >
+                            {/* Avatar/Initials */}
+                            <div className="student-avatar me-3">
+                              {initials}
                             </div>
+                            <div className="flex-grow-1">
+                              <div className="d-flex justify-content-between align-items-start">
+                                <div>
+                                  <h6 className="mb-1">
+                                    {student.username}
+                                  </h6>
+                                  <p className="mb-0 text-muted small">
+                                    <i className="fas fa-envelope me-1"></i>
+                                    {student.email}
+                                  </p>
+                                  {/* Show hierarchy values for this student */}
+                                  <div className="small text-muted">
+                                    {studentHierarchies[student.id] && studentHierarchies[student.id].length > 0 && (
+                                      studentHierarchies[student.id].map(h => (
+                                        <span key={h.id} className="badge bg-light text-dark border me-1">
+                                          {h.hierarchy_level.name}: {h.value}
+                                        </span>
+                                      ))
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            {/* Checkmark overlay if selected */}
+                            {isSelected && (
+                              <span className="checkmark-overlay">
+                                <i className="fas fa-check"></i>
+                              </span>
+                            )}
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
+                {/* Custom styles for student selection card */}
+                <style>{`
+                  .custom-student-card {
+                    background: #fff;
+                    border-radius: 14px;
+                    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+                    border: 2px solid transparent;
+                    padding: 16px 18px;
+                    position: relative;
+                    min-height: 64px;
+                  }
+                  .custom-student-card.selected {
+                    background: #e6f0ff;
+                    border: 2px solid #3399ff;
+                    box-shadow: 0 2px 8px rgba(51,153,255,0.10);
+                  }
+                  .custom-student-card:hover {
+                    box-shadow: 0 4px 16px rgba(51,153,255,0.13);
+                    background: #f7fbff;
+                  }
+                  .student-avatar {
+                    width: 44px;
+                    height: 44px;
+                    border-radius: 50%;
+                    background: #3399ff22;
+                    color: #3399ff;
+                    font-weight: bold;
+                    font-size: 1.2rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+                  }
+                  .checkmark-overlay {
+                    position: absolute;
+                    top: 10px;
+                    right: 18px;
+                    background: #3399ff;
+                    color: #fff;
+                    border-radius: 50%;
+                    width: 28px;
+                    height: 28px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 1.1rem;
+                    box-shadow: 0 2px 6px rgba(51,153,255,0.18);
+                    z-index: 2;
+                  }
+                `}</style>
               </div>
             </div>
           )}
@@ -1070,5 +1203,32 @@ const CreateTest = () => {
     </div>
   );
 };
+
+// HierarchyFilters component
+function HierarchyFilters({ hierarchyLevels, hierarchyValues, selectedFilters, onChange, onClear }) {
+  if (!hierarchyLevels.length) return null;
+  return (
+    <div className="mb-3 d-flex flex-wrap align-items-end gap-3">
+      {hierarchyLevels.map(level => (
+        <div key={level.id} style={{ minWidth: 180 }}>
+          <label className="form-label mb-1">{level.name}</label>
+          <select
+            className="form-select"
+            value={selectedFilters[level.id] || ''}
+            onChange={e => onChange(level.id, e.target.value)}
+          >
+            <option value="">All</option>
+            {(hierarchyValues[level.id] || []).map(v => (
+              <option key={v.id} value={v.id}>{v.value}</option>
+            ))}
+          </select>
+        </div>
+      ))}
+      <button type="button" className="btn btn-outline-secondary btn-sm ms-2" onClick={onClear}>
+        Clear Filters
+      </button>
+    </div>
+  );
+}
 
 export default CreateTest; 

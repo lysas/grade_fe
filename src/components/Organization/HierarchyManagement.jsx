@@ -8,7 +8,14 @@ import {
     faTrash, 
     faSave, 
     faTimes,
-    faPlus
+    faPlus,
+    faCircle,
+    faDotCircle,
+    faChevronRight,
+    faChevronDown,
+    faLayerGroup,
+    faUsers,
+    faBuilding
 } from '@fortawesome/free-solid-svg-icons';
 import './HierarchyManagement.css';
 
@@ -377,8 +384,23 @@ const HierarchyManagement = () => {
     const renderHierarchyLevels = () => {
         if (!hierarchyLevels.length) {
             return (
-                <div className="no-hierarchies">
-                    <p>No hierarchy levels found. Create your first level to get started.</p>
+                <div className="empty-state">
+                    <div className="empty-state-icon">
+                        <FontAwesomeIcon icon={faLayerGroup} size="3x" />
+                    </div>
+                    <h3>No Hierarchy Levels Found</h3>
+                    <p>Create your first hierarchy level to organize your structure.</p>
+                    <button 
+                        className="btn btn-primary"
+                        onClick={() => {
+                            const defaultOrder = hierarchyLevels.length > 0 ? Math.max(...hierarchyLevels.map(l => l.order)) + 1 : 1;
+                            setNewLevel({ name: '', description: '', order: defaultOrder.toString() });
+                            setShowCreationForm(true);
+                        }}
+                    >
+                        <FontAwesomeIcon icon={faPlus} className="me-2" />
+                        Create First Level
+                    </button>
                 </div>
             );
         }
@@ -404,257 +426,191 @@ const HierarchyManagement = () => {
         return (
             <div className="hierarchy-tree-container">
                 <div className="tree-header">
-                    <h3>Organizational Hierarchy </h3>
-                    <button
-                            className={`btn ${isEditMode ? 'btn-warning' : 'btn-outline-secondary'}`}
-                            onClick={() => setIsEditMode(!isEditMode)}
-                        >
-                            <FontAwesomeIcon icon={isEditMode ? faTimes : faEdit} className="me-2" />
-                            {isEditMode ? 'Exit Edit Mode' : 'Edit Mode'}
-                        </button>
+                    <div className="header-content">
+                        <div className="header-title">
+                            <FontAwesomeIcon icon={faBuilding} className="header-icon" />
+                            <h3>Organizational Hierarchy</h3>
+                            <span className="level-count">{hierarchyLevels.length} levels</span>
+                        </div>
+                        <div className="header-actions">
+                            <button
+                                className={`btn ${isEditMode ? 'btn-warning' : 'btn-outline-primary'}`}
+                                onClick={() => setIsEditMode(!isEditMode)}
+                            >
+                                <FontAwesomeIcon icon={isEditMode ? faTimes : faEdit} className="me-2" />
+                                {isEditMode ? 'Exit Edit Mode' : 'Edit Mode'}
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 
                 <div className="hierarchy-tree">
-                    {levelGroups.map((group, groupIndex) => (
-                        <div key={group.order} className="tree-level-group">
-                            <div className="level-group-content">
-                                {group.levels.map((level) => {
-                                    const levelValues = hierarchyValues.filter(v => v.hierarchy_level === level.id);
-                                    const isExpanded = isLevelExpanded(level.id);
-                                    const isAddingValue = addingValueToLevel === level.id;
-                                    
-                                    return (
-                                        <div key={level.id} className="tree-level">
-                                            <div className="level-node">
-                                                <div className="level-content">
-                                                    <div className="level-info">
-                                                        <div className="level-indicator">
-                                                            <span className="level-number">{level.order}</span>
-                                                        </div>
-                                                        <div className="level-details">
-                    {editingLevel?.id === level.id ? (
-                        <div className="edit-level-form">
-                            <input
-                                type="text"
-                                value={editLevelData.name}
-                                onChange={(e) => setEditLevelData({ ...editLevelData, name: e.target.value })}
-                                className="form-control form-control-sm"
-                                                                        placeholder="Level name"
-                            />
-                            <input
-                                                                        type="text"
-                                                                        value={editLevelData.description}
-                                                                        onChange={(e) => setEditLevelData({ ...editLevelData, description: e.target.value })}
-                                className="form-control form-control-sm"
-                                                                        placeholder="Description"
-                            />
-                            <div className="edit-actions">
-                                <button
-                                    className="btn btn-sm btn-success"
-                                    onClick={handleSaveLevel}
-                                    disabled={loading}
-                                                                            title="Save"
-                                >
-                                    <FontAwesomeIcon icon={faSave} />
-                                </button>
-                                <button
-                                    className="btn btn-sm btn-secondary"
-                                    onClick={() => setEditingLevel(null)}
-                                                                            title="Cancel"
-                                >
-                                    <FontAwesomeIcon icon={faTimes} />
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div className="level-header-content">
-                                                                    <div className="level-title">
-                                                                        <h4>{level.name}</h4>
-                                                                        {level.description && (
-                                                                            <p className="level-description">{level.description}</p>
-                                                                        )}
-                                                                    </div>
-                                                                    <div className="level-stats">
-                                                                        <span className="value-count">{levelValues.length} values</span>
-                            {isEditMode && (
-                                <div className="level-actions">
-                                    <button
-                                        className="btn btn-sm btn-outline-primary"
-                                        onClick={() => handleEditLevel(level)}
-                                        title="Edit Level"
-                                    >
-                                        <FontAwesomeIcon icon={faEdit} />
-                                    </button>
-                                    <button
-                                        className="btn btn-sm btn-outline-danger"
-                                        onClick={() => handleDeleteLevel(level.id)}
-                                        title="Delete Level"
-                                    >
-                                        <FontAwesomeIcon icon={faTrash} />
-                                    </button>
-                                </div>
-                            )}
-                                                                    </div>
-                        </div>
-                    )}
-                </div>
+                    {levelGroups.map((group) => (
+                        <div key={group.order} className="level-group">
+                            {group.levels.map((level) => {
+                                const levelValues = hierarchyValues.filter(v => v.hierarchy_level === level.id);
+                                const isExpanded = isLevelExpanded(level.id);
+                                const isAddingValue = addingValueToLevel === level.id;
+                                return (
+                                    <div key={level.id} className="level-item" style={{ marginLeft: `${40 * (level.order - 1)}px`, position: 'relative' }}>
+                                        {level.order > 1 && (
+                                            <div className="vertical-line" />
+                                        )}
+                                        <div className="level-row">
+                                            <div className="level-content" onClick={() => toggleLevelExpanded(level.id)}>
+                                                <div className="level-toggle">
+                                                    <FontAwesomeIcon
+                                                        icon={isExpanded ? faChevronDown : faChevronRight}
+                                                        className="toggle-icon"
+                                                    />
+                                                </div>
+                                                <div className="level-info">
+                                                    <div className="level-name">
+                                                        <FontAwesomeIcon icon={faLayerGroup} className="level-icon" />
+                                                        <span className="name-text">{level.name}</span>
+                                                        <span className="order-badge">Level {level.order}</span>
                                                     </div>
-                                                    
-                                                    <div className="level-controls">
-                                                        <button
-                                                            className={`expand-btn ${isExpanded ? 'expanded' : ''}`}
-                                                            onClick={() => toggleLevelExpanded(level.id)}
-                                                            title={isExpanded ? 'Collapse' : 'Expand'}
-                                                        >
-                                                            <FontAwesomeIcon 
-                                                                icon={isExpanded ? faTimes : faPlus} 
-                                                                className="expand-icon"
-                                                            />
-                                                        </button>
-                                                        
-                                                        <button
-                                                            className="add-value-btn"
-                                                            onClick={() => handleAddValueClick(level)}
-                                                            title="Add Value"
-                                                        >
-                                                            <FontAwesomeIcon icon={faPlus} />
-                                                        </button>
+                                                    {level.description && (
+                                                        <div className="level-description">{level.description}</div>
+                                                    )}
+                                                    <div className="level-stats">
+                                                        <span className="value-count">
+                                                            <FontAwesomeIcon icon={faUsers} className="stat-icon" />
+                                                            {levelValues.length} values
+                                                        </span>
                                                     </div>
                                                 </div>
                                             </div>
                                             
-                                            {/* Inline Add Value Form */}
-                                            {isAddingValue && (
-                                                <div className="inline-add-value-form">
-                                                    <div className="form-card">
-                                                        <h5>Add Value to {level.name}</h5>
-                                                        <form onSubmit={handleAddValueInline} className="add-value-form">
-                                                            <div className="form-group">
-                                                                <label>Value Name</label>
-                                                                <input
-                                                                    type="text"
-                                                                    placeholder={`Enter ${level.name.toLowerCase()} name`}
-                                                                    value={newValue.value}
-                                                                    onChange={(e) => setNewValue({ ...newValue, value: e.target.value })}
-                                                                    required
-                                                                />
-                                                            </div>
-                                                            <div className="form-group">
-                                                                <label>Description</label>
-                                                                <input
-                                                                    type="text"
-                                                                    placeholder="Enter description (optional)"
-                                                                    value={newValue.description}
-                                                                    onChange={(e) => setNewValue({ ...newValue, description: e.target.value })}
-                                                                />
-                                                            </div>
-                                                            <div className="form-actions">
-                                                                <button 
-                                                                    type="submit" 
-                                                                    className="btn btn-primary"
-                                                                    disabled={loading}
-                                                                >
-                                                                    Add Value
-                                                                </button>
-                                                                <button 
-                                                                    type="button" 
-                                                                    className="btn btn-secondary"
-                                                                    onClick={() => setAddingValueToLevel(null)}
-                                                                >
-                                                                    Cancel
-                                                                </button>
-                                                            </div>
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            )}
-                                            
-                                            {/* Tree Children - Values */}
-                                            {isExpanded && (
-                                                <div className="tree-children">
-                                                    <div className="children-container">
-                                                        {levelValues.length > 0 ? (
-                                                            levelValues.map((value, valueIndex) => (
-                                                                <div key={value.id} className="tree-child">
-                                                                    <div className="child-connector">
-                                                                        <div className="connector-line"></div>
-                                                                        <div className="child-dot"></div>
-                                                                    </div>
-                                                                    <div className="child-content">
-                        {editingValue?.id === value.id ? (
-                            <div className="edit-value-form">
-                                <input
-                                    type="text"
-                                    value={editValueData.value}
-                                    onChange={(e) => setEditValueData({ ...editValueData, value: e.target.value })}
-                                    className="form-control form-control-sm"
-                                                                                    placeholder="Value name"
-                                />
-                                <div className="edit-actions">
-                                    <button
-                                        className="btn btn-sm btn-success"
-                                        onClick={handleSaveValue}
-                                        disabled={loading}
-                                                                                        title="Save"
-                                    >
-                                        <FontAwesomeIcon icon={faSave} />
-                                    </button>
-                                    <button
-                                        className="btn btn-sm btn-secondary"
-                                        onClick={() => setEditingValue(null)}
-                                                                                        title="Cancel"
-                                    >
-                                        <FontAwesomeIcon icon={faTimes} />
-                                    </button>
-                                </div>
-                            </div>
-                        ) : (
-                            <div className="value-content">
-                                <span className="value-name">{value.value}</span>
-                                                                                {value.description && (
-                                                                                    <small className="value-description">{value.description}</small>
-                                                                                )}
-                                {isEditMode && (
-                                    <div className="value-actions">
-                                        <button
-                                            className="btn btn-sm btn-outline-primary"
-                                            onClick={() => handleEditValue(value)}
-                                            title="Edit Value"
-                                        >
-                                            <FontAwesomeIcon icon={faEdit} />
-                                        </button>
-                                        <button
-                                            className="btn btn-sm btn-outline-danger"
-                                            onClick={() => handleDeleteValue(value.id)}
-                                            title="Delete Value"
-                                        >
-                                            <FontAwesomeIcon icon={faTrash} />
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                                                                </div>
-                                                            ))
-                                                        ) : (
-                                                            <div className="no-values">
-                                                                <div className="child-connector">
-                                                                    <div className="connector-line"></div>
-                                                                    <div className="child-dot"></div>
-                                                                </div>
-                                                                <div className="child-content">
-                                                                    <span>No values added yet</span>
-                                                                </div>
-                                                            </div>
-                                                        )}
-                                                    </div>
+                                            {isEditMode && (
+                                                <div className="level-actions">
+                                                    <button
+                                                        className="btn btn-sm btn-outline-primary action-btn"
+                                                        onClick={() => handleEditLevel(level)}
+                                                        title="Edit Level"
+                                                    >
+                                                        <FontAwesomeIcon icon={faEdit} />
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-sm btn-outline-success action-btn"
+                                                        onClick={() => handleAddValueClick(level)}
+                                                        title="Add Value"
+                                                    >
+                                                        <FontAwesomeIcon icon={faPlus} />
+                                                    </button>
+                                                    <button
+                                                        className="btn btn-sm btn-outline-danger action-btn"
+                                                        onClick={() => handleDeleteLevel(level.id)}
+                                                        title="Delete Level"
+                                                    >
+                                                        <FontAwesomeIcon icon={faTrash} />
+                                                    </button>
                                                 </div>
                                             )}
                                         </div>
-                                    );
-                                })}
-                            </div>
+                                        
+                                        {/* Inline Add Value Form */}
+                                        {isAddingValue && (
+                                            <div className="inline-add-value-form">
+                                                <div className="form-card">
+                                                    <div className="form-header">
+                                                        <h5>Add Value to {level.name}</h5>
+                                                        <button 
+                                                            className="btn-close"
+                                                            onClick={() => setAddingValueToLevel(null)}
+                                                        >
+                                                            <FontAwesomeIcon icon={faTimes} />
+                                                        </button>
+                                                    </div>
+                                                    <form onSubmit={handleAddValueInline} className="add-value-form">
+                                                        <div className="form-group">
+                                                            <label>Value Name</label>
+                                                            <input
+                                                                type="text"
+                                                                placeholder={`Enter ${level.name.toLowerCase()} name`}
+                                                                value={newValue.value}
+                                                                onChange={(e) => setNewValue({ ...newValue, value: e.target.value })}
+                                                                required
+                                                            />
+                                                        </div>
+                                                        <div className="form-group">
+                                                            <label>Description</label>
+                                                            <input
+                                                                type="text"
+                                                                placeholder="Enter description (optional)"
+                                                                value={newValue.description}
+                                                                onChange={(e) => setNewValue({ ...newValue, description: e.target.value })}
+                                                            />
+                                                        </div>
+                                                        <div className="form-actions">
+                                                            <button 
+                                                                type="submit" 
+                                                                className="btn btn-primary"
+                                                                disabled={loading}
+                                                            >
+                                                                <FontAwesomeIcon icon={faPlus} className="me-2" />
+                                                                Add Value
+                                                            </button>
+                                                            <button 
+                                                                type="button" 
+                                                                className="btn btn-secondary"
+                                                                onClick={() => setAddingValueToLevel(null)}
+                                                            >
+                                                                Cancel
+                                                            </button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        {/* Tree Children - Values */}
+                                        {isExpanded && (
+                                            <div className="values-container">
+                                                {levelValues.length > 0 ? (
+                                                    levelValues.map((value) => (
+                                                        <div key={value.id} className="value-item">
+                                                            <div className="value-content">
+                                                                <FontAwesomeIcon icon={faDotCircle} className="value-icon" />
+                                                                <div className="value-info">
+                                                                    <span className="value-name">{value.value}</span>
+                                                                    {value.description && (
+                                                                        <span className="value-description">{value.description}</span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            {isEditMode && (
+                                                                <div className="value-actions">
+                                                                    <button
+                                                                        className="btn btn-sm btn-outline-primary action-btn"
+                                                                        onClick={() => handleEditValue(value)}
+                                                                        title="Edit Value"
+                                                                    >
+                                                                        <FontAwesomeIcon icon={faEdit} />
+                                                                    </button>
+                                                                    <button
+                                                                        className="btn btn-sm btn-outline-danger action-btn"
+                                                                        onClick={() => handleDeleteValue(value.id)}
+                                                                        title="Delete Value"
+                                                                    >
+                                                                        <FontAwesomeIcon icon={faTrash} />
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    ))
+                                                ) : (
+                                                    <div className="empty-values">
+                                                        <FontAwesomeIcon icon={faDotCircle} className="empty-icon" />
+                                                        <span>No values added yet</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     ))}
                 </div>
@@ -665,7 +621,10 @@ const HierarchyManagement = () => {
     if (loading) {
         return (
             <div className="hierarchy-management">
-                <div className="loading">Loading...</div>
+                <div className="loading-container">
+                    <div className="loading-spinner"></div>
+                    <p>Loading hierarchy structure...</p>
+                </div>
             </div>
         );
     }
@@ -673,75 +632,93 @@ const HierarchyManagement = () => {
     if (error) {
         return (
             <div className="hierarchy-management">
-                <div className="error">{error}</div>
+                <div className="error-container">
+                    <div className="error-icon">⚠️</div>
+                    <h3>Error Loading Hierarchy</h3>
+                    <p>{error}</p>
+                    <button className="btn btn-primary" onClick={fetchHierarchyLevels}>
+                        Try Again
+                    </button>
+                </div>
             </div>
         );
     }
 
     return (
         <div className="hierarchy-management">
-
             {renderHierarchyLevels()}
 
-            {/* Add New Level Button at Bottom */}
-                    <button 
+            {/* Add New Level Button */}
+                <button 
                     className="btn btn-primary add-level-btn"
-                        onClick={() => {
+                    onClick={() => {
                         const defaultOrder = hierarchyLevels.length > 0 ? Math.max(...hierarchyLevels.map(l => l.order)) + 1 : 1;
                         setNewLevel({ name: '', description: '', order: defaultOrder.toString() });
-                            setShowCreationForm(true);
-                        }}
-                    >
-                        <FontAwesomeIcon icon={faPlus} className="me-2" />
+                        setShowCreationForm(true);
+                    }}
+                >
+                    <FontAwesomeIcon icon={faPlus} className="me-2" />
                     Add New Level
-                    </button>
+                </button>
 
+            {/* Create Level Modal */}
             {showCreationForm && (
-                <div className="form-container">
-                    <h3>Add New Level</h3>
-                    <form onSubmit={handleCreateLevel} className="create-level-form">
-                        <div className="form-group">
-                            <label>Level Name</label>
-                            <input
-                                type="text"
-                                placeholder="Enter level name (e.g., Department, Class, Year)"
-                                value={newLevel.name}
-                                onChange={(e) => setNewLevel({ ...newLevel, name: e.target.value })}
-                                required
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Description</label>
-                            <input
-                                type="text"
-                                placeholder="Enter description (optional)"
-                                value={newLevel.description}
-                                onChange={(e) => setNewLevel({ ...newLevel, description: e.target.value })}
-                            />
-                        </div>
-                        <div className="form-group">
-                            <label>Level Order</label>
-                            <input
-                                type="number"
-                                min="1"
-                                placeholder={`Enter order (default: ${hierarchyLevels.length > 0 ? Math.max(...hierarchyLevels.map(l => l.order)) + 1 : 1})`}
-                                value={newLevel.order}
-                                onChange={(e) => setNewLevel({ ...newLevel, order: e.target.value })}
-                            />
-                        </div>
-                        <div className="form-actions">
-                            <button type="submit" className="btn btn-primary">
-                                Create Level
-                            </button>
+                <div className="modal-overlay">
+                    <div className="modal-container">
+                        <div className="modal-header">
+                            <h3>Add New Hierarchy Level</h3>
                             <button 
-                                type="button" 
-                                className="btn btn-secondary"
+                                className="btn-close"
                                 onClick={() => setShowCreationForm(false)}
                             >
-                                Cancel
+                                <FontAwesomeIcon icon={faTimes} />
                             </button>
                         </div>
-                    </form>
+                        <form onSubmit={handleCreateLevel} className="create-level-form">
+                            <div className="form-group">
+                                <label>Level Name</label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter level name (e.g., Department, Class, Year)"
+                                    value={newLevel.name}
+                                    onChange={(e) => setNewLevel({ ...newLevel, name: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Description</label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter description (optional)"
+                                    value={newLevel.description}
+                                    onChange={(e) => setNewLevel({ ...newLevel, description: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Level Order</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    placeholder={`Enter order (default: ${hierarchyLevels.length > 0 ? Math.max(...hierarchyLevels.map(l => l.order)) + 1 : 1})`}
+                                    value={newLevel.order}
+                                    onChange={(e) => setNewLevel({ ...newLevel, order: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-actions">
+                                <button type="submit" className="btn btn-primary" disabled={loading}>
+                                    <FontAwesomeIcon icon={faPlus} className="me-2" />
+                                    Create Level
+                                </button>
+                                <button 
+                                    type="button" 
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowCreationForm(false)}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             )}
         </div>
