@@ -34,6 +34,8 @@ const HierarchyManagement = () => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [expandedLevels, setExpandedLevels] = useState(new Set());
     const [addingValueToLevel, setAddingValueToLevel] = useState(null);
+    const [showEditLevelModal, setShowEditLevelModal] = useState(false);
+    const [showEditValueModal, setShowEditValueModal] = useState(false);
 
     // Form states
     const [newLevel, setNewLevel] = useState({ name: '', description: '', order: '' });
@@ -217,6 +219,7 @@ const HierarchyManagement = () => {
     const handleEditLevel = (level) => {
         setEditingLevel(level);
         setEditLevelData({ name: level.name, description: level.description || '', order: level.order });
+        setShowEditLevelModal(true);
     };
 
     const handleSaveLevel = async () => {
@@ -250,6 +253,7 @@ const HierarchyManagement = () => {
                 );
                 setEditingLevel(null);
                 setEditLevelData({ name: '', description: '', order: '' });
+                setShowEditLevelModal(false);
                 toast.success('Hierarchy level updated successfully');
             } else {
                 toast.error('Failed to update hierarchy level');
@@ -266,6 +270,7 @@ const HierarchyManagement = () => {
     const handleEditValue = (value) => {
         setEditingValue(value);
         setEditValueData({ value: value.value, description: value.description || '' });
+        setShowEditValueModal(true);
     };
 
     const handleSaveValue = async () => {
@@ -299,6 +304,7 @@ const HierarchyManagement = () => {
                 );
                 setEditingValue(null);
                 setEditValueData({ value: '', description: '' });
+                setShowEditValueModal(false);
                 toast.success('Hierarchy value updated successfully');
             } else {
                 toast.error('Failed to update hierarchy value');
@@ -499,6 +505,17 @@ const HierarchyManagement = () => {
                                                         <FontAwesomeIcon icon={faPlus} />
                                                     </button>
                                                     <button
+                                                        className="btn btn-sm btn-outline-info action-btn"
+                                                        onClick={() => {
+                                                            const defaultOrder = level.order + 1;
+                                                            setNewLevel({ name: '', description: '', order: defaultOrder.toString() });
+                                                            setShowCreationForm(true);
+                                                        }}
+                                                        title="Add New Level"
+                                                    >
+                                                        <FontAwesomeIcon icon={faLayerGroup} />
+                                                    </button>
+                                                    <button
                                                         className="btn btn-sm btn-outline-danger action-btn"
                                                         onClick={() => handleDeleteLevel(level.id)}
                                                         title="Delete Level"
@@ -516,7 +533,7 @@ const HierarchyManagement = () => {
                                                     <div className="form-header">
                                                         <h5>Add Value to {level.name}</h5>
                                                         <button 
-                                                            className="btn-close"
+                                                            className="hm-modal-close-btn"
                                                             onClick={() => setAddingValueToLevel(null)}
                                                         >
                                                             <FontAwesomeIcon icon={faTimes} />
@@ -648,19 +665,6 @@ const HierarchyManagement = () => {
         <div className="hierarchy-management">
             {renderHierarchyLevels()}
 
-            {/* Add New Level Button */}
-                <button 
-                    className="btn btn-primary add-level-btn"
-                    onClick={() => {
-                        const defaultOrder = hierarchyLevels.length > 0 ? Math.max(...hierarchyLevels.map(l => l.order)) + 1 : 1;
-                        setNewLevel({ name: '', description: '', order: defaultOrder.toString() });
-                        setShowCreationForm(true);
-                    }}
-                >
-                    <FontAwesomeIcon icon={faPlus} className="me-2" />
-                    Add New Level
-                </button>
-
             {/* Create Level Modal */}
             {showCreationForm && (
                 <div className="modal-overlay">
@@ -668,7 +672,7 @@ const HierarchyManagement = () => {
                         <div className="modal-header">
                             <h3>Add New Hierarchy Level</h3>
                             <button 
-                                className="btn-close"
+                                className="hm-modal-close-btn"
                                 onClick={() => setShowCreationForm(false)}
                             >
                                 <FontAwesomeIcon icon={faTimes} />
@@ -713,6 +717,118 @@ const HierarchyManagement = () => {
                                     type="button" 
                                     className="btn btn-secondary"
                                     onClick={() => setShowCreationForm(false)}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Level Modal */}
+            {showEditLevelModal && editingLevel && (
+                <div className="modal-overlay">
+                    <div className="modal-container">
+                        <div className="modal-header">
+                            <h3>Edit Hierarchy Level</h3>
+                            <button 
+                                className="hm-modal-close-btn"
+                                onClick={() => setShowEditLevelModal(false)}
+                            >
+                                <FontAwesomeIcon icon={faTimes} />
+                            </button>
+                        </div>
+                        <form onSubmit={(e) => { e.preventDefault(); handleSaveLevel(); }} className="create-level-form">
+                            <div className="form-group">
+                                <label>Level Name</label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter level name"
+                                    value={editLevelData.name}
+                                    onChange={(e) => setEditLevelData({ ...editLevelData, name: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Description</label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter description (optional)"
+                                    value={editLevelData.description}
+                                    onChange={(e) => setEditLevelData({ ...editLevelData, description: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Level Order</label>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    placeholder="Enter order"
+                                    value={editLevelData.order}
+                                    onChange={(e) => setEditLevelData({ ...editLevelData, order: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-actions">
+                                <button type="submit" className="btn btn-primary" disabled={loading}>
+                                    <FontAwesomeIcon icon={faSave} className="me-2" />
+                                    Save Changes
+                                </button>
+                                <button 
+                                    type="button" 
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowEditLevelModal(false)}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {/* Edit Value Modal */}
+            {showEditValueModal && editingValue && (
+                <div className="modal-overlay">
+                    <div className="modal-container">
+                        <div className="modal-header">
+                            <h3>Edit Hierarchy Value</h3>
+                            <button 
+                                className="hm-modal-close-btn"
+                                onClick={() => setShowEditValueModal(false)}
+                            >
+                                <FontAwesomeIcon icon={faTimes} />
+                            </button>
+                        </div>
+                        <form onSubmit={(e) => { e.preventDefault(); handleSaveValue(); }} className="add-value-form">
+                            <div className="form-group">
+                                <label>Value Name</label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter value name"
+                                    value={editValueData.value}
+                                    onChange={(e) => setEditValueData({ ...editValueData, value: e.target.value })}
+                                    required
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Description</label>
+                                <input
+                                    type="text"
+                                    placeholder="Enter description (optional)"
+                                    value={editValueData.description}
+                                    onChange={(e) => setEditValueData({ ...editValueData, description: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-actions">
+                                <button type="submit" className="btn btn-primary" disabled={loading}>
+                                    <FontAwesomeIcon icon={faSave} className="me-2" />
+                                    Save Changes
+                                </button>
+                                <button 
+                                    type="button" 
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowEditValueModal(false)}
                                 >
                                     Cancel
                                 </button>

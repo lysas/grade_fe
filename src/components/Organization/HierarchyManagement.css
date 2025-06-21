@@ -394,26 +394,27 @@
 .form-header h5 {
     margin: 0;
     color: #1e293b;
+    font-size: 1.1rem;
     font-weight: 600;
 }
 
-.btn-close {
-    background: none;
+.hm-modal-close-btn {
+    background: transparent;
     border: none;
-    color: #64748b;
+    padding: 0;
+    margin: 0;
+    font-size: 1.25rem;
     cursor: pointer;
-    padding: 4px;
-    border-radius: 4px;
-    transition: all 0.3s ease;
+    color: #64748b;
+    transition: color 0.2s ease-in-out;
 }
 
-.btn-close:hover {
-    background: #f1f5f9;
+.hm-modal-close-btn:hover {
     color: #1e293b;
 }
 
 .add-value-form .form-group {
-    margin-bottom: 16px;
+    margin-bottom: 15px;
 }
 
 .add-value-form .form-group label {
