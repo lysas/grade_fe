@@ -10,7 +10,8 @@ import {
     faCheck,
     faInfoCircle,
     faArrowLeft,
-    faHome
+    faHome,
+    faDotCircle
 } from '@fortawesome/free-solid-svg-icons';
 import { Button } from '../common';
 
@@ -24,37 +25,29 @@ const BulkHierarchyAssignmentPage = () => {
   const [assigning, setAssigning] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-
-  // Group hierarchy levels by order
-  const groupedLevels = hierarchyLevels.reduce((groups, level) => {
-    const order = level.order;
-    if (!groups[order]) {
-      groups[order] = [];
-    }
-    groups[order].push(level);
-    return groups;
-  }, {});
-
-  // Get sorted order keys
-  const sortedOrderKeys = Object.keys(groupedLevels).sort((a, b) => parseInt(a) - parseInt(b));
-
-  // Track selected level per order (only one level per order can be selected)
-  const [selectedLevelsPerOrder, setSelectedLevelsPerOrder] = useState({});
+  const [tree, setTree] = useState([]);
+  const [selectedPath, setSelectedPath] = useState({});
 
   useEffect(() => {
-    fetchData();
+    fetchTree();
+    fetchStudents();
   }, []);
 
-  const fetchData = async () => {
+  const fetchTree = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      await Promise.all([
-        fetchStudents(),
-        fetchHierarchyLevels()
-      ]);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      toast.error('Failed to load data');
+      const response = await axios.get('/api/organization/hierarchy-levels/tree/', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (response.data && response.data.status === 'success') {
+        setTree(response.data.data);
+      } else {
+        toast.error('Failed to fetch hierarchy tree');
+      }
+    } catch (err) {
+      toast.error('Failed to fetch hierarchy tree');
     } finally {
       setLoading(false);
     }
@@ -139,7 +132,7 @@ const BulkHierarchyAssignmentPage = () => {
   const handleBulkHierarchyValueSelect = (levelId, valueId, order) => {
     if (valueId) {
       // Clear any existing selections for this order level
-      const levelsInOrder = groupedLevels[order];
+      const levelsInOrder = hierarchyLevels.filter(level => level.id === levelId);
       const clearedValues = { ...bulkHierarchyValues };
       levelsInOrder.forEach(level => {
         if (level.id !== levelId) {
@@ -151,80 +144,55 @@ const BulkHierarchyAssignmentPage = () => {
         ...clearedValues,
         [levelId]: valueId
       });
-      
-      setSelectedLevelsPerOrder(prev => ({
-        ...prev,
-        [order]: levelId
-      }));
     } else {
       // Clear this selection
       const newValues = { ...bulkHierarchyValues };
       delete newValues[levelId];
       setBulkHierarchyValues(newValues);
-      
-      setSelectedLevelsPerOrder(prev => {
-        const newSelected = { ...prev };
-        delete newSelected[order];
-        return newSelected;
-      });
     }
   };
 
   // Auto-select single levels when they have values
   useEffect(() => {
-    const newSelectedLevels = { ...selectedLevelsPerOrder };
+    const newSelectedLevels = { ...bulkHierarchyValues };
     
-    sortedOrderKeys.forEach(order => {
-      const levels = groupedLevels[order];
-      if (levels.length === 1) {
+    hierarchyLevels.forEach(level => {
+      if (level.values && level.values.length > 0) {
         // Auto-select single level if it has a value
-        const level = levels[0];
-        if (bulkHierarchyValues[level.id] && !newSelectedLevels[order]) {
-          newSelectedLevels[order] = level.id;
-          console.log(`Auto-selecting level ${level.name} for order ${order}`);
+        const value = level.values[0];
+        if (value.id && !newSelectedLevels[level.id]) {
+          newSelectedLevels[level.id] = value.id;
+          console.log(`Auto-selecting level ${level.name} for value ${value.value}`);
         }
       }
     });
     
-    if (JSON.stringify(newSelectedLevels) !== JSON.stringify(selectedLevelsPerOrder)) {
-      setSelectedLevelsPerOrder(newSelectedLevels);
+    if (JSON.stringify(newSelectedLevels) !== JSON.stringify(bulkHierarchyValues)) {
+      setBulkHierarchyValues(newSelectedLevels);
     }
-  }, [bulkHierarchyValues, sortedOrderKeys, groupedLevels, selectedLevelsPerOrder]);
+  }, [bulkHierarchyValues, hierarchyLevels]);
 
   const handleBulkAssignHierarchy = async () => {
     if (selectedStudents.length === 0) {
       toast.error('Please select at least one student');
       return;
     }
-
-    // Validate that exactly one level is selected for each order
-    const hasSelectionForEachOrder = sortedOrderKeys.every(order => {
-      const levels = groupedLevels[order];
-      // Check if any level in this order has a value selected
-      return levels.some(level => bulkHierarchyValues[level.id]);
-    });
-
-    if (!hasSelectionForEachOrder) {
-      toast.error('Please select one level for each hierarchy level');
+    const valueIds = Object.values(selectedPath).filter(Boolean);
+    if (valueIds.length === 0) {
+      toast.error('Please select at least one hierarchy value');
       return;
     }
-
     try {
       setAssigning(true);
       let successCount = 0;
       let failureCount = 0;
-
-      // Get all selected hierarchy values
-      const selectedHierarchyValues = Object.values(bulkHierarchyValues).filter(value => value);
-
-      // Assign hierarchy to each selected student
       for (const studentId of selectedStudents) {
         try {
           const response = await axios.post(
             '/api/organization/student-hierarchies/bulk_assign/',
             {
               student_id: studentId,
-              hierarchy_values: selectedHierarchyValues
+              hierarchy_values: valueIds
             },
             {
               headers: {
@@ -232,7 +200,6 @@ const BulkHierarchyAssignmentPage = () => {
               }
             }
           );
-
           if (response.data.status === 'success') {
             successCount++;
           } else {
@@ -243,15 +210,12 @@ const BulkHierarchyAssignmentPage = () => {
           console.error(`Error assigning hierarchy to student ${studentId}:`, error);
         }
       }
-
       if (successCount > 0) {
         toast.success(`Successfully assigned hierarchy to ${successCount} student(s)`);
       }
       if (failureCount > 0) {
         toast.error(`Failed to assign hierarchy to ${failureCount} student(s)`);
       }
-
-      // Navigate back to student management
       navigate('/organization/students');
     } catch (error) {
       console.error('Error in bulk hierarchy assignment:', error);
@@ -259,6 +223,79 @@ const BulkHierarchyAssignmentPage = () => {
     } finally {
       setAssigning(false);
     }
+  };
+
+  // Add this function before the renderTreeForPathSelection
+  const handleValueSelection = (levelId, valueId) => {
+    setSelectedPath(prev => {
+      const newPath = { ...prev };
+      if (newPath[levelId] === valueId) {
+        delete newPath[levelId];
+      } else {
+        newPath[levelId] = valueId;
+      }
+      return newPath;
+    });
+  };
+
+  // Update the renderTreeForPathSelection function's radio button section
+  const renderTreeForPathSelection = (nodes, depth = 0) => (
+    nodes.map(level => (
+      <div key={level.id} style={{ marginLeft: depth * 24 }} className="bh-tree-node">
+        <div className="bh-tree-row">
+          <FontAwesomeIcon icon={faLayerGroup} className="bh-folder-icon" />
+          <span className="bh-level-name">{level.name}</span>
+        </div>
+        {/* Values (files) */}
+        {level.values && level.values.length > 0 && (
+          <div className="bh-values-list">
+            {level.values.map(value => (
+              <div key={value.id} className="form-check bh-value-row" style={{ marginLeft: 24 }}>
+                <input
+                  type="radio"
+                  className="form-check-input"
+                  id={`value-${level.id}-${value.id}`}
+                  name={`level-${level.id}`}
+                  checked={selectedPath[level.id] === value.id}
+                  onChange={() => handleValueSelection(level.id, value.id)}
+                />
+                <label className="form-check-label" htmlFor={`value-${level.id}-${value.id}`}>
+                  <FontAwesomeIcon icon={faDotCircle} className="bh-file-icon" /> {value.value}
+                  {value.description && <span className="bh-value-desc"> - {value.description}</span>}
+                </label>
+              </div>
+            ))}
+          </div>
+        )}
+        {/* Children (subfolders) */}
+        {level.children && level.children.length > 0 && (
+          <div className="bh-children-list">
+            {renderTreeForPathSelection(level.children, depth + 1)}
+          </div>
+        )}
+      </div>
+    ))
+  );
+
+  // Add this helper function before the return statement
+  const findValueInTree = (tree, valueId) => {
+    for (const level of tree) {
+      // Check values in current level
+      if (level.values) {
+        const found = level.values.find(v => v.id === valueId);
+        if (found) {
+          return { value: found, level: level };
+        }
+      }
+      // Check in children
+      if (level.children) {
+        const found = findValueInTree(level.children, valueId);
+        if (found) {
+          return found;
+        }
+      }
+    }
+    return null;
   };
 
   if (loading) {
@@ -306,94 +343,14 @@ const BulkHierarchyAssignmentPage = () => {
               </h5>
             </div>
             <div className="card-body">
-              {hierarchyLevels.length === 0 ? (
+              {tree.length === 0 ? (
                 <div className="text-center text-muted py-4">
                   <FontAwesomeIcon icon={faLayerGroup} size="2x" className="mb-2" />
                   <p>No hierarchy levels available</p>
                 </div>
               ) : (
-                <div className="hierarchy-selection">
-                  {sortedOrderKeys.map(order => {
-                    const levels = groupedLevels[order];
-                    const hasMultipleLevels = levels.length > 1;
-                    
-                    return (
-                      <div key={order} className="mb-4">
-                        <label className="form-label fw-bold">Level {order}</label>
-                        <div className="row">
-                          {levels.map(level => {
-                            const levelValues = hierarchyValues[level.id] || [];
-                            const isSelected = selectedLevelsPerOrder[order] === level.id;
-                            
-                            // If only one level in this order, show dropdown directly
-                            if (!hasMultipleLevels) {
-                              return (
-                                <div key={level.id} className="col-md-6 mb-2">
-                                  <label className="form-label text-muted small">{level.name}</label>
-                                  <select
-                                    className="form-select"
-                                    value={bulkHierarchyValues[level.id] || ''}
-                                    onChange={(e) => handleBulkHierarchyValueSelect(level.id, e.target.value, order)}
-                                    disabled={assigning}
-                                  >
-                                    <option value="">Select {level.name}</option>
-                                    {levelValues.map(value => (
-                                      <option key={value.id} value={value.id}>
-                                        {value.value}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </div>
-                              );
-                            }
-                            
-                            // If multiple levels, show radio buttons
-                            return (
-                              <div key={level.id} className="col-md-6 mb-2">
-                                <div className="form-check">
-                                  <input
-                                    type="radio"
-                                    className="form-check-input"
-                                    id={`level-${level.id}`}
-                                    name={`order-${order}`}
-                                    checked={isSelected}
-                                    onChange={() => {
-                                      if (!isSelected) {
-                                        // If this level is not selected, select it with the first value
-                                        const firstValue = levelValues[0]?.id;
-                                        if (firstValue) {
-                                          handleBulkHierarchyValueSelect(level.id, firstValue, order);
-                                        }
-                                      }
-                                    }}
-                                    disabled={assigning}
-                                  />
-                                  <label className="form-check-label" htmlFor={`level-${level.id}`}>
-                                    <strong>{level.name}</strong>
-                                  </label>
-                                </div>
-                                {isSelected && (
-                                  <select
-                                    className="form-select mt-2"
-                                    value={bulkHierarchyValues[level.id] || ''}
-                                    onChange={(e) => handleBulkHierarchyValueSelect(level.id, e.target.value, order)}
-                                    disabled={assigning}
-                                  >
-                                    <option value="">Select {level.name}</option>
-                                    {levelValues.map(value => (
-                                      <option key={value.id} value={value.id}>
-                                        {value.value}
-                                      </option>
-                                    ))}
-                                  </select>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    );
-                  })}
+                <div className="hierarchy-selection-tree">
+                  {renderTreeForPathSelection(tree)}
                 </div>
               )}
             </div>
@@ -478,17 +435,13 @@ const BulkHierarchyAssignmentPage = () => {
       </div>
 
       {/* Preview Section */}
-      {selectedStudents.length > 0 && sortedOrderKeys.every(order => {
-        const levels = groupedLevels[order];
-        // Check if any level in this order has a value selected
-        return levels.some(level => bulkHierarchyValues[level.id]);
-      }) && (
+      {selectedStudents.length > 0 && Object.values(selectedPath).filter(Boolean).length > 0 && (
         <div className="row mb-4">
           <div className="col-12">
             <div className="card border-primary">
               <div className="card-header bg-primary text-white">
                 <h6 className="mb-0">
-                  <FontAwesomeIcon icon={faInfoCircle} className="me-2" />
+                  <FontAwesomeIcon icon={faInfoCircle} className="me-2 " />
                   Assignment Preview
                 </h6>
               </div>
@@ -516,32 +469,26 @@ const BulkHierarchyAssignmentPage = () => {
                   </div>
                   <div className="col-md-6">
                     <p className="mb-2">
-                      <strong>Hierarchy values:</strong>
+                      <strong>Selected Hierarchy:</strong>
                     </p>
-                    {sortedOrderKeys.map(order => {
-                      const selectedLevelId = selectedLevelsPerOrder[order];
-                      const selectedValueId = selectedLevelId ? bulkHierarchyValues[selectedLevelId] : null;
-                      
-                      if (selectedLevelId && selectedValueId) {
-                        const selectedLevel = hierarchyLevels.find(level => level.id === selectedLevelId);
-                        const selectedValue = hierarchyValues[selectedLevelId]?.find(
-                          v => v.id == selectedValueId // Use == for type coercion since valueId might be string or number
-                        );
-                        
-                        if (selectedLevel && selectedValue) {
-                          return (
-                            <small key={order} className="d-block text-muted mb-1">
-                              <strong>Level {order}:</strong> {selectedLevel.name} - {selectedValue.value}
+                    {Object.entries(selectedPath).map(([levelId, valueId]) => {
+                      if (!valueId) return null;
+                      const found = findValueInTree(tree, valueId);
+                      if (found) {
+                        return (
+                          <div key={valueId} className="d-block mb-2">
+                            <small className="text-primary d-block">{found.level.name}:</small>
+                            <small className="text-muted d-block ps-3">
+                              <FontAwesomeIcon icon={faDotCircle} className="me-2" />
+                              {found.value.value}
+                              {found.value.description && (
+                                <span className="text-muted"> - {found.value.description}</span>
+                              )}
                             </small>
-                          );
-                        }
+                          </div>
+                        );
                       }
-                      
-                      return (
-                        <small key={order} className="d-block text-muted mb-1">
-                          <strong>Level {order}:</strong> Not selected
-                        </small>
-                      );
+                      return null;
                     })}
                   </div>
                 </div>
@@ -570,11 +517,7 @@ const BulkHierarchyAssignmentPage = () => {
               onClick={handleBulkAssignHierarchy}
               disabled={
                 selectedStudents.length === 0 ||
-                !sortedOrderKeys.every(order => {
-                  const levels = groupedLevels[order];
-                  // Check if any level in this order has a value selected
-                  return levels.some(level => bulkHierarchyValues[level.id]);
-                }) ||
+                Object.values(selectedPath).filter(Boolean).length === 0 ||
                 assigning
               }
             >

@@ -36,15 +36,16 @@ const HierarchyManagement = () => {
     const [addingValueToLevel, setAddingValueToLevel] = useState(null);
     const [showEditLevelModal, setShowEditLevelModal] = useState(false);
     const [showEditValueModal, setShowEditValueModal] = useState(false);
+    const [tree, setTree] = useState([]);
+    const [expanded, setExpanded] = useState(new Set());
 
     // Form states
-    const [newLevel, setNewLevel] = useState({ name: '', description: '', order: '' });
-    const [newValue, setNewValue] = useState({ value: '', description: '' });
+    const [newLevel, setNewLevel] = useState({ name: '', description: '', order: '', parent: null });
+    const [newValue, setNewValue] = useState({ value: '', description: '', parentLevel: null });
     
     // Edit states
     const [editingLevel, setEditingLevel] = useState(null);
     const [editingValue, setEditingValue] = useState(null);
-    const [editLevelData, setEditLevelData] = useState({ name: '', description: '', order: '' });
     const [editValueData, setEditValueData] = useState({ value: '', description: '' });
 
     // Get auth header
@@ -55,7 +56,7 @@ const HierarchyManagement = () => {
     });
 
     useEffect(() => {
-        fetchHierarchyLevels();
+        fetchTree();
     }, []);
 
     // Fetch values for all levels when levels change
@@ -81,6 +82,22 @@ const HierarchyManagement = () => {
             fetchAllValues();
         }
     }, [hierarchyLevels]);
+
+    const fetchTree = async () => {
+        setLoading(true);
+        try {
+            const response = await axios.get('/api/organization/hierarchy-levels/tree/', getAuthHeader());
+            if (response.data && response.data.status === 'success') {
+                setTree(response.data.data);
+            } else {
+                toast.error('Failed to fetch hierarchy tree');
+            }
+        } catch (err) {
+            setError('Failed to fetch hierarchy tree');
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const fetchHierarchyLevels = async () => {
         try {
@@ -135,14 +152,15 @@ const HierarchyManagement = () => {
                     name: newLevel.name,
                     description: newLevel.description,
                     is_active: true,
-                    order: newLevel.order ? parseInt(newLevel.order) : hierarchyLevels.length + 1
+                    order: newLevel.order ? parseInt(newLevel.order) : hierarchyLevels.length + 1,
+                    parent: newLevel.parent
                 },
                 getAuthHeader()
             );
             
             if (response.status === 201 || response.status === 200) {
                 setHierarchyLevels(prevLevels => [...prevLevels, response.data]);
-                setNewLevel({ name: '', description: '', order: '' });
+                setNewLevel({ name: '', description: '', order: '', parent: null });
                 setShowCreationForm(false);
                 toast.success('Hierarchy level created successfully');
             } else {
@@ -176,14 +194,14 @@ const HierarchyManagement = () => {
 
     const handleAddValueInline = async (e) => {
         e.preventDefault();
-        if (!selectedLevel) {
+        if (!newValue.parentLevel) {
             toast.error('Please select a hierarchy level first');
             return;
         }
         try {
             setLoading(true);
             const response = await axios.post(
-                `/api/organization/hierarchy-levels/${selectedLevel.id}/add_value/`,
+                `/api/organization/hierarchy-levels/${newValue.parentLevel}/add_value/`,
                 {
                     value: newValue.value,
                     description: newValue.description,
@@ -191,17 +209,15 @@ const HierarchyManagement = () => {
                 },
                 getAuthHeader()
             );
-            
             if (response.data && response.data.status === 'success') {
-                setHierarchyValues(prevValues => [...prevValues, response.data.data]);
-                setNewValue({ value: '', description: '' });
+                setNewValue({ value: '', description: '', parentLevel: null });
                 setAddingValueToLevel(null);
+                fetchTree();
                 toast.success(response.data.message);
             } else {
                 toast.error(response.data?.message || 'Failed to add hierarchy value');
             }
         } catch (err) {
-            console.error('Error adding hierarchy value:', err);
             if (err.response?.data?.data) {
                 const errors = err.response.data.data;
                 const errorMessages = Object.values(errors).flat();
@@ -218,7 +234,7 @@ const HierarchyManagement = () => {
 
     const handleEditLevel = (level) => {
         setEditingLevel(level);
-        setEditLevelData({ name: level.name, description: level.description || '', order: level.order });
+        setEditValueData({ value: level.name, description: level.description || '' });
         setShowEditLevelModal(true);
     };
 
@@ -226,41 +242,30 @@ const HierarchyManagement = () => {
         try {
             setLoading(true);
             const updateData = {
-                name: editLevelData.name,
-                description: editLevelData.description,
-                order: editLevelData.order,
+                name: editValueData.value,
+                description: editValueData.description,
+                order: editingLevel.order,
+                parent: editingLevel.parent,
                 is_active: editingLevel.is_active
             };
-            
-            console.log('Sending update data:', updateData);
-            console.log('Editing level:', editingLevel);
-            
+
             const response = await axios.put(
                 `/api/organization/hierarchy-levels/${editingLevel.id}/`,
                 updateData,
                 getAuthHeader()
             );
-            
-            console.log('Update response:', response);
-            
+
             if (response.status === 200) {
-                setHierarchyLevels(prevLevels => 
-                    prevLevels.map(level => 
-                        level.id === editingLevel.id 
-                            ? { ...level, ...editLevelData }
-                            : level
-                    )
-                );
+                // Update the tree or refetch
+                fetchTree();
                 setEditingLevel(null);
-                setEditLevelData({ name: '', description: '', order: '' });
+                setEditValueData({ value: '', description: '' });
                 setShowEditLevelModal(false);
                 toast.success('Hierarchy level updated successfully');
             } else {
                 toast.error('Failed to update hierarchy level');
             }
         } catch (err) {
-            console.error('Error updating hierarchy level:', err);
-            console.error('Error response:', err.response);
             toast.error(err.response?.data?.message || 'Failed to update hierarchy level');
         } finally {
             setLoading(false);
@@ -268,7 +273,12 @@ const HierarchyManagement = () => {
     };
 
     const handleEditValue = (value) => {
-        setEditingValue(value);
+        setEditingValue({
+            ...value,
+            hierarchy_level: typeof value.hierarchy_level === 'object'
+                ? value.hierarchy_level.id
+                : value.hierarchy_level
+        });
         setEditValueData({ value: value.value, description: value.description || '' });
         setShowEditValueModal(true);
     };
@@ -279,29 +289,21 @@ const HierarchyManagement = () => {
             const updateData = {
                 value: editValueData.value,
                 description: editValueData.description,
-                hierarchy_level: editingValue.hierarchy_level,
+                hierarchy_level: typeof editingValue.hierarchy_level === 'object'
+                    ? editingValue.hierarchy_level.id
+                    : editingValue.hierarchy_level,
                 is_active: editingValue.is_active
             };
-            
-            console.log('Sending value update data:', updateData);
-            console.log('Editing value:', editingValue);
-            
+
             const response = await axios.put(
                 `/api/organization/hierarchy-values/${editingValue.id}/`,
                 updateData,
                 getAuthHeader()
             );
-            
-            console.log('Value update response:', response);
-            
+
             if (response.status === 200) {
-                setHierarchyValues(prevValues => 
-                    prevValues.map(value => 
-                        value.id === editingValue.id 
-                            ? { ...value, ...editValueData }
-                            : value
-                    )
-                );
+                // Refetch the tree to update UI
+                fetchTree();
                 setEditingValue(null);
                 setEditValueData({ value: '', description: '' });
                 setShowEditValueModal(false);
@@ -310,8 +312,6 @@ const HierarchyManagement = () => {
                 toast.error('Failed to update hierarchy value');
             }
         } catch (err) {
-            console.error('Error updating hierarchy value:', err);
-            console.error('Error response:', err.response);
             toast.error(err.response?.data?.message || 'Failed to update hierarchy value');
         } finally {
             setLoading(false);
@@ -387,253 +387,130 @@ const HierarchyManagement = () => {
     // Check if a level is expanded
     const isLevelExpanded = (levelId) => expandedLevels.has(levelId);
 
-    const renderHierarchyLevels = () => {
-        if (!hierarchyLevels.length) {
+    const toggleExpanded = (id) => {
+        setExpanded(prev => {
+            const newSet = new Set(prev);
+            if (newSet.has(id)) newSet.delete(id);
+            else newSet.add(id);
+            return newSet;
+        });
+    };
+
+    // Replace the renderTree function with this recursive function using your old UI style:
+    const renderHierarchyTree = (nodes, depth = 0) => (
+        nodes.map(level => {
+            const isExpanded = expanded.has(level.id);
+            const isAddingValue = addingValueToLevel === level.id;
             return (
-                <div className="empty-state">
-                    <div className="empty-state-icon">
-                        <FontAwesomeIcon icon={faLayerGroup} size="3x" />
-                    </div>
-                    <h3>No Hierarchy Levels Found</h3>
-                    <p>Create your first hierarchy level to organize your structure.</p>
-                    <button 
-                        className="btn btn-primary"
-                        onClick={() => {
-                            const defaultOrder = hierarchyLevels.length > 0 ? Math.max(...hierarchyLevels.map(l => l.order)) + 1 : 1;
-                            setNewLevel({ name: '', description: '', order: defaultOrder.toString() });
-                            setShowCreationForm(true);
-                        }}
-                    >
-                        <FontAwesomeIcon icon={faPlus} className="me-2" />
-                        Create First Level
-                    </button>
-                </div>
-            );
-        }
-
-        // Sort levels by order
-        const sortedLevels = [...hierarchyLevels].sort((a, b) => a.order - b.order);
-
-        // Group levels by order number
-        const groupedLevels = sortedLevels.reduce((groups, level) => {
-            const order = level.order;
-            if (!groups[order]) {
-                groups[order] = [];
-            }
-            groups[order].push(level);
-            return groups;
-        }, {});
-
-        // Convert to array and sort by order
-        const levelGroups = Object.entries(groupedLevels)
-            .sort(([a], [b]) => parseInt(a) - parseInt(b))
-            .map(([order, levels]) => ({ order: parseInt(order), levels }));
-
-        return (
-            <div className="hierarchy-tree-container">
-                <div className="tree-header">
-                    <div className="header-content">
-                        <div className="header-title">
-                            <FontAwesomeIcon icon={faBuilding} className="header-icon" />
-                            <h3>Organizational Hierarchy</h3>
-                            <span className="level-count">{hierarchyLevels.length} levels</span>
+                <div key={level.id} className="level-item" style={{ marginLeft: `${40 * depth}px`, position: 'relative' }}>
+                    {depth > 0 && <div className="vertical-line" />}
+                    <div className="level-row">
+                        <div className="level-content" onClick={() => toggleExpanded(level.id)}>
+                            <div className="level-toggle">
+                                <FontAwesomeIcon icon={isExpanded ? faChevronDown : faChevronRight} className="toggle-icon" />
+                            </div>
+                            <div className="level-info">
+                                <div className="level-name">
+                                    <FontAwesomeIcon icon={faLayerGroup} className="level-icon" />
+                                    <span className="name-text">{level.name}</span>
+                                </div>
+                                {level.description && <div className="level-description">{level.description}</div>}
+                                <div className="level-stats">
+                                    <span className="value-count">
+                                        <FontAwesomeIcon icon={faUsers} className="stat-icon" />
+                                        {level.values ? level.values.length : 0} values
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <div className="header-actions">
-                            <button
-                                className={`btn ${isEditMode ? 'btn-warning' : 'btn-outline-primary'}`}
-                                onClick={() => setIsEditMode(!isEditMode)}
-                            >
-                                <FontAwesomeIcon icon={isEditMode ? faTimes : faEdit} className="me-2" />
-                                {isEditMode ? 'Exit Edit Mode' : 'Edit Mode'}
+                        <div className="level-actions">
+                            {isEditMode && (
+                                <>
+                                    <button className="btn btn-sm btn-outline-primary action-btn" onClick={() => handleEditLevel(level)} title="Edit Level">
+                                        <FontAwesomeIcon icon={faEdit} />
+                                    </button>
+                                    <button className="btn btn-sm btn-outline-danger action-btn" onClick={() => handleDeleteLevel(level.id)} title="Delete Level">
+                                        <FontAwesomeIcon icon={faTrash} />
+                                    </button>
+                                </>
+                            )}
+                            <button className="btn btn-sm btn-outline-success action-btn" onClick={() => { setAddingValueToLevel(level.id); setNewValue({ value: '', description: '', parentLevel: level.id }); }} title="Add Value">
+                                <FontAwesomeIcon icon={faPlus} />
+                            </button>
+                            <button className="btn btn-sm btn-outline-info action-btn" onClick={() => { setShowCreationForm(true); setNewLevel({ name: '', description: '', order: level.order, parent: level.id }); }} title="Add New Level">
+                                <FontAwesomeIcon icon={faLayerGroup} />
                             </button>
                         </div>
                     </div>
-                </div>
-                
-                <div className="hierarchy-tree">
-                    {levelGroups.map((group) => (
-                        <div key={group.order} className="level-group">
-                            {group.levels.map((level) => {
-                                const levelValues = hierarchyValues.filter(v => v.hierarchy_level === level.id);
-                                const isExpanded = isLevelExpanded(level.id);
-                                const isAddingValue = addingValueToLevel === level.id;
-                                return (
-                                    <div key={level.id} className="level-item" style={{ marginLeft: `${40 * (level.order - 1)}px`, position: 'relative' }}>
-                                        {level.order > 1 && (
-                                            <div className="vertical-line" />
-                                        )}
-                                        <div className="level-row">
-                                            <div className="level-content" onClick={() => toggleLevelExpanded(level.id)}>
-                                                <div className="level-toggle">
-                                                    <FontAwesomeIcon
-                                                        icon={isExpanded ? faChevronDown : faChevronRight}
-                                                        className="toggle-icon"
-                                                    />
-                                                </div>
-                                                <div className="level-info">
-                                                    <div className="level-name">
-                                                        <FontAwesomeIcon icon={faLayerGroup} className="level-icon" />
-                                                        <span className="name-text">{level.name}</span>
-                                                        <span className="order-badge">Level {level.order}</span>
-                                                    </div>
-                                                    {level.description && (
-                                                        <div className="level-description">{level.description}</div>
-                                                    )}
-                                                    <div className="level-stats">
-                                                        <span className="value-count">
-                                                            <FontAwesomeIcon icon={faUsers} className="stat-icon" />
-                                                            {levelValues.length} values
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            
-                                            {isEditMode && (
-                                                <div className="level-actions">
-                                                    <button
-                                                        className="btn btn-sm btn-outline-primary action-btn"
-                                                        onClick={() => handleEditLevel(level)}
-                                                        title="Edit Level"
-                                                    >
-                                                        <FontAwesomeIcon icon={faEdit} />
-                                                    </button>
-                                                    <button
-                                                        className="btn btn-sm btn-outline-success action-btn"
-                                                        onClick={() => handleAddValueClick(level)}
-                                                        title="Add Value"
-                                                    >
-                                                        <FontAwesomeIcon icon={faPlus} />
-                                                    </button>
-                                                    <button
-                                                        className="btn btn-sm btn-outline-info action-btn"
-                                                        onClick={() => {
-                                                            const defaultOrder = level.order + 1;
-                                                            setNewLevel({ name: '', description: '', order: defaultOrder.toString() });
-                                                            setShowCreationForm(true);
-                                                        }}
-                                                        title="Add New Level"
-                                                    >
-                                                        <FontAwesomeIcon icon={faLayerGroup} />
-                                                    </button>
-                                                    <button
-                                                        className="btn btn-sm btn-outline-danger action-btn"
-                                                        onClick={() => handleDeleteLevel(level.id)}
-                                                        title="Delete Level"
-                                                    >
-                                                        <FontAwesomeIcon icon={faTrash} />
-                                                    </button>
-                                                </div>
-                                            )}
+                    {/* Inline Add Value Form */}
+                    {isAddingValue && (
+                        <div className="inline-add-value-form">
+                            <div className="form-card">
+                                <div className="form-header">
+                                    <h5>Add Value to {level.name}</h5>
+                                    <button className="hm-modal-close-btn" onClick={() => setAddingValueToLevel(null)}>
+                                        <FontAwesomeIcon icon={faTimes} />
+                                    </button>
+                                </div>
+                                <form onSubmit={handleAddValueInline} className="add-value-form">
+                                    <div className="form-group">
+                                        <label>Value Name</label>
+                                        <input type="text" placeholder={`Enter ${level.name.toLowerCase()} name`} value={newValue.value} onChange={e => setNewValue({ ...newValue, value: e.target.value })} required />
+                                    </div>
+                                    <div className="form-group">
+                                        <label>Description</label>
+                                        <input type="text" placeholder="Enter description (optional)" value={newValue.description} onChange={e => setNewValue({ ...newValue, description: e.target.value })} />
+                                    </div>
+                                    <div className="form-actions">
+                                        <button type="submit" className="btn btn-primary" disabled={loading}>
+                                            <FontAwesomeIcon icon={faPlus} className="me-2" /> Add Value
+                                        </button>
+                                        <button type="button" className="btn btn-secondary" onClick={() => setAddingValueToLevel(null)}>
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+                    {/* Tree Children - Values */}
+                    {isExpanded && level.values && level.values.length > 0 && (
+                        <div className="values-container">
+                            {level.values.map(value => (
+                                <div key={value.id} className="value-item">
+                                    <div className="value-content">
+                                        <FontAwesomeIcon icon={faDotCircle} className="value-icon" />
+                                        <div className="value-info">
+                                            <span className="value-name">{value.value}</span>
+                                            {value.description && <span className="value-description">{value.description}</span>}
                                         </div>
-                                        
-                                        {/* Inline Add Value Form */}
-                                        {isAddingValue && (
-                                            <div className="inline-add-value-form">
-                                                <div className="form-card">
-                                                    <div className="form-header">
-                                                        <h5>Add Value to {level.name}</h5>
-                                                        <button 
-                                                            className="hm-modal-close-btn"
-                                                            onClick={() => setAddingValueToLevel(null)}
-                                                        >
-                                                            <FontAwesomeIcon icon={faTimes} />
-                                                        </button>
-                                                    </div>
-                                                    <form onSubmit={handleAddValueInline} className="add-value-form">
-                                                        <div className="form-group">
-                                                            <label>Value Name</label>
-                                                            <input
-                                                                type="text"
-                                                                placeholder={`Enter ${level.name.toLowerCase()} name`}
-                                                                value={newValue.value}
-                                                                onChange={(e) => setNewValue({ ...newValue, value: e.target.value })}
-                                                                required
-                                                            />
-                                                        </div>
-                                                        <div className="form-group">
-                                                            <label>Description</label>
-                                                            <input
-                                                                type="text"
-                                                                placeholder="Enter description (optional)"
-                                                                value={newValue.description}
-                                                                onChange={(e) => setNewValue({ ...newValue, description: e.target.value })}
-                                                            />
-                                                        </div>
-                                                        <div className="form-actions">
-                                                            <button 
-                                                                type="submit" 
-                                                                className="btn btn-primary"
-                                                                disabled={loading}
-                                                            >
-                                                                <FontAwesomeIcon icon={faPlus} className="me-2" />
-                                                                Add Value
-                                                            </button>
-                                                            <button 
-                                                                type="button" 
-                                                                className="btn btn-secondary"
-                                                                onClick={() => setAddingValueToLevel(null)}
-                                                            >
-                                                                Cancel
-                                                            </button>
-                                                        </div>
-                                                    </form>
-                                                </div>
-                                            </div>
-                                        )}
-                                        
-                                        {/* Tree Children - Values */}
-                                        {isExpanded && (
-                                            <div className="values-container">
-                                                {levelValues.length > 0 ? (
-                                                    levelValues.map((value) => (
-                                                        <div key={value.id} className="value-item">
-                                                            <div className="value-content">
-                                                                <FontAwesomeIcon icon={faDotCircle} className="value-icon" />
-                                                                <div className="value-info">
-                                                                    <span className="value-name">{value.value}</span>
-                                                                    {value.description && (
-                                                                        <span className="value-description">{value.description}</span>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                            
-                                                            {isEditMode && (
-                                                                <div className="value-actions">
-                                                                    <button
-                                                                        className="btn btn-sm btn-outline-primary action-btn"
-                                                                        onClick={() => handleEditValue(value)}
-                                                                        title="Edit Value"
-                                                                    >
-                                                                        <FontAwesomeIcon icon={faEdit} />
-                                                                    </button>
-                                                                    <button
-                                                                        className="btn btn-sm btn-outline-danger action-btn"
-                                                                        onClick={() => handleDeleteValue(value.id)}
-                                                                        title="Delete Value"
-                                                                    >
-                                                                        <FontAwesomeIcon icon={faTrash} />
-                                                                    </button>
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                    ))
-                                                ) : (
-                                                    <div className="empty-values">
-                                                        <FontAwesomeIcon icon={faDotCircle} className="empty-icon" />
-                                                        <span>No values added yet</span>
-                                                    </div>
-                                                )}
-                                            </div>
+                                    </div>
+                                    <div className="value-actions">
+                                        {isEditMode && (
+                                            <>
+                                                <button className="btn btn-sm btn-outline-primary action-btn" onClick={() => handleEditValue({ ...value, hierarchy_level: level.id })} title="Edit Value">
+                                                    <FontAwesomeIcon icon={faEdit} />
+                                                </button>
+                                                <button className="btn btn-sm btn-outline-danger action-btn" onClick={() => handleDeleteValue(value.id)} title="Delete Value">
+                                                    <FontAwesomeIcon icon={faTrash} />
+                                                </button>
+                                            </>
                                         )}
                                     </div>
-                                );
-                            })}
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                    )}
+                    {/* Children (subfolders) */}
+                    {isExpanded && level.children && level.children.length > 0 && (
+                        <div className="children-container">
+                            {renderHierarchyTree(level.children, depth + 1)}
+                        </div>
+                    )}
                 </div>
-            </div>
-        );
-    };
+            );
+        })
+    );
 
     if (loading) {
         return (
@@ -653,7 +530,7 @@ const HierarchyManagement = () => {
                     <div className="error-icon">⚠️</div>
                     <h3>Error Loading Hierarchy</h3>
                     <p>{error}</p>
-                    <button className="btn btn-primary" onClick={fetchHierarchyLevels}>
+                    <button className="btn btn-primary" onClick={fetchTree}>
                         Try Again
                     </button>
                 </div>
@@ -663,7 +540,46 @@ const HierarchyManagement = () => {
 
     return (
         <div className="hierarchy-management">
-            {renderHierarchyLevels()}
+            {/* Edit Mode Toggle Button */}
+            <div className="d-flex justify-content-end mb-2">
+                <button
+                    className={`btn btn-${isEditMode ? 'secondary' : 'outline-secondary'}`}
+                    onClick={() => setIsEditMode((prev) => !prev)}
+                >
+                    <FontAwesomeIcon icon={faEdit} className="me-2" />
+                    {isEditMode ? 'Exit Edit Mode' : 'Edit Mode'}
+                </button>
+            </div>
+            <button
+                className="btn btn-primary mb-2"
+                onClick={() => {
+                    // Find the max order among root levels (parent === null)
+                    const rootOrders = tree.filter(l => !l.parent).map(l => l.order);
+                    const nextOrder = rootOrders.length > 0 ? Math.max(...rootOrders) + 1 : 1;
+                    setShowCreationForm(true);
+                    setNewLevel({ name: '', description: '', order: nextOrder, parent: null });
+                }}
+            >
+                <FontAwesomeIcon icon={faPlus} className="me-2" /> Add Root Level
+            </button>
+            {tree.length > 0 ? renderHierarchyTree(tree) : <div className="empty-state">
+                <div className="empty-state-icon">
+                    <FontAwesomeIcon icon={faLayerGroup} size="3x" />
+                </div>
+                <h3>No Hierarchy Levels Found</h3>
+                <p>Create your first hierarchy level to organize your structure.</p>
+                <button 
+                    className="btn btn-primary"
+                    onClick={() => {
+                        const defaultOrder = hierarchyLevels.length > 0 ? Math.max(...hierarchyLevels.map(l => l.order)) + 1 : 1;
+                        setNewLevel({ name: '', description: '', order: defaultOrder.toString() });
+                        setShowCreationForm(true);
+                    }}
+                >
+                    <FontAwesomeIcon icon={faPlus} className="me-2" />
+                    Create First Level
+                </button>
+            </div>}
 
             {/* Create Level Modal */}
             {showCreationForm && (
@@ -696,16 +612,6 @@ const HierarchyManagement = () => {
                                     placeholder="Enter description (optional)"
                                     value={newLevel.description}
                                     onChange={(e) => setNewLevel({ ...newLevel, description: e.target.value })}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Level Order</label>
-                                <input
-                                    type="number"
-                                    min="1"
-                                    placeholder={`Enter order (default: ${hierarchyLevels.length > 0 ? Math.max(...hierarchyLevels.map(l => l.order)) + 1 : 1})`}
-                                    value={newLevel.order}
-                                    onChange={(e) => setNewLevel({ ...newLevel, order: e.target.value })}
                                 />
                             </div>
                             <div className="form-actions">
@@ -745,8 +651,8 @@ const HierarchyManagement = () => {
                                 <input
                                     type="text"
                                     placeholder="Enter level name"
-                                    value={editLevelData.name}
-                                    onChange={(e) => setEditLevelData({ ...editLevelData, name: e.target.value })}
+                                    value={editValueData.value}
+                                    onChange={(e) => setEditValueData({ ...editValueData, value: e.target.value })}
                                     required
                                 />
                             </div>
@@ -755,18 +661,8 @@ const HierarchyManagement = () => {
                                 <input
                                     type="text"
                                     placeholder="Enter description (optional)"
-                                    value={editLevelData.description}
-                                    onChange={(e) => setEditLevelData({ ...editLevelData, description: e.target.value })}
-                                />
-                            </div>
-                            <div className="form-group">
-                                <label>Level Order</label>
-                                <input
-                                    type="number"
-                                    min="1"
-                                    placeholder="Enter order"
-                                    value={editLevelData.order}
-                                    onChange={(e) => setEditLevelData({ ...editLevelData, order: e.target.value })}
+                                    value={editValueData.description}
+                                    onChange={(e) => setEditValueData({ ...editValueData, description: e.target.value })}
                                 />
                             </div>
                             <div className="form-actions">

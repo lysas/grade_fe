@@ -43,6 +43,8 @@ const Correct = () => {
   const [questions, setQuestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [unsavedRows, setUnsavedRows] = useState([]);
+  const [submitError, setSubmitError] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -108,12 +110,13 @@ const Correct = () => {
     setQuestions((prevQuestions) =>
       prevQuestions.map((q, i) => {
         if (i === index) {
-          if (field === "marksObtained" && value > q.marksOutOf) {
-            return {
-              ...q,
-              [field]: value,
-              error: "Marks obtained cannot exceed maximum marks.",
-            };
+          if (field === "marksObtained") {
+            const marks = parseFloat(value);
+            if (!isNaN(marks) && marks > q.marksOutOf) {
+              return { ...q, [field]: q.marksOutOf, error: "" };
+            } else {
+              return { ...q, [field]: value, error: "" };
+            }
           } else {
             return { ...q, [field]: value, error: "" };
           }
@@ -160,6 +163,10 @@ const Correct = () => {
       setQuestions((prevQuestions) =>
         prevQuestions.map((q, i) => (i === index ? { ...q, saved: true } : q))
       );
+      setUnsavedRows((prev) => prev.filter((rowIndex) => rowIndex !== index));
+      if (unsavedRows.length === 1 && unsavedRows[0] === index) {
+        setSubmitError("");
+      }
 
       alert("Feedback saved successfully.");
     } catch (error) {
@@ -175,10 +182,17 @@ const Correct = () => {
   };
 
   const handleSubmitAllFeedback = async () => {
-    if (questions.some((q) => !q.saved)) {
-      alert("All questions must have feedback saved before submitting.");
+    const unsaved = questions
+      .map((q, index) => (q.saved ? -1 : index))
+      .filter((index) => index !== -1);
+
+    if (unsaved.length > 0) {
+      setUnsavedRows(unsaved);
+      setSubmitError("Please save feedback for all questions before submitting.");
       return;
     }
+    setSubmitError("");
+    setUnsavedRows([]);
 
     try {
       const payload = {
@@ -191,8 +205,6 @@ const Correct = () => {
         "http://127.0.0.1:8000/api/grade/save_feedback/",
         payload
       );
-
-
 
       alert("Feedback submitted successfully!");
     } catch (error) {
@@ -262,6 +274,11 @@ const Correct = () => {
                 Total Marks: {totalMarksObtained} / {totalMarks}
               </div>
             </div>
+            {submitError && (
+              <div className="error-message" style={{ color: "red" }}>
+                {submitError}
+              </div>
+            )}
 
             <div className="feedback-container">
               <table className="feedback-table">
@@ -277,7 +294,12 @@ const Correct = () => {
                 </thead>
                 <tbody>
                   {questions.map((q, index) => (
-                    <tr key={q.questionNumber}>
+                    <tr
+                      key={q.questionNumber}
+                      className={
+                        unsavedRows.includes(index) ? "unsaved-row" : ""
+                      }
+                    >
                       <td className="marks-column">{q.questionNumber}</td>
                       <td className="marks-column">{q.marksOutOf}</td>
                       <td className="marks-column">

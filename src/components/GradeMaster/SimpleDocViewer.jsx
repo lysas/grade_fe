@@ -12,7 +12,7 @@ const SimpleDocViewer = ({ fileUrl, fileType }) => {
 
   if (fileType === 'pdf') {
     return (
-      <div style={{ height: '500px' }}>
+      <div style={{ height: '100%', width: '100%' }}>
         <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
           <Viewer
             fileUrl={fileUrl}

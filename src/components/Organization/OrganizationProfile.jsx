@@ -1,152 +1,92 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 import './Organization.css';
+
+axios.defaults.baseURL = 'http://localhost:8000'; // Or use your env variable
 
 const OrganizationProfile = () => {
     const navigate = useNavigate();
-    const [isEditing, setIsEditing] = useState(false);
+    const [organization, setOrganization] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [organization, setOrganization] = useState({
-        id: '',
-        name: '',
-        email: '',
-        status: true
+
+    // Helper to get auth header
+    const getAuthHeader = () => ({
+        headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
     });
 
+    // Fetch organization profile on mount
     useEffect(() => {
-        // Get organization details from localStorage
-        const orgData = localStorage.getItem('organization');
-        if (orgData) {
-            setOrganization(JSON.parse(orgData));
-        }
-    }, []);
-
-    const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setOrganization(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-
-        try {
-            const token = localStorage.getItem('access_token');
-            const response = await axios.put(
-                `${process.env.REACT_APP_API_URL}/api/organization/profile/`,
-                organization,
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
-                    }
+        const fetchProfile = async () => {
+            try {
+                setLoading(true);
+                const response = await axios.get('/api/organization/profile/', getAuthHeader());
+                setOrganization(response.data); // If your backend wraps in {status, data}, use response.data.data
+            } catch (error) {
+                toast.error(error.response?.data?.detail || 'Failed to fetch organization profile');
+                if (error.response?.status === 401) {
+                    navigate('/organization-login');
                 }
-            );
-
-            if (response.data) {
-                // Update localStorage with new data
-                localStorage.setItem('organization', JSON.stringify(response.data));
-                setOrganization(response.data);
-                setIsEditing(false);
-                toast.success('Profile updated successfully!');
+            } finally {
+                setLoading(false);
             }
-        } catch (error) {
-            console.error('Error updating profile:', error);
-            toast.error(error.response?.data?.detail || 'Failed to update profile');
-        } finally {
-            setLoading(false);
-        }
-    };
+        };
+        fetchProfile();
+    }, [navigate]);
 
+    // Logout
     const handleLogout = () => {
-        // Clear all organization-related data from localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('refreshToken');
         localStorage.removeItem('organization');
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        
-        // Show success message
         toast.success('Logged out successfully');
-        
-        // Redirect to organization login page
         navigate('/organization-login');
     };
 
+    if (loading || !organization) {
+        return <div className="org-profile-loading">Loading...</div>;
+    }
+
     return (
-        <div className="organization-profile-container">
+        <div className="organization-profile-container improved-ui">
             <div className="profile-header">
                 <h2>Organization Profile</h2>
-                <button 
-                    className="edit-button"
-                    onClick={() => setIsEditing(!isEditing)}
-                >
-                    {isEditing ? 'Cancel' : 'Edit Profile'}
-                </button>
             </div>
-
-            <form onSubmit={handleSubmit} className="profile-form">
-                <div className="form-group">
-                    <label>Organization ID</label>
-                    <input
-                        type="text"
-                        value={organization.id}
-                        disabled={true}
-                    />
+            <div className="org-profile-card">
+                <div className="org-profile-row">
+                    <span className="org-profile-label">ID:</span>
+                    <span className="org-profile-value">{organization.id || '-'}</span>
                 </div>
-
-                <div className="form-group">
-                    <label>Organization Name</label>
-                    <input
-                        type="text"
-                        name="name"
-                        value={organization.name}
-                        onChange={handleInputChange}
-                        disabled={!isEditing}
-                        required
-                    />
+                <div className="org-profile-row">
+                    <span className="org-profile-label">Name:</span>
+                    <span className="org-profile-value">{organization.name || '-'}</span>
                 </div>
-
-                <div className="form-group">
-                    <label>Email</label>
-                    <input
-                        type="email"
-                        name="email"
-                        value={organization.email}
-                        disabled={true}
-                    />
+                <div className="org-profile-row">
+                    <span className="org-profile-label">Email:</span>
+                    <span className="org-profile-value">{organization.email || '-'}</span>
                 </div>
-
-                <div className="form-group">
-                    <label>Status</label>
-                    <div className="status-badge">
-                        <span className={`status-indicator ${organization.status ? 'active' : 'inactive'}`}>
-                            {organization.status ? 'Active' : 'Inactive'}
-                        </span>
-                    </div>
+                <div className="org-profile-row">
+                    <span className="org-profile-label">Status:</span>
+                    <span className={`org-profile-status ${organization.status ? 'active' : 'inactive'}`}>{organization.status ? 'Active' : 'Inactive'}</span>
                 </div>
-
-                {isEditing && (
-                    <div className="form-actions">
-                        <button 
-                            type="submit" 
-                            className="save-button"
-                            disabled={loading}
-                        >
-                            {loading ? 'Saving...' : 'Save Changes'}
-                        </button>
-                    </div>
-                )}
-            </form>
-
+                <div className="org-profile-row">
+                    <span className="org-profile-label">Address:</span>
+                    <span className="org-profile-value">{organization.address || '-'}</span>
+                </div>
+                <div className="org-profile-row">
+                    <span className="org-profile-label">Phone Number:</span>
+                    <span className="org-profile-value">{organization.phone_number || '-'}</span>
+                </div>
+                <div className="org-profile-row">
+                    <span className="org-profile-label">Description:</span>
+                    <span className="org-profile-value">{organization.description || '-'}</span>
+                </div>
+            </div>
             <div className="profile-footer">
-                <button 
-                    className="logout-button"
-                    onClick={handleLogout}
-                >
+                <button className="logout-button" onClick={handleLogout}>
                     <i className="fas fa-sign-out-alt"></i> Logout
                 </button>
             </div>
