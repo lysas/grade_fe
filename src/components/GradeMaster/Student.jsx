@@ -361,16 +361,32 @@ const Student = () => {
     });
   };
 
-  const handleViewPaper = (file, questionPaperType = questionPaperType) => {
+  const handleViewPaper = (file, qType = questionPaperType) => {
+    console.log('handleViewPaper called with:', { file, questionPaperType: qType });
     if (!file) {
       console.error("No file provided");
       return;
     }
 
+    // If file is already a full URL, use it directly
+    if (file.startsWith('http://') || file.startsWith('https://')) {
+      console.log('Opening full URL:', file);
+      window.open(file, "_blank");
+      return;
+    }
+
+    // If file is a /media/ path, prepend the host
+    if (file.startsWith('/media/')) {
+      const url = `http://127.0.0.1:8000${file}`;
+      console.log('Opening /media/ URL:', url);
+      window.open(url, "_blank");
+      return;
+    }
+
+    // Otherwise, construct the path as before
     const basePath = "http://127.0.0.1:8000/media/question_papers/";
     let folder;
-    
-    switch (questionPaperType) {
+    switch (qType) {
       case "sample":
         folder = "sample";
         break;
@@ -386,10 +402,9 @@ const Student = () => {
       default:
         folder = "qp_uploader";
     }
-    
     const fileName = file.split("/").pop();
     const url = `${basePath}${folder}/${fileName}`;
-    console.log("Opening question paper URL:", url);
+    console.log("Opening constructed question paper URL:", url);
     window.open(url, "_blank");
   };
 
