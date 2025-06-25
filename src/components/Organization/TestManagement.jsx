@@ -567,7 +567,7 @@ const TestManagement = () => {
                             <div className="d-flex gap-2 justify-content-center">
                               <button 
                                 className="btn btn-info btn-sm"
-                                onClick={() => navigate(`/organization/test/${row.id}/assign`)}
+                                onClick={() => navigate(handleOpenAssignModal(row)  )}
                               >
                                 <i className="fas fa-users"></i> Add Students
                               </button>

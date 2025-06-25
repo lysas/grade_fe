@@ -252,6 +252,7 @@ const Evaluator = () => {
                 <th>Board</th>
                 <th>Download Answer</th>
                 <th>Status</th>
+                <th>Time Left</th>
               </tr>
             </thead>
             <tbody>
@@ -262,37 +263,56 @@ const Evaluator = () => {
                   </td>
                 </tr>
               ) : (
-                filteredAnswers.map((answer) => (
-                  <tr key={answer.id}>
-                    <td>
-                      <button
-                        className="viewButton"
-                        onClick={() => handleViewPaper(answer.question_paper_file)}
-                      >
-                        {answer.qp_title}
-                      </button>
-                    </td>
-                    <td>{answer.total_marks}</td>
-                    <td>{answer.subject}</td>
-                    <td>{answer.board}</td>
-                    <td>
-                      <button
-                        className="downloadButton"
-                        onClick={() => handleDownloadAnswer(answer.answer_file)}
-                      >
-                        Download
-                      </button>
-                    </td>
-                    <td>
-                      <button
-                        className="actionButton"
-                        onClick={() => handleCorrect(answer)}
-                      >
-                        Correct
-                      </button>
-                    </td>
-                  </tr>
-                ))
+                filteredAnswers.map((answer) => {
+                  // Calculate remaining time (3 days from assigned_date)
+                  let timeLeft = '';
+                  if (answer.assigned_date) {
+                    const assigned = new Date(answer.assigned_date.replace(' ', 'T'));
+                    const now = new Date();
+                    const deadline = new Date(assigned.getTime() + 3 * 24 * 60 * 60 * 1000);
+                    const diff = deadline - now;
+                    if (diff > 0) {
+                      const days = Math.floor(diff / (24 * 60 * 60 * 1000));
+                      const hours = Math.floor((diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
+                      const minutes = Math.floor((diff % (60 * 60 * 1000)) / (60 * 1000));
+                      timeLeft = `${days}d ${hours}h ${minutes}m`;
+                    } else {
+                      timeLeft = 'Expired';
+                    }
+                  }
+                  return (
+                    <tr key={answer.id}>
+                      <td>
+                        <button
+                          className="viewButton"
+                          onClick={() => handleViewPaper(answer.question_paper_file)}
+                        >
+                          {answer.qp_title}
+                        </button>
+                      </td>
+                      <td>{answer.total_marks}</td>
+                      <td>{answer.subject}</td>
+                      <td>{answer.board}</td>
+                      <td>
+                        <button
+                          className="downloadButton"
+                          onClick={() => handleDownloadAnswer(answer.answer_file)}
+                        >
+                          Download
+                        </button>
+                      </td>
+                      <td>
+                        <button
+                          className="actionButton"
+                          onClick={() => handleCorrect(answer)}
+                        >
+                          Correct
+                        </button>
+                      </td>
+                      <td>{timeLeft}</td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
