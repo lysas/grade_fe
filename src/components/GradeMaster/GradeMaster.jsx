@@ -24,15 +24,15 @@ const GradeMaster = () => {
   const user = authService.getCurrentUser();
   const activeRole = localStorage.getItem('activeRole');
 
-  // Get user data from localStorage
-  const userData = {
+  // Use state for userData
+  const [userData, setUserData] = useState({
     id: user?.id,
     email: user?.email,
     role: activeRole,
     roles: user?.roles || [],
     is_allowed: user?.is_allowed,
     is_profile_completed: user?.is_profile_completed,
-  };
+  });
 
   // Check if user has all roles
   const allRoles = ['student', 'mentor', 'qp_uploader', 'evaluator'];
@@ -89,7 +89,15 @@ const GradeMaster = () => {
         // Update localStorage with new user data
         localStorage.setItem('activeRole', selectedRoles[0]);
         localStorage.setItem('user', JSON.stringify(data.user));
-        
+        // Update userData state
+        setUserData({
+          id: data.user?.id,
+          email: data.user?.email,
+          role: selectedRoles[0],
+          roles: data.user?.roles || [],
+          is_allowed: data.user?.is_allowed,
+          is_profile_completed: data.user?.is_profile_completed,
+        });
         // Exit role selection mode and show main dashboard
         setIsRoleSelectionMode(false);
         setInitialLoad(false);
@@ -126,7 +134,6 @@ const GradeMaster = () => {
     try {
       // Get only the newly selected roles (roles that weren't in userData.roles)
       const newRoles = selectedRoles.filter(role => !userData.roles.includes(role));
-      
       // Add each new role one by one
       for (const newRole of newRoles) {
         const response = await fetch('http://127.0.0.1:8000/api/add_role/', {
@@ -140,7 +147,6 @@ const GradeMaster = () => {
             new_role: newRole
           })
         });
-
         if (!response.ok) {
           const errorData = await response.json();
           if (errorData.message === "Role already assigned.") {
@@ -149,19 +155,21 @@ const GradeMaster = () => {
           throw new Error(errorData.error || 'Failed to add role');
         }
       }
-
       // Update local user data with new roles
       const updatedUser = {
         ...user,
         roles: [...userData.roles, ...newRoles]
       };
       localStorage.setItem('user', JSON.stringify(updatedUser));
-      
+      // Update userData state
+      setUserData(prev => ({
+        ...prev,
+        roles: [...prev.roles, ...newRoles]
+      }));
       // Exit role selection mode
       setIsRoleSelectionMode(false);
       setShowAddRoleButton(false);
-      // Refresh the page to show updated roles
-      window.location.reload();
+      // No need to refresh the page, UI will update
     } catch (error) {
       setError(error.message || 'Network error. Please try again.');
     } finally {
