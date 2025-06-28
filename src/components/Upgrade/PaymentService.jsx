@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { authService } from '../Authentication/authService';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
@@ -25,31 +26,29 @@ api.interceptors.request.use(
 export const PaymentService = {
   getUserCredits: async () => {
     try {
-      const response = await api.get('/api/user/credits/');
+      const response = await authService.handleRequest('/api/user/credits/', 'GET');
       return {
-        free_credit: parseFloat(response.data.free_credit) || 0,
-        paid_credit: parseFloat(response.data.paid_credit) || 0,
-        total_credit: parseFloat(response.data.total_credit) || 0,
+        free_credit: parseFloat(response.free_credit) || 0,
+        paid_credit: parseFloat(response.paid_credit) || 0,
+        total_credit: parseFloat(response.total_credit) || 0,
       };
     } catch (error) {
       console.error('Failed to load credit balance:', error);
-      throw new Error(error.response?.data?.detail || 'Failed to load credit balance');
+      throw new Error(error.message || 'Failed to load credit balance');
     }
   },
 
   createRazorpayOrder: async (amount, currency = 'INR') => {
     try {
-      const response = await api.post('/api/payments/create-order/', { 
+      const response = await authService.handleRequest('/api/payments/create-order/', 'POST', {
         amount: parseFloat(amount),
-        currency 
+        currency
       });
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Failed to create payment order:', error);
       throw new Error(
-        error.response?.data?.error || 
-        error.response?.data?.detail || 
-        'Failed to create payment order'
+        error.message || 'Failed to create payment order'
       );
     }
   },

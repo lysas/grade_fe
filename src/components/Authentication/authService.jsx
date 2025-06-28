@@ -197,16 +197,19 @@ export const authService = {
   //   }
   // },
   // In authService.js
-register: async (email, username, password, password2, roles) => {
+register: async (email, username, password, password2, rolesObj) => {
   try {
+    // rolesObj: { student: true, evaluator: false, ... }
     const response = await handleRequest('/api/signup/', 'POST', {
       email: email.toLowerCase(),
       username,
       password,
       password2,
-      roles
+      is_student: rolesObj.student,
+      is_evaluator: rolesObj.evaluator,
+      is_qp_uploader: rolesObj.qp_uploader,
+      is_mentor: rolesObj.mentor
     });
-
     return response; // Just return the response without storing tokens
   } catch (error) {
     console.error('Registration error:', error);
@@ -241,14 +244,13 @@ verifyOtp: async (email, otp) => {
     }
   },
 
-  login: async (email, password,role) => {
+  login: async (email, password, role) => {
     try {
       const response = await handleRequest('/api/login/', 'POST', { 
         email: email.toLowerCase(), 
         password,
         role
       });
-
       if (response && response.user) {
         localStorage.setItem('token', response.tokens?.access);
         localStorage.setItem('refreshToken', response.tokens?.refresh);
@@ -256,7 +258,11 @@ verifyOtp: async (email, otp) => {
         localStorage.setItem('isLoggedIn', 'true');
         localStorage.setItem('activeRole', response.user.active_role); // Store active role
         localStorage.setItem('is_profile_completed', response.user.is_profile_completed); // Store profile completion status
-        localStorage.setItem('roles', response.user.roles); // Store is_allowed status
+        // Store booleans for roles
+        localStorage.setItem('is_student', response.user.is_student);
+        localStorage.setItem('is_evaluator', response.user.is_evaluator);
+        localStorage.setItem('is_qp_uploader', response.user.is_qp_uploader);
+        localStorage.setItem('is_mentor', response.user.is_mentor);
         userCache = response.user; // Cache the user object on login
         return response;
       }
@@ -318,18 +324,20 @@ verifyOtp: async (email, otp) => {
   },
 
   getCurrentUser: () => {
-    if (userCache) {
-      return userCache; // Return cached user if available
-    }
+    if (userCache) return userCache;
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return null;
     try {
-      const user = localStorage.getItem('user');
-      if (user) {
-        userCache = JSON.parse(user);
-        return userCache;
-      }
-      return null;
-    } catch (error) {
-      console.error('Error parsing user data:', error);
+      const user = JSON.parse(userStr);
+      // Ensure all role booleans are present and default to false if missing
+      return {
+        ...user,
+        is_student: !!user.is_student,
+        is_evaluator: !!user.is_evaluator,
+        is_qp_uploader: !!user.is_qp_uploader,
+        is_mentor: !!user.is_mentor,
+      };
+    } catch (e) {
       return null;
     }
   },

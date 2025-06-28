@@ -40,7 +40,10 @@ function Profile() {
             email: storedUser.email,
             username: storedUser.username,
             full_name: storedUser.full_name || storedUser.username,
-            role: activeRole,
+            is_student: storedUser.is_student,
+            is_evaluator: storedUser.is_evaluator,
+            is_qp_uploader: storedUser.is_qp_uploader,
+            is_mentor: storedUser.is_mentor,
           });
           
           await loadUserCredits();
@@ -125,7 +128,13 @@ function Profile() {
                 <h2>{userData.full_name}</h2>
                 <p className="profile-email">{userData.email}</p>
                 <p className="profile-id">User ID: {userData.id}</p>
-                <p className="profile-email">Role: {userData.role}</p>
+                <p className="profile-email">Roles: {
+                  [userData.is_student && 'Student',
+                   userData.is_evaluator && 'Evaluator',
+                   userData.is_qp_uploader && 'QP Uploader',
+                   userData.is_mentor && 'Mentor']
+                    .filter(Boolean).join(', ') || 'None'
+                }</p>
               </div>
             </div>
 

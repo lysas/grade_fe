@@ -20,15 +20,19 @@ const Admin = () => {
   const [isEditing, setIsEditing] = useState(false);
   const user = authService.getCurrentUser();
   const [selectedRole, setSelectedRole] = useState(localStorage.getItem("activeRole"));
-  let allRoles = [];
-  try {
-    allRoles = JSON.parse(localStorage.getItem("roles") || "[]");
-  } catch (e) {
-    allRoles = localStorage.getItem("roles")?.split(",") || [];
-  }
+  // Use boolean fields for roles
+  const isStudent = !!user?.is_student;
+  const isEvaluator = !!user?.is_evaluator;
+  const isQPUploader = !!user?.is_qp_uploader;
+  const isMentor = !!user?.is_mentor;
+  const userRoles = [
+    isStudent && 'student',
+    isEvaluator && 'evaluator',
+    isQPUploader && 'qp_uploader',
+    isMentor && 'mentor'
+  ].filter(Boolean);
   const handleFileChange = (e) => setFile(e.target.files[0]);
   const [isAddingRole, setIsAddingRole] = useState(false);
-  const userRoles = ['qp_uploader', 'evaluator', 'student', 'mentor'];
   const [selectedNewRole, setSelectedNewRole] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isProfileCompleted = localStorage.getItem("is_profile_completed") === "true";
@@ -134,8 +138,6 @@ const Admin = () => {
   };
 
   const handleEachQuestion = () => navigate("/grade-master/upload-each-question");
-
-  const availableRoles = userRoles.filter((role) => !allRoles.includes(role));
 
   const handleNewRoleChange = (newRole) => setSelectedNewRole(newRole);
   

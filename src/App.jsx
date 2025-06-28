@@ -1,8 +1,10 @@
 import { Routes, Route, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { AppContext } from "./components/AppContext";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import LoadingFallback from "./components/LoadingFallback";
+import ErrorBoundary from "./components/ErrorBoundary";
 // Component imports
 import EntityRecognizer from "./components/EntityRecognizer";
 import EmailWriterPage from "./components/EmailWriterPage";
@@ -122,9 +124,10 @@ const App = () => {
   }, []);
 
   return (
-    <NotificationProvider>
-      <GoogleOAuthProvider clientId={clientId}>
-        <div className="app-container">
+    <ErrorBoundary>
+      <NotificationProvider>
+        <GoogleOAuthProvider clientId={clientId}>
+          <div className="app-container">
           <GlobalNotification />
           <ToastContainer position="top-right" autoClose={3000} />
         
@@ -139,7 +142,8 @@ const App = () => {
             }}>
               {/* Main Content */}
               <div className="content-area">
-                <Routes>
+                <Suspense fallback={<LoadingFallback />}>
+                  <Routes>
                   <Route path="/" element={<Home />} />
                   <Route path="/entity" element={<EntityRecognizer />} />
                   <Route path="/easywithai" element={<EasyWithAI />} />
@@ -206,7 +210,8 @@ const App = () => {
                   {(user?.is_admin || (user?.roles && user.roles.includes('admin'))) && (
                     <Route path="/admin-dashboard" element={<AdminDashboard />} />
                   )}
-                </Routes>
+                  </Routes>
+                </Suspense>
               </div>
 
               {/* Right Sidebar - only show if not on special routes and not on profile page */}
@@ -230,6 +235,7 @@ const App = () => {
         </div>
       </GoogleOAuthProvider>
     </NotificationProvider>
+  </ErrorBoundary>
   );
 };
 

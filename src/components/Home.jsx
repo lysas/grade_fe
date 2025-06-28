@@ -17,12 +17,14 @@ import {
   faChartLine,
   faChartBar,
   faChartPie,
-  faCoins
+  faCoins,
+  faUserTie
 } from '@fortawesome/free-solid-svg-icons';
 import { authService } from './Authentication/authService.jsx';
 import StatStudent from './GradeMaster/StatStudent';
 import StatEvaluator from './GradeMaster/StatEvaluators';
 import StatAdmin from './GradeMaster/StatAdmin';
+import Mentor from './GradeMaster/Mentor';
 import { PaymentService } from './Upgrade/PaymentService';
 import gsap from 'gsap';
 import { toast } from "react-toastify";
@@ -37,6 +39,7 @@ const Home = () => {
     loading: true,
   });
   const [programmingQuestions, setProgrammingQuestions] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,40 +54,82 @@ const Home = () => {
 
     const fetchCredits = async () => {
       try {
-        const data = await PaymentService.getUserCredits();
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Request timeout')), 5000)
+        );
+        
+        const data = await Promise.race([
+          PaymentService.getUserCredits(),
+          timeoutPromise
+        ]);
+        
         setCredits({
           total_credit: parseFloat(data.total_credit) || 0,
           loading: false,
         });
       } catch (error) {
-        toast.error(error.message || 'Failed to load credit balance');
-        setCredits(prev => ({ ...prev, loading: false }));
+        console.error('Credit fetch error:', error);
+        setCredits({ total_credit: 0, loading: false });
       }
     };
 
     const fetchProgrammingQuestions = async () => {
       try {
-        const response = await fetch('http://localhost:8000/api/questions/');
-        const data = await response.json();
-        setProgrammingQuestions(data);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 3000);
+        
+        const response = await fetch('http://localhost:8000/api/questions/', {
+          signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (response.ok) {
+          const data = await response.json();
+          setProgrammingQuestions(Array.isArray(data) ? data : []);
+        } else {
+          setProgrammingQuestions([]);
+        }
       } catch (error) {
         console.error('Error fetching programming questions:', error);
+        setProgrammingQuestions([]);
       }
     };
 
-    if (currentUser) {
-      fetchCredits();
-      fetchProgrammingQuestions();
-    } else {
-      setCredits({ total_credit: 0, loading: false });
-      setProgrammingQuestions([]);
-    }
+    const loadData = async () => {
+      if (currentUser) {
+        await Promise.all([
+          fetchCredits(),
+          fetchProgrammingQuestions()
+        ]);
+      } else {
+        setCredits({ total_credit: 0, loading: false });
+        setProgrammingQuestions([]);
+      }
+      setIsLoading(false);
+    };
+    
+    loadData();
 
   }, [currentUser]);
 
   const handleProgrammingClick = () => {
     navigate('/programming');
   };
+
+  if (isLoading) {
+    return (
+      <div className="home-root">
+        <div className="service-item p-4 text-center">
+          <div className="service-icon">
+            <FontAwesomeIcon icon={faQuestionCircle} />
+          </div>
+          <h5>Loading...</h5>
+          <p>Please wait</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!currentUser) {
     return (
@@ -101,7 +146,11 @@ const Home = () => {
   }
 
   const userName = currentUser?.username || currentUser?.email || "User";
-  const userRoles = Array.isArray(currentUser.roles) ? currentUser.roles : currentUser.roles?.split(',') || [];
+  // Use boolean fields for roles
+  const isStudent = !!currentUser.is_student;
+  const isEvaluator = !!currentUser.is_evaluator;
+  const isQPUploader = !!currentUser.is_qp_uploader;
+  const isMentor = !!currentUser.is_mentor;
 
   const toggleSection = (roleKey) => {
     setExpandedSections(prevState => ({
@@ -111,7 +160,7 @@ const Home = () => {
   };
 
   const renderStatisticsSections = () => {
-    if (!userRoles || userRoles.length === 0) {
+    if (!isStudent && !isEvaluator && !isQPUploader && !isMentor) {
       return (
         <div className="row g-4">
           <div className="col-sm-6 col-lg-3">
@@ -135,24 +184,34 @@ const Home = () => {
         component: <StatStudent />, 
         title: 'Student Statistics',
         icon: faGraduationCap,
-        color: '#457ef1'
+        color: '#457ef1',
+        show: isStudent
       },
       'evaluator': { 
         component: <StatEvaluator />, 
         title: 'Evaluator Statistics',
         icon: faChalkboardTeacher,
-        color: '#fba452'
+        color: '#fba452',
+        show: isEvaluator
       },
       'qp_uploader': { 
         component: <StatAdmin />, 
         title: 'Admin Statistics',
         icon: faUserShield,
-        color: '#2d5bb8'
+        color: '#2d5bb8',
+        show: isQPUploader
       },
+      'mentor': {
+        component: <Mentor />, 
+        title: 'Mentor Statistics',
+        icon: faUserTie,
+        color: '#4caf50',
+        show: isMentor
+      }
     };
 
     Object.keys(roleMap).forEach(roleKey => {
-      if (userRoles.some(role => role.toLowerCase() === roleKey.toLowerCase())) {
+      if (roleMap[roleKey].show) {
         const isExpanded = !!expandedSections[roleKey];
         const { icon, color } = roleMap[roleKey];
         
@@ -245,7 +304,7 @@ const Home = () => {
         )}
   
         {/* Student Statistics - Conditional */}
-        {userRoles.some(role => role.toLowerCase() === 'student') && (
+        {isStudent && (
           <div className="col-sm-6 col-lg-3">
             <div className="service-item p-4 text-center" onClick={() => toggleSection('student')}>
               <div className="service-icon">
@@ -258,7 +317,7 @@ const Home = () => {
         )}
   
         {/* Evaluator Statistics - Conditional */}
-        {userRoles.some(role => role.toLowerCase() === 'evaluator') && (
+        {isEvaluator && (
           <div className="col-sm-6 col-lg-3">
             <div className="service-item p-4 text-center" onClick={() => toggleSection('evaluator')}>
               <div className="service-icon">
@@ -271,7 +330,7 @@ const Home = () => {
         )}
   
         {/* Admin Statistics - Conditional */}
-        {userRoles.some(role => role.toLowerCase() === 'qp_uploader') && (
+        {isQPUploader && (
           <div className="col-sm-6 col-lg-3">
             <div className="service-item p-4 text-center" onClick={() => toggleSection('qp_uploader')}>
               <div className="service-icon">
@@ -282,24 +341,20 @@ const Home = () => {
             </div>
           </div>
         )}
-      </div>
-  
-      {/* Statistics sections content */}
-      {Object.keys(expandedSections).map(roleKey => {
-        if (expandedSections[roleKey]) {
-          const roleMap = {
-            'student': <StatStudent />,
-            'evaluator': <StatEvaluator />,
-            'qp_uploader': <StatAdmin />
-          };
-          return (
-            <div key={`content-${roleKey}`} className="section-content mt-4">
-              {roleMap[roleKey]}
+        {/* Mentor Statistics - Conditional */}
+        {isMentor && (
+          <div className="col-sm-6 col-lg-3">
+            <div className="service-item p-4 text-center" onClick={() => toggleSection('mentor')}>
+              <div className="service-icon">
+                <FontAwesomeIcon icon={faUserTie} style={{ color: '#4caf50' }} />
+              </div>
+              <h5>Mentor Statistics</h5>
+              <p>Click to {expandedSections['mentor'] ? 'hide' : 'show'} statistics</p>
             </div>
-          );
-        }
-        return null;
-      })}
+          </div>
+        )}
+      </div>
+      {renderStatisticsSections()}
     </div>
   );
 };

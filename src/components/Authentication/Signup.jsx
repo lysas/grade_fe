@@ -81,7 +81,8 @@ const Signup = ({ onSwitchForm }) => {
         email.toLowerCase(),
         username,
         password,
-        confirmPassword
+        confirmPassword,
+        { student: true, evaluator: false, qp_uploader: false, mentor: false } // minimal fix: default to student
       );
       
       setRegisteredEmail(email.toLowerCase());
